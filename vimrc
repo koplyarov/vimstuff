@@ -105,6 +105,11 @@ command! -nargs=1 -complete=file NewFile call DoNewFile("<args>")
 command! -nargs=1 -complete=tag Search call DoSearch('<args>')
 
 au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp call InitCppHotKeys()
+
+"if exists('*pathogen#infect')
+	call pathogen#infect()
+"end
+
 if exists('*ResetSnippets')
 	au BufRead,BufNewFile *h,*hpp,*.c,*.cpp call ResetSnippets('cpp') | call ResetSnippets('c') | call ExtractSnipsFile('/home/koplyarov/.vim/my-snippets/cpp.snippets', 'cpp') | call ExtractSnipsFile('/home/koplyarov/.vim/my-snippets/c.snippets', 'cpp')
 endif
