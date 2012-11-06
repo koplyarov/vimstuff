@@ -1,7 +1,7 @@
-diff --git a/plugin/clang_complete.vim b/plugin/clang_complete.vim
+diff --git a/pathogen_bundle/clang_complete/plugin/clang_complete.vim b/pathogen_bundle/clang_complete/plugin/clang_complete.vim
 index 363f98c..749c219 100644
---- a/plugin/clang_complete.vim
-+++ b/plugin/clang_complete.vim
+--- a/pathogen_bundle/clang_complete/plugin/clang_complete.vim
++++ b/pathogen_bundle/clang_complete/plugin/clang_complete.vim
 @@ -422,6 +422,14 @@ let b:col = 0
  
  function! s:ClangCompleteBinary(base)

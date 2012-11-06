@@ -42,17 +42,26 @@ RemoveIfEmpty() {
 }
 
 if [ "x$1" = "x--remove" ]; then
+	patch --no-backup --reject-file=- -f -R -p1 < clang_complete.patch
+	if [ $? -ne 0 ]; then
+		Log "WARNING: Could not patch clang_complete"
+	fi
+
 	Try ClearLink $SCRIPT_DIR/pathogen_bundle $VIM_DIR/bundle
 	Try ClearLink $SCRIPT_DIR/pathogen/autoload/pathogen.vim $VIM_DIR/autoload/pathogen.vim
 	Try ClearLink $SCRIPT_DIR/my-snippets $VIM_DIR/my-snippets
+
 	Try RemoveIfEmpty "$VIM_DIR/autoload"
 else
-	Try ln -s $SCRIPT_DIR/pathogen_bundle $VIM_DIR/bundle
 	if [ ! -e $VIM_DIR/autoload ]; then
 		Try mkdir $VIM_DIR/autoload
 	fi
+
+	Try ln -s $SCRIPT_DIR/pathogen_bundle $VIM_DIR/bundle
 	Try ln -s $SCRIPT_DIR/pathogen/autoload/pathogen.vim $VIM_DIR/autoload/
 	Try ln -s $SCRIPT_DIR/my-snippets $VIM_DIR/my-snippets
+
+	Try patch -p1 < clang_complete.patch
 
 	Log "Add 'source $SCRIPT_DIR/vimrc' to your $HOME/.vimrc file"
 fi
