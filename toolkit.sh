@@ -49,7 +49,7 @@ Log() {
 			;;
 		esac
 
-		echo -e $COL_MAGENTA"{vimstuff setup}"$MSGCOLOR"$LOGLEVEL"$COL_RESET "$*" >&2
+		echo -e $COL_MAGENTA"{vimstuff setup} "$MSGCOLOR"$LOGLEVEL"$COL_RESET "$*" >&2
 	fi
 }
 
