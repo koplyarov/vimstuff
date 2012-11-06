@@ -32,6 +32,9 @@ else
 		Try ClearLink "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
 
 		Try RemoveIfEmpty "$VIM_DIR/autoload"
+
+		Log "$DELIM"
+		Log "vimstuff removed!"
 		;;
 	*)
 		Fail "usage: $SCRIPT_NAME [--remove]"
