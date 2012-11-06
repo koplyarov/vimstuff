@@ -40,7 +40,7 @@ endf
 
 if exists('g:createCodeFileScript')
 	function! DoNewFile(filename)
-		let command_str = "/home/koplyarov/create_new_code_file.sh " . a:filename
+		let command_str = g:createCodeFileScript . " " . a:filename
 		call system(command_str)
 		let open_cmd = "e " . a:filename
 		silent execute open_cmd
