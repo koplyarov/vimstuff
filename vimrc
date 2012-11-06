@@ -82,14 +82,14 @@ function! DoSearch(expression)
 	if len(args) > 1
 		try
 			let context_lines = args[-1]
-			remove(args, 0)
+			call remove(args, 0)
 			let expression = join(args, " ")
 		endtry
 	end
 	let excludes_list = ["*map", "*tex", "*html", "*git*", "*doxygen*", "*svn*", "*entries", "*all-wcprops", "depend*", "*includecache", "tags", "valgrind*", "types_*.vim"]
 	let excludedirs_list = ["etc", "build", ".git", "CMakeFiles"]
 	let excludes_string = "--exclude=\"" . join(excludes_list, "\" --exclude=\"") . "\" --exclude-dir=\"" . join(excludedirs_list, "\" --exclude-dir=\"") . "\""
-	execute excludes_string
+	execute "grep " . excludes_string . " -A " . context_lines . " -rI \"" . expression . "\" ./"
 endf
 
 function! InitCppHotKeys()
@@ -102,7 +102,7 @@ function! InitCppHotKeys()
 endf
 
 command! -nargs=1 -complete=file NewFile call DoNewFile("<args>")
-command! -nargs=1 -complete=tag Search py DoSearch('<args>')
+command! -nargs=1 -complete=tag Search call DoSearch('<args>')
 
 au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp call InitCppHotKeys()
 
