@@ -7,3 +7,6 @@
 [submodule "pathogen_bundle/snipmate"]
 	path = pathogen_bundle/snipmate
 	url = https://github.com/msanders/snipmate.vim.git
+[submodule "pathogen_bundle/vtreeexplorer"]
+	path = pathogen_bundle/vtreeexplorer
+	url = https://github.com/vim-scripts/vtreeexplorer.git
