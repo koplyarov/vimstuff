@@ -1,0 +1,28 @@
+diff --git a/plugin/clang_complete.vim b/plugin/clang_complete.vim
+index 363f98c..749c219 100644
+--- a/plugin/clang_complete.vim
++++ b/plugin/clang_complete.vim
+@@ -422,6 +422,14 @@ let b:col = 0
+ 
+ function! s:ClangCompleteBinary(base)
+   let l:buf = getline(1, '$')
++  let l:ofs = 0
++  if a:base =~ '^_'
++    let l:curlinenum = line('.') - 1
++	let l:prefix = 'this->'
++    let l:qwe = l:buf[l:curlinenum]
++    let l:ofs = strlen(l:prefix)
++    let l:buf[l:curlinenum] = strpart(l:qwe, 0, b:col - 1) . l:prefix . strpart(l:qwe, b:col - 1)
++  endif
+   let l:tempfile = expand('%:p:h') . '/' . localtime() . expand('%:t')
+   try
+     call writefile(l:buf, l:tempfile)
+@@ -433,7 +441,7 @@ function! s:ClangCompleteBinary(base)
+   let l:command = g:clang_exec . ' -cc1 -fsyntax-only'
+         \ . ' -fno-caret-diagnostics -fdiagnostics-print-source-range-info'
+         \ . ' -code-completion-at=' . l:escaped_tempfile . ':'
+-        \ . line('.') . ':' . b:col . ' ' . l:escaped_tempfile
++        \ . line('.') . ':' . (b:col + l:ofs) . ' ' . l:escaped_tempfile
+         \ . ' ' . b:clang_parameters . ' ' . b:clang_user_options . ' ' . g:clang_user_options
+ 
+   let l:clang_output = split(system(s:escapeCommand(l:command)), "\n")
