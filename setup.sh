@@ -20,6 +20,12 @@ Try() {
 	fi
 }
 
+MkDirIfAbsent() {
+	if [ ! -e $1 ]; then
+		Try mkdir $1
+	fi
+}
+
 ClearLink() {
 	SRC=`readlink $2`
 	if [ $? -eq 0 ]; then
@@ -47,19 +53,18 @@ if [ "x$1" = "x--remove" ]; then
 		Log "WARNING: Could not patch clang_complete"
 	fi
 
-	Try ClearLink $SCRIPT_DIR/pathogen_bundle $VIM_DIR/bundle
-	Try ClearLink $SCRIPT_DIR/pathogen/autoload/pathogen.vim $VIM_DIR/autoload/pathogen.vim
-	Try ClearLink $SCRIPT_DIR/my-snippets $VIM_DIR/my-snippets
+	Try ClearLink "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
+	Try ClearLink "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
+	Try ClearLink "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
 
 	Try RemoveIfEmpty "$VIM_DIR/autoload"
 else
-	if [ ! -e $VIM_DIR/autoload ]; then
-		Try mkdir $VIM_DIR/autoload
-	fi
+	Try MkDirIfAbsent "$VIM_DIR"
+	Try MkDirIfAbsent "$VIM_DIR/autoload"
 
-	Try ln -s $SCRIPT_DIR/pathogen_bundle $VIM_DIR/bundle
-	Try ln -s $SCRIPT_DIR/pathogen/autoload/pathogen.vim $VIM_DIR/autoload/
-	Try ln -s $SCRIPT_DIR/my-snippets $VIM_DIR/my-snippets
+	Try ln -s "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
+	Try ln -s "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
+	Try ln -s "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
 
 	Try patch -p1 < clang_complete.patch
 
