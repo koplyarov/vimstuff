@@ -60,7 +60,7 @@ Fail() {
 }
 
 Try() {
-	$@
+	"$@"
 	if [ $? -ne 0 ]; then
 		Fail "$* failed!"
 	fi
@@ -116,3 +116,28 @@ RevertPatch() {
 }
 
 
+AddLine() {
+	echo "$2" >> $1
+	if [ $? -eq 0 ]; then
+		Log "Successfully added '$2' to $1"
+	else
+		Log Warning "Could not add '$2' to $1. You should do it manually."
+	fi
+}
+
+RemoveLine() {
+	TEMPFILE1=`tempfile`
+	if grep -xvF "$2" "$1" > $TEMPFILE1; then
+		TEMPFILE2=`tempfile`
+		Try mv "$1" $TEMPFILE2
+		if mv $TEMPFILE1 "$1"; then
+			rm $TEMPFILE2
+			Log "Successfully removed '$2' from $1"
+		else
+			Try mv $TEMPFILE2 "$1"
+			Log Warning "Could not remove '$2' from $1. You should do it manually."
+		fi
+	else
+		rm $TEMPFILE1
+	fi
+}
