@@ -40,14 +40,12 @@ function! DoComment()
 	silent! execute subst_cmd
 endf
 
-if exists('g:createCodeFileScript')
-	function! DoNewFile(filename)
-		let command_str = g:createCodeFileScript . " " . a:filename
-		call system(command_str)
-		let open_cmd = "e " . a:filename
-		silent execute open_cmd
-	endf
-end
+function! DoNewFile(filename)
+	let command_str = g:createCodeFileScript . " " . a:filename
+	call system(command_str)
+	let open_cmd = "e " . a:filename
+	silent execute open_cmd
+endf
 
 function! DoHeaderToCpp(filename)
 	if stridx(a:filename, ".hpp") != -1
