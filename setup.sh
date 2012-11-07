@@ -19,12 +19,15 @@ if [ $# -eq 0 ]; then
 
 	Try ApplyPatch clang_complete.patch
 
+	Try AddLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
+
 	Log "$DELIM"
 	Log "vimstuff installed!"
-	Log "Add 'source $SCRIPT_DIR/vimrc' to your $HOME/.vimrc file"
 else
 	case "x$1" in
 	"x--remove"*)
+		Try RemoveLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
+
 		RevertPatch clang_complete.patch
 
 		Try ClearLink "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
