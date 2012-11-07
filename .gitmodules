@@ -10,3 +10,9 @@
 [submodule "pathogen_bundle/vtreeexplorer"]
 	path = pathogen_bundle/vtreeexplorer
 	url = https://github.com/vim-scripts/vtreeexplorer.git
+[submodule "pathogen_bundle/fuzzyfinder"]
+	path = pathogen_bundle/fuzzyfinder
+	url = https://github.com/vim-scripts/FuzzyFinder.git
+[submodule "pathogen_bundle/l9"]
+	path = pathogen_bundle/l9
+	url = https://github.com/vim-scripts/L9.git
