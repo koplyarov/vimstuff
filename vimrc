@@ -105,6 +105,10 @@ command! -nargs=1 -complete=file NewFile call DoNewFile("<args>")
 command! -nargs=1 -complete=tag Search call DoSearch('<args>')
 
 au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp call InitCppHotKeys()
+au BufRead,BufNewFile *.qml set filetype=qml
+au BufRead,BufNewFile *.cmix set filetype=cmix
+au BufNewFile,BufRead *.pas,*.PAS set ft=pascal
+au! Syntax qml source $HOME/.vim/syntax/qml.vim
 
 "if exists('*pathogen#infect')
 	call pathogen#infect()
