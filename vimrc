@@ -115,9 +115,9 @@ au! Syntax qml source $HOME/.vim/syntax/qml.vim
 	call pathogen#infect()
 "end
 
-"if exists('*ResetSnippets')
+if 0 " exists('*ResetSnippets')
 	au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp call ResetSnippets('cpp') | call ResetSnippets('c') | call ExtractSnipsFile('/home/koplyarov/.vim/my-snippets/cpp.snippets', 'cpp') | call ExtractSnipsFile('/home/koplyarov/.vim/my-snippets/c.snippets', 'c')
-"endif
+endif
 
 if !exists('g:TagHighlightSettings')
 	let g:TagHighlightSettings = {}
