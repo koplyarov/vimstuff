@@ -21,6 +21,8 @@ hi PmenuSel			ctermfg=7 ctermbg=0 guibg=DarkGrey
 hi PmenuSbar		ctermbg=7 guibg=Grey
 hi PmenuThumb		cterm=reverse gui=reverse
 
+let g:fuf_coveragefile_exclude = '\v\~$|\.(o|exe|dll|bak|png|jpg|orig|sw[po]|pyc)$|(^|[/\\])\.(hg|git|bzr)($|[/\\])'
+
 " Some settings for vtree-explorer
 let treeExplVertical=1
 let treeExplWinSize=40
@@ -106,6 +108,7 @@ command! -nargs=1 -complete=tag Search call DoSearch('<args>')
 
 au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp call InitCppHotKeys()
 au BufRead,BufNewFile *.qml set filetype=qml
+au BufRead,BufNewFile *.decl set filetype=qml
 au BufRead,BufNewFile *.cmix set filetype=cmix
 au BufNewFile,BufRead *.pas,*.PAS set ft=pascal
 au! Syntax qml source $HOME/.vim/syntax/qml.vim
@@ -119,6 +122,7 @@ if exists('*ResetSnippets')
 endif
 
 "nmap <F1> yyjp>>^dW:s/([^)]*)//g<CR>iprintf("TRACE: <ESC>A<BSlash>n");<ESC>:noh<CR>
+map <F3> :FufCoverageFile<CR>
 nmap <F8> :cn<CR>
 nmap <F7> :cN<CR>
 nmap <F5> "zyiw:Search \<<C-R>z\><CR><CR>:cw<CR>
