@@ -119,6 +119,11 @@ if exists('*ResetSnippets')
 	au BufRead,BufNewFile *h,*hpp,*.c,*.cpp call ResetSnippets('cpp') | call ResetSnippets('c') | call ExtractSnipsFile('/home/koplyarov/.vim/my-snippets/cpp.snippets', 'cpp') | call ExtractSnipsFile('/home/koplyarov/.vim/my-snippets/c.snippets', 'cpp')
 endif
 
+if !exists('g:TagHighlightSettings')
+	let g:TagHighlightSettings = {}
+endif
+let g:TagHighlightSettings['DoNotGenerateTags'] = 'True'
+
 "nmap <F1> yyjp>>^dW:s/([^)]*)//g<CR>iprintf("TRACE: <ESC>A<BSlash>n");<ESC>:noh<CR>
 map <F3> :FufCoverageFile<CR>
 nmap <F8> :cn<CR>
