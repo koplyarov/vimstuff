@@ -16,3 +16,6 @@
 [submodule "pathogen_bundle/l9"]
 	path = pathogen_bundle/l9
 	url = https://github.com/vim-scripts/L9.git
+[submodule "pathogen_bundle/tag_highlight"]
+	path = pathogen_bundle/tag_highlight
+	url = https://github.com/vim-scripts/TagHighlight.git
