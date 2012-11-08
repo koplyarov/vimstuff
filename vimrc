@@ -22,6 +22,9 @@ hi PmenuSbar		ctermbg=7 guibg=Grey
 hi PmenuThumb		cterm=reverse gui=reverse
 
 let g:fuf_coveragefile_exclude = '\v\~$|\.(o|exe|dll|bak|png|jpg|orig|sw[po]|pyc)$|(^|[/\\])\.(hg|git|bzr)($|[/\\])'
+let g:clang_complete_auto=0
+let g:clang_hl_errors=0
+let g:clang_user_options='|| exit 0'
 
 " Some settings for vtree-explorer
 let treeExplVertical=1
