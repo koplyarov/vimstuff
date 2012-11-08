@@ -134,6 +134,8 @@ nmap <S-F5> :make<CR>
 nmap <C-\> "zyiw:ptag <C-R>z<CR>
 nmap g<C-\> "zyiw:ptj <C-R>z<CR>
 inoremap <Nul> <Space> <BS><BS><C-X><C-O>
+noremap <M-Up> [{
+noremap <M-Down> ]}
 
 
 "//<editor-fold defaultstate="collapsed" desc="global references">
