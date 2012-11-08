@@ -136,6 +136,8 @@ nmap g<C-\> "zyiw:ptj <C-R>z<CR>
 inoremap <Nul> <Space> <BS><BS><C-X><C-O>
 noremap <M-Up> [{
 noremap <M-Down> ]}
+noremap <M-Left> [(
+noremap <M-Right> ])
 
 
 "//<editor-fold defaultstate="collapsed" desc="global references">
