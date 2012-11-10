@@ -5,7 +5,11 @@ CWD=`pwd`
 SCRIPT_NAME=`basename $0`
 SCRIPT_DIR=`dirname $CWD/$0`
 
-source "$SCRIPT_DIR/toolkit.sh"
+if [ ! -e "$SCRIPT_DIR/shstuff/toolkit.sh" ]; then
+	echo "ERROR: toolkit.sh not found! You should update submodules!" >&2
+	exit 1
+fi
+source "$SCRIPT_DIR/shstuff/toolkit.sh"
 SCRIPT_DIR=`RemoveDots $SCRIPT_DIR`
 
 SYNTAX_FILES=`ls -1 $SCRIPT_DIR/syntax`
