@@ -19,3 +19,6 @@
 [submodule "pathogen_bundle/tag_highlight"]
 	path = pathogen_bundle/tag_highlight
 	url = https://github.com/vim-scripts/TagHighlight.git
+[submodule "shstuff"]
+	path = shstuff
+	url = https://github.com/koplyarov/shstuff.git
