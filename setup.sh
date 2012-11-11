@@ -77,8 +77,8 @@ case "x$1" in
 	fi
 	;;
 "x--remove")
-	UpdateVimHelpTags
 	Uninstall "$ACTIONS"
+	UpdateVimHelpTags
 	Log "$DELIM"
 	Log "vimstuff removed!"
 	;;
