@@ -38,18 +38,18 @@ UpdateVimHelpTags() {
 }
 
 
-ACTIONS=""
-AddAction ACTIONS MkDir "$VIM_DIR"
-AddAction ACTIONS MkDir "$VIM_DIR/autoload"
-AddAction ACTIONS MkDir "$VIM_DIR/syntax"
-AddAction ACTIONS MkDir "$VIM_DIR/doc"
+CreateSetup VIMSTUFF_SETUP
+AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR"
+AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR/autoload"
+AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR/syntax"
+AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR/doc"
 
-AddAction ACTIONS Symlink "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
-AddAction ACTIONS Symlink "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
-AddAction ACTIONS Symlink "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
+AddAction VIMSTUFF_SETUP Symlink "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
+AddAction VIMSTUFF_SETUP Symlink "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
+AddAction VIMSTUFF_SETUP Symlink "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
 
 for SYNTAX_FILE in $SYNTAX_FILES; do
-	AddAction ACTIONS Symlink "$SCRIPT_DIR/syntax/$SYNTAX_FILE" "$VIM_DIR/syntax/$SYNTAX_FILE"
+	AddAction VIMSTUFF_SETUP Symlink "$SCRIPT_DIR/syntax/$SYNTAX_FILE" "$VIM_DIR/syntax/$SYNTAX_FILE"
 done
 
 for PATHOGEN_BUNDLE in $PATHOGEN_BUNDLES; do
@@ -57,17 +57,17 @@ for PATHOGEN_BUNDLE in $PATHOGEN_BUNDLES; do
 	if [ -d "$DOC_DIR" ]; then
 		for DOC_FILE in `ls -1 $DOC_DIR/*.txt`; do
 			DOC_FILE=`basename $DOC_FILE`
-			AddAction ACTIONS Symlink "$DOC_DIR/$DOC_FILE" "$VIM_DIR/doc/$DOC_FILE"
+			AddAction VIMSTUFF_SETUP Symlink "$DOC_DIR/$DOC_FILE" "$VIM_DIR/doc/$DOC_FILE"
 		done
 	fi
 done
 
-AddAction ACTIONS Patch clang_complete.patch
-AddAction ACTIONS AddLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
+AddAction VIMSTUFF_SETUP Patch clang_complete.patch
+AddAction VIMSTUFF_SETUP AddLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
 
 case "x$1" in
 "x")
-	if Install "$ACTIONS"; then
+	if Install VIMSTUFF_SETUP; then
 		UpdateVimHelpTags
 		Log "$DELIM"
 		Log "vimstuff installed!"
@@ -77,7 +77,7 @@ case "x$1" in
 	fi
 	;;
 "x--remove")
-	Uninstall "$ACTIONS"
+	Uninstall VIMSTUFF_SETUP
 	UpdateVimHelpTags
 	Log "$DELIM"
 	Log "vimstuff removed!"

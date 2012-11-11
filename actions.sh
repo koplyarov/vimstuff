@@ -28,11 +28,10 @@ undo_AddLine() {
 	local TEMPFILE1=`tempfile`
 	local TEMPFILE2=`tempfile`
 
-	ACT=""
-	AddAction ACT GrepTo $TEMPFILE1 -xvF "$2" "$1"
-	AddAction ACT Mv "$1" $TEMPFILE2
-	AddAction ACT Mv $TEMPFILE1 "$1"
-	AddAction ACT Rm $TEMPFILE2
-
-	Install "$ACT"
+	CreateSetup REMOVELINE_ACTIONS
+	AddAction REMOVELINE_ACTIONS GrepTo $TEMPFILE1 -xvF "$2" "$1"
+	AddAction REMOVELINE_ACTIONS Mv "$1" $TEMPFILE2
+	AddAction REMOVELINE_ACTIONS Mv $TEMPFILE1 "$1"
+	AddAction REMOVELINE_ACTIONS Rm $TEMPFILE2
+	Install REMOVELINE_ACTIONS
 }
