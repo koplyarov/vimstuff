@@ -9,34 +9,16 @@ if [ ! -e "$SCRIPT_DIR/shstuff/toolkit.sh" ]; then
 	echo "ERROR: toolkit.sh not found! You should update submodules!" >&2
 	exit 1
 fi
+
 source "$SCRIPT_DIR/shstuff/toolkit.sh"
+source "$SCRIPT_DIR/shstuff/libsetup.sh"
+source "$SCRIPT_DIR/actions.sh"
+
+LOGGER_SCRIPTNAME="vimstuff setup"
 SCRIPT_DIR=`RemoveDots $SCRIPT_DIR`
 
 SYNTAX_FILES=`ls -1 $SCRIPT_DIR/syntax`
 PATHOGEN_BUNDLES=`ls -1 $SCRIPT_DIR/pathogen_bundle`
-
-
-CreateDocLinks()
-{
-	DOC_DIR="$SCRIPT_DIR/pathogen_bundle/$1/doc"
-	if [ -d "$DOC_DIR" ]; then
-		for DOC_FILE in `ls -1 $DOC_DIR/*.txt`; do
-			DOC_FILE=`basename $DOC_FILE`
-			Try CreateLink "$DOC_DIR/$DOC_FILE" "$VIM_DIR/doc/$DOC_FILE"
-		done
-	fi
-}
-
-RemoveDocLinks()
-{
-	DOC_DIR="$SCRIPT_DIR/pathogen_bundle/$1/doc"
-	if [ -d "$DOC_DIR" ]; then
-		for DOC_FILE in `ls -1 $DOC_DIR/*.txt`; do
-			DOC_FILE=`basename $DOC_FILE`
-			Try ClearLink "$DOC_DIR/$DOC_FILE" "$VIM_DIR/doc/$DOC_FILE"
-		done
-	fi
-}
 
 UpdateVimHelpTags() {
 	if [ -z "`ls -1A $VIM_DIR/doc | grep -vxF 'tags'`" ]; then
@@ -56,61 +38,56 @@ UpdateVimHelpTags() {
 }
 
 
-if [ $# -eq 0 ]; then
-	Try MkDirIfAbsent "$VIM_DIR"
-	Try MkDirIfAbsent "$VIM_DIR/autoload"
-	Try MkDirIfAbsent "$VIM_DIR/syntax"
-	Try MkDirIfAbsent "$VIM_DIR/doc"
+ACTIONS=""
+AddAction ACTIONS MkDir "$VIM_DIR"
+AddAction ACTIONS MkDir "$VIM_DIR/autoload"
+AddAction ACTIONS MkDir "$VIM_DIR/syntax"
+AddAction ACTIONS MkDir "$VIM_DIR/doc"
 
-	Try CreateLink "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
-	Try CreateLink "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
-	Try CreateLink "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
+AddAction ACTIONS Symlink "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
+AddAction ACTIONS Symlink "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
+AddAction ACTIONS Symlink "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
 
-	for SYNTAX_FILE in $SYNTAX_FILES; do
-		Try CreateLink "$SCRIPT_DIR/syntax/$SYNTAX_FILE" "$VIM_DIR/syntax/$SYNTAX_FILE"
-	done
+for SYNTAX_FILE in $SYNTAX_FILES; do
+	AddAction ACTIONS Symlink "$SCRIPT_DIR/syntax/$SYNTAX_FILE" "$VIM_DIR/syntax/$SYNTAX_FILE"
+done
 
-	for PATHOGEN_BUNDLE in $PATHOGEN_BUNDLES; do
-		Try CreateDocLinks "$PATHOGEN_BUNDLE"
-	done
-
-	Try ApplyPatch clang_complete.patch
-
-	Try AddLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
-	Try UpdateVimHelpTags
-
-	Log "$DELIM"
-	Log "vimstuff installed!"
-else
-	case "x$1" in
-	"x--remove"*)
-		Try RemoveLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
-
-		RevertPatch clang_complete.patch
-
-		for PATHOGEN_BUNDLE in $PATHOGEN_BUNDLES; do
-			Try RemoveDocLinks "$PATHOGEN_BUNDLE"
+for PATHOGEN_BUNDLE in $PATHOGEN_BUNDLES; do
+	DOC_DIR="$SCRIPT_DIR/pathogen_bundle/$PATHOGEN_BUNDLE/doc"
+	if [ -d "$DOC_DIR" ]; then
+		for DOC_FILE in `ls -1 $DOC_DIR/*.txt`; do
+			DOC_FILE=`basename $DOC_FILE`
+			AddAction ACTIONS Symlink "$DOC_DIR/$DOC_FILE" "$VIM_DIR/doc/$DOC_FILE"
 		done
+	fi
+done
 
-		for SYNTAX_FILE in $SYNTAX_FILES; do
-			Try ClearLink "$SCRIPT_DIR/syntax/$SYNTAX_FILE" "$VIM_DIR/syntax/$SYNTAX_FILE"
-		done
+AddAction ACTIONS Patch clang_complete.patch
+AddAction ACTIONS AddLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
 
-		Try ClearLink "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
-		Try ClearLink "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
-		Try ClearLink "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
-
-		Try UpdateVimHelpTags
-
-		Try RemoveIfEmpty "$VIM_DIR/doc"
-		Try RemoveIfEmpty "$VIM_DIR/syntax"
-		Try RemoveIfEmpty "$VIM_DIR/autoload"
-
+case "x$1" in
+"x")
+	if Install "$ACTIONS"; then
+		UpdateVimHelpTags
 		Log "$DELIM"
-		Log "vimstuff removed!"
-		;;
-	*)
-		Fail "usage: $SCRIPT_NAME [--remove]"
-		;;
-	esac
-fi
+		Log "vimstuff installed!"
+	else
+		Log "$DELIM"
+		Log Error "vimstuff failed to install!"
+	fi
+	;;
+"x--remove")
+	UpdateVimHelpTags
+	Uninstall "$ACTIONS"
+	Log "$DELIM"
+	Log "vimstuff removed!"
+	;;
+"x--update")
+	$0 --remove
+	#TODO: pull
+	$0
+	;;
+*)
+	Fail "usage: $SCRIPT_NAME [--remove]"
+	;;
+esac
