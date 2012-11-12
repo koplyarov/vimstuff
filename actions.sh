@@ -27,15 +27,15 @@ do_Rm() { rm $1; }
 undo_Rm() { echo "There is no way to undo rm. =)"; return 1; }
 
 msg_AddLine() { echo "Adding '$2' to $1"; }
-do_AddLine() { echo "$2" >> $1; }
+do_AddLine() {
+	if [ grep xF "\"$2" "$1" >/dev/null 2>/dev/null ]; then
+		echo "$2" >> $1;
+	else
+		LINE="`EscapeForSed "$2"`"
+		sed -i "s/^\"$LINE/$LINE/g" $1
+	fi
+}
 undo_AddLine() {
-	local TEMPFILE1=`tempfile`
-	local TEMPFILE2=`tempfile`
-
-	CreateSetup REMOVELINE_ACTIONS
-	AddAction REMOVELINE_ACTIONS GrepTo $TEMPFILE1 -xvF "$2" "$1"
-	AddAction REMOVELINE_ACTIONS Mv "$1" $TEMPFILE2
-	AddAction REMOVELINE_ACTIONS Mv $TEMPFILE1 "$1"
-	AddAction REMOVELINE_ACTIONS Rm $TEMPFILE2
-	Install REMOVELINE_ACTIONS
+	LINE="`EscapeForSed "$2"`"
+	sed -i "s/^$LINE/\"$LINE/g" $1
 }
