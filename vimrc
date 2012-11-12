@@ -3,13 +3,17 @@ set tabstop=4
 set shiftwidth=4
 set number
 set hlsearch
-set mouse=a
+if has("mouse")
+	set mouse=a
+end
 set cursorline
 set autoindent
 set makeprg=make\ -j8
 set isfname-==
 set wildmode=longest,list,full
-set foldcolumn=1
+if has("foldcolumn")
+	set foldcolumn=1
+end
 set fillchars=vert:\|
 filetype plugin on
 
