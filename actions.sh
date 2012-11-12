@@ -7,8 +7,8 @@ do_Symlink() { ln -s $1 $2; }
 undo_Symlink() { [ "`readlink $2`" != "$1" ] || rm $2; }
 
 msg_Patch() { echo "Applying patch $1"; }
-do_Patch() { patch -p1 < $1; }
-undo_Patch() { patch --no-backup --reject-file=- -f -R -p1 < $1; }
+do_Patch() { patch --dry-run -p1 < $1 && patch -p1 < $1; }
+undo_Patch() { patch --dry-run --no-backup --reject-file=- -f -R -p1 < $1 && patch --no-backup --reject-file=- -f -R -p1 < $1; }
 
 msg_Cp() { echo "Copying $1 to $2"; }
 do_Cp() { cp $1 $2; }
