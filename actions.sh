@@ -28,11 +28,11 @@ undo_Rm() { echo "There is no way to undo rm. =)"; return 1; }
 
 msg_AddLine() { echo "Adding '$2' to $1"; }
 do_AddLine() {
-	if [ grep xF "\"$2" "$1" >/dev/null 2>/dev/null ]; then
-		echo "$2" >> $1;
-	else
+	if grep -xF "\"$2" "$1" >/dev/null 2>/dev/null; then
 		LINE="`EscapeForSed "$2"`"
 		sed -i "s/^\"$LINE/$LINE/g" $1
+	else
+		echo "$2" >> $1;
 	fi
 }
 undo_AddLine() {
