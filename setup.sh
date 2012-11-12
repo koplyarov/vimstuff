@@ -85,13 +85,17 @@ case "x$1" in
 "x--update")
 	UpdateFunc() {
 		$0 --remove
+		Log "Pulling new revision from git"
 		git pull
-		git submodules init
-		git submodules update
-		$0
 		if [ $? -ne 0 ]; then
-			Fail "Could not update vimstuff!"
+			$0 || Log Warning "Could not install vimstuff!"
+			Fail "Could not pull new version!"
 		fi
+		Log "Initializing git submodules"
+		git submodule init || Log Warning "Could not initialize git submodules!"
+		Log "Updating git submodules"
+		git submodule update || Log Warning "Could not update git submodules!"
+		$0 || Fail "Could not install vimstuff!"
 		exit 0
 	}
 	UpdateFunc
