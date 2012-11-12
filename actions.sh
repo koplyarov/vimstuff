@@ -10,6 +10,10 @@ msg_Patch() { echo "Applying patch $1"; }
 do_Patch() { patch -p1 < $1; }
 undo_Patch() { patch --no-backup --reject-file=- -f -R -p1 < $1; }
 
+msg_Cp() { echo "Copying $1 to $2"; }
+do_Cp() { cp $1 $2; }
+undo_Cp() { rm $2; }
+
 msg_Mv() { echo "Moving $1 to $2"; }
 do_Mv() { mv $1 $2; }
 undo_Mv() { mv $2 $1; }
