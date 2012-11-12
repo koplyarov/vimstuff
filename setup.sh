@@ -83,9 +83,18 @@ case "x$1" in
 	Log "vimstuff removed!"
 	;;
 "x--update")
-	$0 --remove
-	#TODO: pull
-	$0
+	UpdateFunc() {
+		$0 --remove
+		git pull
+		git submodules init
+		git submodules update
+		$0
+		if [ $? -ne 0 ]; then
+			Fail "Could not update vimstuff!"
+		fi
+		exit 0
+	}
+	UpdateFunc
 	;;
 *)
 	Fail "usage: $SCRIPT_NAME [--remove]"
