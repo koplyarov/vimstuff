@@ -167,19 +167,32 @@ endf
 "set foldexpr=NetBeansFoldExpr(v:lnum) " SLOW!
 "set foldmethod=expr
 
+function! GetTextBetweenPositions(line1, col1, line2, col2)
+	let lines = getline(a:line1, a:line2)
+	let lines[-1] = lines[-1][: a:col2 - 2]
+	let lines[0] = lines[0][a:col1 - 1:]
+	return join(lines, "\n")
+endf
+
 function! GetCppNamespace()
-	let save_cursor = getpos(".")
+	let res = ''
+	let save_cursor = getpos('.')
 	let [l, p] = [0, 0]
 	let [l, p] = searchpairpos('{', '', '}', 'b')
 	while l != 0 || p != 0
 		let [l2, p2] = searchpos('namespace\(\s\|\n\)*\S*\(\s\|\n\)*{', 'becWn')
 		if l == l2 && p == p2
-			let ns = searchpos('namespace\(\s\|\n\)*\(\S*\)\(\s\|\n\)*{', 'becWnp')
-			echo join(ns, ', ')
+			let [sl, sp] = searchpos('namespace\(\s\|\n\)*\zs\ze\S*\(\s\|\n\)*{', 'becWn')
+			let [el, ep] = searchpos('namespace\(\s\|\n\)*\S*\zs\ze\(\s\|\n\)*{', 'becWn')
+			if len(res) != 0
+				let res = '::' . res
+			end
+			let res = GetTextBetweenPositions(sl, sp, el, ep) . res
 		endif
 		let [l, p] = searchpairpos('{', '', '}', 'bW')
 	endw
 	call setpos('.', save_cursor)
+	return res
 endf
 
 if (filereadable(".vimrc") && (getcwd() != $HOME))
