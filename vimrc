@@ -208,12 +208,19 @@ endf
 
 function GetIncludeFile(symbol)
 	func! MyCompare(a1, a2)
-		return GetCommonSubstrLen(a:a2['namespace'], s:ns) - GetCommonSubstrLen(a:a1['namespace'], s:ns)
+		let ns1 = ''
+		let ns2 = ''
+		if has_key(a:a1, 'namespace')
+			let ns1 = a:a1['namespace']
+		end
+		if has_key(a:a2, 'namespace')
+			let ns2 = a:a2['namespace']
+		end
+		return GetCommonSubstrLen(ns2, s:ns) - GetCommonSubstrLen(ns1, s:ns)
 	endf
 
 	let s:ns = GetCppNamespace()
 	let tags = filter(taglist(a:symbol), 'v:val["filename"] =~ "\\.\\(h\\|hpp\\)$"') " Headers only
-	let tags = filter(tags, 'has_key(v:val, "namespace")') " Only symbols within a namespace
 	let tags = sort(tags, 'MyCompare')
 
 	if len(tags) == 0
@@ -221,12 +228,23 @@ function GetIncludeFile(symbol)
 		return ''
 	end
 
-	if GetCommonSubstrLen(tags[0]['namespace'], s:ns) == strlen(s:ns) && GetCommonSubstrLen(tags[1]['namespace'], s:ns) != strlen(s:ns)
-		echo Relpath(tags[0]['filename'])
+	if len(tags) == 1
 		return Relpath(tags[0]['filename'])
 	end
 
-	echo "Multiple tags found! Adding " . Relpath(tags[0]['filename'])
+	let ns1 = ''
+	let ns2 = ''
+	if has_key(tags[0], 'namespace')
+		let ns1 = tags[0]['namespace']
+	end
+	if has_key(tags[1], 'namespace')
+		let ns2 = tags[1]['namespace']
+	end
+	if GetCommonSubstrLen(ns1, s:ns) == strlen(s:ns) && GetCommonSubstrLen(ns2, s:ns) != strlen(s:ns)
+		return Relpath(tags[0]['filename'])
+	end
+
+	echo "Multiple tags found!"
 	return Relpath(tags[0]['filename'])
 endf
 
@@ -243,6 +261,10 @@ endf
 
 function! AddInclude(inc)
 	if strlen(a:inc) == 0
+		return
+	end
+	if search('#include <'.escape(a:inc, '&*./\').'>', 'bWn') != 0
+		echo '#include <'.a:inc.'> already exists!'
 		return
 	end
 	let save_cursor = getpos('.')
@@ -264,6 +286,8 @@ function! AddInclude(inc)
 		call SortBuf(b + 1, e - 1)
 	end
 	call setpos('.', [save_cursor[0], save_cursor[1] + 1, save_cursor[2], save_cursor[3]])
+	redraw
+	echo '#include <'.a:inc.'>'
 endf
 
 if (filereadable(".vimrc") && (getcwd() != $HOME))
