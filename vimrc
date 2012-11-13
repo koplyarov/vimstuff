@@ -105,7 +105,8 @@ function! InitCppHotKeys()
 	map <F2> :call DoComment()<CR>
 	nmap <C-F7> :let @z=Relpath('<C-R>%')<CR>:make <C-R>z.o<CR>
 	nmap <F4> :HeaderToCpp <C-R>%<CR>
-	map <C-K> mX"wyiw:keepj tag <C-R>w<CR>:while match(@%, "\.h$") == -1 && match(@%, "\.hpp$") == -1<CR>keepj tn<CR>endw<CR>:let @q=Relpath(@%)<CR>:keepj normal 'XG<CR>:keepj ?#include<CR>:noh<CR>o#include <<C-R>q><ESC>:keepj normal V{<CR>:sort u<CR>:keepj normal `X<CR>:echo "#include <<C-R>q>"<CR>
+	"map <C-K> mX"wyiw:keepj tag <C-R>w<CR>:while match(@%, "\.h$") == -1 && match(@%, "\.hpp$") == -1<CR>keepj tn<CR>endw<CR>:let @q=Relpath(@%)<CR>:keepj normal 'XG<CR>:keepj ?#include<CR>:noh<CR>o#include <<C-R>q><ESC>:keepj normal V{<CR>:sort u<CR>:keepj normal `X<CR>:echo "#include <<C-R>q>"<CR>
+	map <C-K> "wyiw:call AddInclude(GetIncludeFile("\\<".@w."\\>"))<CR>
 endf
 
 command! -nargs=1 -complete=file NewFile call DoNewFile("<args>")
@@ -193,6 +194,76 @@ function! GetCppNamespace()
 	endw
 	call setpos('.', save_cursor)
 	return res
+endf
+
+function! GetCommonSubstrLen(s1, s2)
+	let i = 0
+	for i in range(min([strlen(a:s1), strlen(a:s2)]))
+		if a:s1[i] != a:s2[i]
+			return i
+		end
+	endfor
+	return i + 1
+endf
+
+function GetIncludeFile(symbol)
+	func! MyCompare(a1, a2)
+		return GetCommonSubstrLen(a:a2['namespace'], s:ns) - GetCommonSubstrLen(a:a1['namespace'], s:ns)
+	endf
+
+	let s:ns = GetCppNamespace()
+	let tags = filter(taglist(a:symbol), 'v:val["filename"] =~ "\\.\\(h\\|hpp\\)$"') " Headers only
+	let tags = filter(tags, 'has_key(v:val, "namespace")') " Only symbols within a namespace
+	let tags = sort(tags, 'MyCompare')
+
+	if len(tags) == 0
+		echo "No tags found!"
+		return ''
+	end
+
+	if GetCommonSubstrLen(tags[0]['namespace'], s:ns) == strlen(s:ns) && GetCommonSubstrLen(tags[1]['namespace'], s:ns) != strlen(s:ns)
+		echo Relpath(tags[0]['filename'])
+		return Relpath(tags[0]['filename'])
+	end
+
+	echo "Multiple tags found! Adding " . Relpath(tags[0]['filename'])
+	return Relpath(tags[0]['filename'])
+endf
+
+function SortBuf(begin, end)
+	if a:begin >= a:end
+		return
+	end
+	let lines = getline(a:begin, a:end)
+	call sort(lines)
+	for i in range(a:end - a:begin + 1)
+		call setline(a:begin + i, lines[i])
+	endfor
+endf
+
+function! AddInclude(inc)
+	if strlen(a:inc) == 0
+		return
+	end
+	let save_cursor = getpos('.')
+	let l = search('#include', 'bW')
+	if l == 0
+		call setpos('.', [save_cursor[0], 1, 1, save_cursor[3]])
+		if strlen(getline(1)) == 0
+			call append(0, ['#include <'.a:inc.'>'])
+		else
+			let l = search('^$', 'Wc')
+			if l != 0
+				call append(l, ['#include <'.a:inc.'>', ''])
+			end
+		end
+	else
+		call append(l, '#include <'.a:inc.'>')
+		let b = search('^$', 'Wbcn')
+		let e = search('^$', 'Wcn')
+		call SortBuf(b + 1, e - 1)
+	end
+	call setpos('.', [save_cursor[0], save_cursor[1] + 1, save_cursor[2], save_cursor[3]])
 endf
 
 if (filereadable(".vimrc") && (getcwd() != $HOME))
