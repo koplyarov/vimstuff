@@ -140,6 +140,7 @@ nmap <F6> "zyiw:tabf <C-R>%<CR>:tag <C-R>z<CR>
 nmap <S-F5> :make<CR>
 nmap <C-\> "zyiw:ptag <C-R>z<CR>
 nmap g<C-\> "zyiw:ptj <C-R>z<CR>
+map gd "qyiw:call searchdecl("<C-R>q", 0, 1)<CR>:let @/='\<'.@q.'\>'<CR>:set hlsearch<CR>:echo @q<CR>
 inoremap <Nul> <Space> <BS><BS><C-X><C-O>
 noremap <M-Up> [{
 noremap <M-Down> ]}
