@@ -206,20 +206,34 @@ function! GetCommonSubstrLen(s1, s2)
 	return i + 1
 endf
 
+function! GetCommonSublistLen(l1, l2)
+	let i = 0
+	for i in range(min([len(a:l1), len(a:l2)]))
+		if a:l1[i] != a:l2[i]
+			return i
+		end
+	endfor
+	return i + 1
+endf
+
 function GetIncludeFile(symbol)
 	func! MyCompare(a1, a2)
-		let ns1 = ''
-		let ns2 = ''
+		let ns1 = []
+		let ns2 = []
 		if has_key(a:a1, 'namespace')
-			let ns1 = a:a1['namespace']
+			let ns1 = split(a:a1['namespace'], '::')
 		end
 		if has_key(a:a2, 'namespace')
-			let ns2 = a:a2['namespace']
+			let ns2 = split(a:a2['namespace'], '::')
 		end
-		return GetCommonSubstrLen(ns2, s:ns) - GetCommonSubstrLen(ns1, s:ns)
+		let res = GetCommonSublistLen(ns2, s:ns) - GetCommonSublistLen(ns1, s:ns)
+		if res == 0
+			let res = (len(ns1) - GetCommonSublistLen(ns1, s:ns)) - (len(ns2) - GetCommonSublistLen(ns2, s:ns))
+		end
+		return res
 	endf
 
-	let s:ns = GetCppNamespace()
+	let s:ns = split(GetCppNamespace(), '::')
 	let tags = filter(taglist(a:symbol), 'v:val["filename"] =~ "\\.\\(h\\|hpp\\)$"') " Headers only
 	let tags = sort(tags, 'MyCompare')
 
@@ -232,15 +246,21 @@ function GetIncludeFile(symbol)
 		return Relpath(tags[0]['filename'])
 	end
 
-	let ns1 = ''
-	let ns2 = ''
+	let ns1 = []
+	let ns2 = []
 	if has_key(tags[0], 'namespace')
-		let ns1 = tags[0]['namespace']
+		let ns1 = split(tags[0]['namespace'], '::')
 	end
 	if has_key(tags[1], 'namespace')
-		let ns2 = tags[1]['namespace']
+		let ns2 = split(tags[1]['namespace'], '::')
 	end
-	if GetCommonSubstrLen(ns1, s:ns) == strlen(s:ns) && GetCommonSubstrLen(ns2, s:ns) != strlen(s:ns)
+	if ns1 == s:ns && ns2 != s:ns
+		return Relpath(tags[0]['filename'])
+	end
+	if GetCommonSublistLen(ns1, s:ns) == len(s:ns) && GetCommonSublistLen(ns2, s:ns) != len(s:ns)
+		return Relpath(tags[0]['filename'])
+	end
+	if GetCommonSublistLen(ns1, s:ns) == len(ns1) && GetCommonSublistLen(ns2, s:ns) != len(ns2)
 		return Relpath(tags[0]['filename'])
 	end
 
