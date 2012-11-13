@@ -23,17 +23,9 @@ PATHOGEN_BUNDLES=`ls -1 $SCRIPT_DIR/pathogen_bundle`
 UpdateVimHelpTags() {
 	if [ -z "`ls -1A $VIM_DIR/doc | grep -vxF 'tags'`" ]; then
 		Log "$VIM_DIR/doc is empty, removing vim help tags"
-		rm $VIM_DIR/doc/tags
-		if [ $? -ne 0 ]; then
-			Log Warning "Could not remove $VIM_DIR/doc/tags"
-		fi
+		rm $VIM_DIR/doc/tags || Log Warning "Could not remove $VIM_DIR/doc/tags"
 	else
-		vim +"helptags $VIM_DIR/doc" +"qa"
-		if [ $? -eq 0 ]; then
-			Log "Updated vim help tags"
-		else
-			Log Warning "Failed at updating vim help tags. You should do it manually."
-		fi
+		vim +"helptags $VIM_DIR/doc" +"qa" && Log "Updated vim help tags" || Log Warning "Failed at updating vim help tags. You should do it manually."
 	fi
 }
 
