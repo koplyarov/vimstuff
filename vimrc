@@ -177,7 +177,7 @@ function! GetTextBetweenPositions(line1, col1, line2, col2)
 endf
 
 function! GetCppNamespace()
-	let res = ''
+	let res = []
 	let save_cursor = getpos('.')
 	let [l, p] = [0, 0]
 	let [l, p] = searchpairpos('{', '', '}', 'b')
@@ -186,10 +186,7 @@ function! GetCppNamespace()
 		if l == l2 && p == p2
 			let [sl, sp] = searchpos('namespace\(\s\|\n\)*\zs\ze\S*\(\s\|\n\)*{', 'becWn')
 			let [el, ep] = searchpos('namespace\(\s\|\n\)*\S*\zs\ze\(\s\|\n\)*{', 'becWn')
-			if len(res) != 0
-				let res = '::' . res
-			end
-			let res = GetTextBetweenPositions(sl, sp, el, ep) . res
+			call insert(res, GetTextBetweenPositions(sl, sp, el, ep))
 		endif
 		let [l, p] = searchpairpos('{', '', '}', 'bW')
 	endw
@@ -217,16 +214,28 @@ function! GetCommonSublistLen(l1, l2)
 	return i + 1
 endf
 
+
+function GetTagNamespace(tag)
+	let result=[]
+	if has_key(a:tag, 'namespace')
+		let result = split(a:tag['namespace'], '::')
+	else
+		if has_key(a:tag, 'struct')
+			let result = split(a:tag['struct'], '::')
+			"call remove(result, -1)
+		end
+		if has_key(a:tag, 'class')
+			let result = split(a:tag['class'], '::')
+			"call remove(result, -1)
+		end
+	end
+	return result
+endf
+
 function GetIncludeFile(symbol)
 	func! MyCompare(a1, a2)
-		let ns1 = []
-		let ns2 = []
-		if has_key(a:a1, 'namespace')
-			let ns1 = split(a:a1['namespace'], '::')
-		end
-		if has_key(a:a2, 'namespace')
-			let ns2 = split(a:a2['namespace'], '::')
-		end
+		let ns1 = GetTagNamespace(a:a1)
+		let ns2 = GetTagNamespace(a:a2)
 		let res = (len(ns1) - GetCommonSublistLen(ns1, s:ns)) - (len(ns2) - GetCommonSublistLen(ns2, s:ns))
 		if res == 0
 			let res = GetCommonSublistLen(ns2, s:ns) - GetCommonSublistLen(ns1, s:ns)
@@ -234,7 +243,7 @@ function GetIncludeFile(symbol)
 		return res
 	endf
 
-	let s:ns = split(GetCppNamespace(), '::')
+	let s:ns = GetCppNamespace()
 	let tags = filter(taglist(a:symbol), 'v:val["filename"] =~ "\\.\\(h\\|hpp\\)$"') " Headers only
 	let tags = sort(tags, 'MyCompare')
 
@@ -247,14 +256,8 @@ function GetIncludeFile(symbol)
 		return Relpath(tags[0]['filename'])
 	end
 
-	let ns1 = []
-	let ns2 = []
-	if has_key(tags[0], 'namespace')
-		let ns1 = split(tags[0]['namespace'], '::')
-	end
-	if has_key(tags[1], 'namespace')
-		let ns2 = split(tags[1]['namespace'], '::')
-	end
+	let ns1 = GetTagNamespace(tags[0])
+	let ns2 = GetTagNamespace(tags[1])
 	if ns1 == s:ns && ns2 != s:ns
 		return Relpath(tags[0]['filename'])
 	end
