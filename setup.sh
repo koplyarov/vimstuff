@@ -59,7 +59,7 @@ AddAction VIMSTUFF_SETUP Patch -p1 clang_complete.patch
 AddAction VIMSTUFF_SETUP AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
 
 case "x$1" in
-"x")
+"xinstall")
 	if Install VIMSTUFF_SETUP; then
 		UpdateVimHelpTags
 		Log "$DELIM"
@@ -69,13 +69,13 @@ case "x$1" in
 		Log Error "vimstuff failed to install!"
 	fi
 	;;
-"x--remove")
+"xremove")
 	Uninstall VIMSTUFF_SETUP
 	UpdateVimHelpTags
 	Log "$DELIM"
 	Log "vimstuff removed!"
 	;;
-"x--update")
+"xupdate")
 	UpdateFunc() {
 		Log "Removing current revision of vimstuff"
 		$0 --remove
@@ -96,6 +96,6 @@ case "x$1" in
 	UpdateFunc
 	;;
 *)
-	Fail "usage: $SCRIPT_NAME [--remove]"
+	Fail "usage: $SCRIPT_NAME install|remove|update"
 	;;
 esac
