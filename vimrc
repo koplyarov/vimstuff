@@ -11,6 +11,7 @@ set autoindent
 set makeprg=make\ -j8
 set isfname-==
 set wildmode=longest,list,full
+set cinoptions=g0,:0,l1,t0
 if has("foldcolumn")
 	set foldcolumn=1
 end
