@@ -78,11 +78,11 @@ case "x$1" in
 "xupdate")
 	UpdateFunc() {
 		Log "Removing current revision of vimstuff"
-		$0 --remove
+		$0 remove
 		Log "Pulling new revision from git"
 		git pull
 		if [ $? -ne 0 ]; then
-			$0 || Log Warning "Could not install vimstuff!"
+			$0 install || Log Warning "Could not install vimstuff!"
 			Fail "Could not pull new version!"
 		fi
 		Log "Initializing git submodules"
@@ -90,7 +90,7 @@ case "x$1" in
 		Log "Updating git submodules"
 		git submodule update || Log Warning "Could not update git submodules!"
 		Log "Installing new revision of vimstuff"
-		$0 || Fail "Could not install vimstuff!"
+		$0 install || Fail "Could not install vimstuff!"
 		exit 0
 	}
 	UpdateFunc
