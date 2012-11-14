@@ -226,9 +226,9 @@ function GetIncludeFile(symbol)
 		if has_key(a:a2, 'namespace')
 			let ns2 = split(a:a2['namespace'], '::')
 		end
-		let res = GetCommonSublistLen(ns2, s:ns) - GetCommonSublistLen(ns1, s:ns)
+		let res = (len(ns1) - GetCommonSublistLen(ns1, s:ns)) - (len(ns2) - GetCommonSublistLen(ns2, s:ns))
 		if res == 0
-			let res = (len(ns1) - GetCommonSublistLen(ns1, s:ns)) - (len(ns2) - GetCommonSublistLen(ns2, s:ns))
+			let res = GetCommonSublistLen(ns2, s:ns) - GetCommonSublistLen(ns1, s:ns)
 		end
 		return res
 	endf
