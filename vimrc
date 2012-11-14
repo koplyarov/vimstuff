@@ -279,25 +279,25 @@ function GetIncludeFile(symbol)
 	let tags = filter(copy(tags), 'index(s:filenames, v:val["filename"], v:key + 1)==-1')
 	let s:filenames = map(copy(tags), "Relpath(v:val['filename'])")
 
-	if len(tags) == 0
+	if len(s:filenames) == 0
 		echo "No tags found!"
 		return ''
 	end
 
-	if len(tags) == 1
-		return Relpath(tags[0]['filename'])
+	if len(s:filenames) == 1
+		return s:filenames[0]
 	end
 
 	let ns1 = GetTagNamespace(tags[0])
 	let ns2 = GetTagNamespace(tags[1])
 	if ns1 == s:ns && ns2 != s:ns
-		return Relpath(s:filenames[0])
+		return s:filenames[0]
 	end
 	if GetCommonSublistLen(ns1, s:ns) == len(s:ns) && GetCommonSublistLen(ns2, s:ns) != len(s:ns)
-		return Relpath(s:filenames[0])
+		return s:filenames[0]
 	end
 	if GetCommonSublistLen(ns1, s:ns) == len(ns1) && GetCommonSublistLen(ns2, s:ns) != len(ns2)
-		return Relpath(s:filenames[0])
+		return s:filenames[0]
 	end
 
 	function! IncludesComplete(A,L,P)
