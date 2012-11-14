@@ -245,7 +245,10 @@ function GetIncludeFile(symbol)
 
 	let s:ns = GetCppNamespace()
 	let tags = filter(taglist(a:symbol), 'v:val["filename"] =~ "\\.\\(h\\|hpp\\)$"') " Headers only
-	let tags = sort(tags, 'MyCompare')
+	call sort(tags, 'MyCompare')
+	let s:filenames = map(copy(tags), "v:val['filename']")
+	let tags = filter(copy(tags), 'index(s:filenames, v:val["filename"], v:key + 1)==-1')
+	let s:filenames = map(copy(tags), "Relpath(v:val['filename'])")
 
 	if len(tags) == 0
 		echo "No tags found!"
@@ -259,17 +262,19 @@ function GetIncludeFile(symbol)
 	let ns1 = GetTagNamespace(tags[0])
 	let ns2 = GetTagNamespace(tags[1])
 	if ns1 == s:ns && ns2 != s:ns
-		return Relpath(tags[0]['filename'])
+		return Relpath(s:filenames[0])
 	end
 	if GetCommonSublistLen(ns1, s:ns) == len(s:ns) && GetCommonSublistLen(ns2, s:ns) != len(s:ns)
-		return Relpath(tags[0]['filename'])
+		return Relpath(s:filenames[0])
 	end
 	if GetCommonSublistLen(ns1, s:ns) == len(ns1) && GetCommonSublistLen(ns2, s:ns) != len(ns2)
-		return Relpath(tags[0]['filename'])
+		return Relpath(s:filenames[0])
 	end
 
-	echo "Multiple tags found!"
-	return Relpath(tags[0]['filename'])
+	function! IncludesComplete(A,L,P)
+		return s:filenames
+	endf
+	return input('Multiple tags found, make your choice: ', s:filenames[0], 'customlist,IncludesComplete')
 endf
 
 function SortBuf(begin, end)
