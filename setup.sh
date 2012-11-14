@@ -12,6 +12,7 @@ fi
 
 source "$SCRIPT_DIR/shstuff/toolkit.sh"
 source "$SCRIPT_DIR/shstuff/libsetup.sh"
+source "$SCRIPT_DIR/shstuff/stdsetupactions.sh"
 source "$SCRIPT_DIR/actions.sh"
 
 LOGGER_SCRIPTNAME="vimstuff setup"
@@ -54,8 +55,8 @@ for PATHOGEN_BUNDLE in $PATHOGEN_BUNDLES; do
 	fi
 done
 
-AddAction VIMSTUFF_SETUP Patch clang_complete.patch
-AddAction VIMSTUFF_SETUP AddLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
+AddAction VIMSTUFF_SETUP Patch -p1 clang_complete.patch
+AddAction VIMSTUFF_SETUP AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
 
 case "x$1" in
 "x")
