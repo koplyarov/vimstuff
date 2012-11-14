@@ -306,6 +306,7 @@ function! AddInclude(inc)
 		call SortBuf(b + 1, e - 1)
 	end
 	call setpos('.', [save_cursor[0], save_cursor[1] + 1, save_cursor[2], save_cursor[3]])
+	normal! 
 	redraw
 	echo '#include <'.a:inc.'>'
 endf
