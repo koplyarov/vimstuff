@@ -108,6 +108,7 @@ function! InitCppHotKeys()
 	nmap <F4> :HeaderToCpp <C-R>%<CR>
 	"map <C-K> mX"wyiw:keepj tag <C-R>w<CR>:while match(@%, "\.h$") == -1 && match(@%, "\.hpp$") == -1<CR>keepj tn<CR>endw<CR>:let @q=Relpath(@%)<CR>:keepj normal 'XG<CR>:keepj ?#include<CR>:noh<CR>o#include <<C-R>q><ESC>:keepj normal V{<CR>:sort u<CR>:keepj normal `X<CR>:echo "#include <<C-R>q>"<CR>
 	map <C-K> "wyiw:call AddInclude(GetIncludeFile(@w))<CR>
+	"map <C-]> "wyiw:call GotoTag(GetTags(@w)[0])<CR>
 endf
 
 command! -nargs=1 -complete=file NewFile call DoNewFile("<args>")
@@ -188,10 +189,33 @@ function! GetCppNamespace()
 			let [el, ep] = searchpos('namespace\(\s\|\n\)*\S*\zs\ze\(\s\|\n\)*{', 'becWn')
 			call insert(res, GetTextBetweenPositions(sl, sp, el, ep))
 		endif
+		"let [l2, p2] = searchpos('\(class\|struct\)\(\s\|\n\)*\S*\(\s\|\n\)*\(\:\([^{};]\|\n\)*\)\?{', 'becWn')
+		"if l == l2 && p == p2
+		"	let [sl, sp] = searchpos('\(class\|struct\)\(\s\|\n\)*\zs\ze\S*\(\s\|\n\)*\(\:\([^{};]\|\n\)*\)\?{', 'becWn')
+		"	let [el, ep] = searchpos('\(class\|struct\)\(\s\|\n\)*\S*\zs\ze\(\s\|\n\)*\(\:\([^{};]\|\n\)*\)\?{', 'becWn')
+		"	call insert(res, GetTextBetweenPositions(sl, sp, el, ep))
+		"endif
 		let [l, p] = searchpairpos('{', '', '}', 'bW')
 	endw
 	call setpos('.', save_cursor)
 	return res
+endf
+
+function! GetTags(symbol)
+	let ns = GetCppNamespace()
+	call map(ns, '(strlen(v:val) > 0) ? v:val : "__anon\\d*"')
+	let tags = []
+	while len(ns) > 0
+		let tags += taglist('^'.join(ns + [a:symbol.'$'], '::'))
+		call remove(ns, -1)
+	endw
+	return tags
+endf
+
+function! GotoTag(tag)
+	let path = Relpath(a:tag['filename'])
+	execute 'edit ' . path
+	execute a:tag['cmd']
 endf
 
 function! GetCommonSubstrLen(s1, s2)
