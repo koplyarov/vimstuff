@@ -107,7 +107,7 @@ function! InitCppHotKeys()
 	nmap <C-F7> :let @z=Relpath('<C-R>%')<CR>:make <C-R>z.o<CR>
 	nmap <F4> :HeaderToCpp <C-R>%<CR>
 	"map <C-K> mX"wyiw:keepj tag <C-R>w<CR>:while match(@%, "\.h$") == -1 && match(@%, "\.hpp$") == -1<CR>keepj tn<CR>endw<CR>:let @q=Relpath(@%)<CR>:keepj normal 'XG<CR>:keepj ?#include<CR>:noh<CR>o#include <<C-R>q><ESC>:keepj normal V{<CR>:sort u<CR>:keepj normal `X<CR>:echo "#include <<C-R>q>"<CR>
-	map <C-K> "wyiw:call AddInclude(GetIncludeFile("\\<".@w."\\>"))<CR>
+	map <C-K> "wyiw:call AddInclude(GetIncludeFile(@w))<CR>
 endf
 
 command! -nargs=1 -complete=file NewFile call DoNewFile("<args>")
@@ -233,6 +233,35 @@ function GetTagNamespace(tag)
 endf
 
 function GetIncludeFile(symbol)
+	let std_includes = {}
+	function! ExtendIncludes(dict, file, symbols)
+		for s in a:symbols
+			let a:dict[s] = a:file
+		endfor
+	endf
+	call ExtendIncludes(std_includes, 'stdio.h', [ 'fclose', 'fopen', 'freopen', 'fdopen', 'remove', 'rename', 'rewind', 'tmpfile', 'Функции', 'для', 'операций', 'ввода-вывода', 'clearerr', 'feof', 'ferror', 'fflush', 'fgetpos', 'fgetc', 'fgets', 'fputc', 'fputs', 'ftell', 'fseek', 'fsetpos', 'fread', 'fwrite', 'getc', 'getchar', 'gets', 'printf', 'vprintf', 'fprintf', 'vfprintf', 'sprintf', 'snprintf', 'vsprintf', 'perror', 'putc', 'putchar', 'fputchar', 'scanf', 'vscanf', 'fscanf', 'vfscanf', 'sscanf', 'vsscanf', 'setbuf', 'setvbuf', 'tmpnam', 'ungetc', 'puts' ])
+	call ExtendIncludes(std_includes, 'memory.h', [ 'memcpy', 'memmove', 'memchr', 'memcmp', 'memset', 'strcat', 'strncat', 'strchr', 'strrchr', 'strcmp', 'strncmp', 'strcoll', 'strcpy', 'strncpy', 'strerror', 'strlen', 'strspn', 'strcspn', 'strpbrk', 'strstr', 'strtok', 'strxfrm' ])
+	call ExtendIncludes(std_includes, 'vector', [ 'vector' ])
+	call ExtendIncludes(std_includes, 'string', [ 'string', 'basic_string' ])
+	call ExtendIncludes(std_includes, 'set', [ 'set' ])
+	call ExtendIncludes(std_includes, 'map', [ 'map' ])
+	call ExtendIncludes(std_includes, 'list', [ 'list' ])
+	call ExtendIncludes(std_includes, 'deque', [ 'deque' ])
+	call ExtendIncludes(std_includes, 'queue', [ 'queue' ])
+	call ExtendIncludes(std_includes, 'memory', [ 'memory' ])
+	call ExtendIncludes(std_includes, 'stdexcept', [ 'logic_error', 'domain_error', 'invalid_argument', 'length_error', 'out_of_range', 'runtime_error', 'range_error', 'overflow_error', 'underflow_error' ])
+	call ExtendIncludes(std_includes, 'iostream', [ 'istream', 'ostream', 'basic_istream', 'basic_ostream', 'cin', 'cout', 'cerr', 'endl' ])
+	call ExtendIncludes(std_includes, 'algorithm', [ 'for_each', 'find', 'find_if', 'find_end', 'find_first_of', 'adjacent_find', 'count', 'count_if', 'mismatch', 'equal', 'search', 'search_n', 'copy', 'copy_backward', 'swap', 'swap_ranges', 'iter_swap', 'transform', 'replace', 'replace_if', 'replace_copy', 'replace_copy_if', 'fill', 'fill_n', 'generate', 'generate_n', 'remove', 'remove_if', 'remove_copy', 'remove_copy_if', 'unique', 'unique_copy', 'reverse', 'reverse_copy', 'rotate', 'rotate_copy', 'random_shuffle', 'partition', 'stable_partition', 'sort', 'stable_sort', 'partial_sort', 'partial_sort_copy', 'nth_element', 'lower_bound', 'upper_bound', 'equal_range', 'binary_search', 'merge', 'inplace_merge', 'includes', 'set_union', 'set_intersection', 'set_difference', 'set_symmetric_difference', 'push_heap', 'pop_heap', 'make_heap', 'sort_heap', 'min', 'max', 'min_element', 'max_element', 'lexicographical_compare', 'next_permutation', 'prev_permutation' ])
+	call ExtendIncludes(std_includes, 'functional', [ 'unary_function', 'binary_function', 'plus', 'minus', 'multiplies', 'divides', 'modulus', 'negate', 'equal_to', 'not_equal_to', 'greater', 'less', 'greater_equal', 'less_equal', 'logical_and', 'logical_or', 'logical_not', 'not1', 'not2', 'bind1st', 'bind2nd', 'ptr_fun', 'mem_fun', 'mem_fun_ref', 'unary_negate', 'binary_negate', 'binder1st', 'binder2nd', 'pointer_to_unary_function', 'pointer_to_binary_function', 'mem_fun_t', 'mem_fun1_t', 'const_mem_fun_t', 'const_mem_fun1_t', 'mem_fun_ref_t', 'mem_fun1_ref_t', 'const_mem_fun_ref_t', 'const_mem_fun1_ref_t' ])
+	call ExtendIncludes(std_includes, 'streambuf', [ 'streambuf' ])
+	call ExtendIncludes(std_includes, 'sstream', [ 'stringstream', 'istringstream', 'ostringstream', 'basic_stringstream', 'basic_istringstream', 'basic_ostringstream' ])
+	call ExtendIncludes(std_includes, 'fstream', [ 'fstream', 'ifstream', 'ofstream', 'basic_fstream', 'basic_ifstream', 'basic_ofstream' ])
+	call ExtendIncludes(std_includes, 'type_info', [ 'type_info', 'bad_cast', 'bad_typeid' ])
+
+	if has_key(std_includes, a:symbol)
+		return std_includes[a:symbol]
+	end
+
 	func! MyCompare(a1, a2)
 		let ns1 = GetTagNamespace(a:a1)
 		let ns2 = GetTagNamespace(a:a2)
@@ -244,7 +273,7 @@ function GetIncludeFile(symbol)
 	endf
 
 	let s:ns = GetCppNamespace()
-	let tags = filter(taglist(a:symbol), 'v:val["filename"] =~ "\\.\\(h\\|hpp\\)$"') " Headers only
+	let tags = filter(taglist("\\<".a:symbol."\\>"), 'v:val["filename"] =~ "\\.\\(h\\|hpp\\)$"') " Headers only
 	call sort(tags, 'MyCompare')
 	let s:filenames = map(copy(tags), "v:val['filename']")
 	let tags = filter(copy(tags), 'index(s:filenames, v:val["filename"], v:key + 1)==-1')
@@ -300,22 +329,22 @@ function! AddInclude(inc)
 	let l = search('#include', 'bW')
 	if l == 0
 		call setpos('.', [save_cursor[0], 1, 1, save_cursor[3]])
-		if strlen(getline(1)) == 0
-			call append(0, ['#include <'.a:inc.'>'])
-		else
+		if strlen(getline(1)) != 0
 			let l = search('^$', 'Wc')
-			if l != 0
-				call append(l, ['#include <'.a:inc.'>', ''])
-			end
 		end
+		call append(l, ['', '#include <'.a:inc.'>', ''])
+		let lines_inserted = 3
 	else
 		call append(l, '#include <'.a:inc.'>')
+		let lines_inserted = 1
 		let b = search('^$', 'Wbcn')
 		let e = search('^$', 'Wcn')
 		call SortBuf(b + 1, e - 1)
 	end
-	call setpos('.', [save_cursor[0], save_cursor[1] + 1, save_cursor[2], save_cursor[3]])
-	normal! 
+	call setpos('.', [save_cursor[0], save_cursor[1] + lines_inserted, save_cursor[2], save_cursor[3]])
+	for i in range(lines_inserted)
+		normal! 
+	endfor
 	redraw
 	echo '#include <'.a:inc.'>'
 endf
