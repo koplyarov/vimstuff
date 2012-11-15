@@ -239,6 +239,12 @@ function! GetTagsInContext(symbol, context)
 	return tags
 endf
 
+function! GetMembers(fullSymbol)
+	let tags = taglist('^'.a:fullSymbol.'::[^:]*$')
+	let membernames = map(copy(tags), 'strpart(v:val["name"], strlen(a:fullSymbol."::"))')
+	return membernames
+endf
+
 function! GetTags(symbol)
 	return GetTagsInContext(a:symbol, GetCppPath())
 endf
