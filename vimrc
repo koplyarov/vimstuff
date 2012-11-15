@@ -195,6 +195,16 @@ function! GetCppNamespace()
 		"	let [el, ep] = searchpos('\(class\|struct\)\(\s\|\n\)*\S*\zs\ze\(\s\|\n\)*\(\:\([^{};]\|\n\)*\)\?{', 'becWn')
 		"	call insert(res, GetTextBetweenPositions(sl, sp, el, ep))
 		"endif
+		"let [l2, p2] = searchpos(')\(\s\|\n\)*{', 'becWn')
+		"if l == l2 && p == p2
+		"	let save_cursor_2 = getpos('.')
+		"	call searchpos('\zs\ze)\(\s\|\n\)*{', 'becW')
+		"	call searchpairpos('(', '', ')', 'bW')
+		"	let [sl, sp] = searchpos('\(\s\|\n\)\zs\ze\S*\(\s\|\n\)*(', 'becWn')
+		"	let [el, ep] = [sl, sp]
+		"	let [el, ep] = searchpos('\(\s\|\n\)\S*\zs\ze\(\s\|\n\)*(', 'becWn')
+		"	let res = split(GetTextBetweenPositions(sl, sp, el, ep), '::') + res
+		"endif
 		let [l, p] = searchpairpos('{', '', '}', 'bW')
 	endw
 	call setpos('.', save_cursor)
@@ -215,7 +225,7 @@ endf
 function! GotoTag(tag)
 	let path = Relpath(a:tag['filename'])
 	execute 'edit ' . path
-	execute a:tag['cmd']
+	silent execute a:tag['cmd']
 endf
 
 function! GetCommonSubstrLen(s1, s2)
