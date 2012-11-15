@@ -256,8 +256,11 @@ function! GotoTag(tag)
 endf
 
 function! Goto(symbol)
-	if searchdecl(a:symbol, 0, 1) != 0
-		call GotoTag(GetTags(a:symbol)[0])
+	let tags = GetTags(a:symbol)
+	if len(tags) > 0
+		call GotoTag(tags[0])
+	else
+		call searchdecl(a:symbol, 0, 1)
 	end
 endf
 
