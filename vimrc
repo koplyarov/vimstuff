@@ -108,7 +108,7 @@ function! InitCppHotKeys()
 	nmap <F4> :HeaderToCpp <C-R>%<CR>
 	"map <C-K> mX"wyiw:keepj tag <C-R>w<CR>:while match(@%, "\.h$") == -1 && match(@%, "\.hpp$") == -1<CR>keepj tn<CR>endw<CR>:let @q=Relpath(@%)<CR>:keepj normal 'XG<CR>:keepj ?#include<CR>:noh<CR>o#include <<C-R>q><ESC>:keepj normal V{<CR>:sort u<CR>:keepj normal `X<CR>:echo "#include <<C-R>q>"<CR>
 	map <C-K> "wyiw:call AddInclude(GetIncludeFile(@w))<CR>
-	map t<C-]> "wyiw:call GotoTag(GetTags(@w)[0])<CR>
+	map t<C-]> "wyiw:call Goto(@w)<CR>
 endf
 
 command! -nargs=1 -complete=file NewFile call DoNewFile("<args>")
@@ -247,6 +247,12 @@ function! GotoTag(tag)
 	let path = Relpath(a:tag['filename'])
 	execute 'edit ' . path
 	silent execute a:tag['cmd']
+endf
+
+function! Goto(symbol)
+	if searchdecl(a:symbol, 0, 1) != 0
+		call GotoTag(GetTags(a:symbol)[0])
+	end
 endf
 
 function! GetCommonSubstrLen(s1, s2)
