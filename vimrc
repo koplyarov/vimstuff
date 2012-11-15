@@ -109,6 +109,7 @@ function! InitCppHotKeys()
 	"map <C-K> mX"wyiw:keepj tag <C-R>w<CR>:while match(@%, "\.h$") == -1 && match(@%, "\.hpp$") == -1<CR>keepj tn<CR>endw<CR>:let @q=Relpath(@%)<CR>:keepj normal 'XG<CR>:keepj ?#include<CR>:noh<CR>o#include <<C-R>q><ESC>:keepj normal V{<CR>:sort u<CR>:keepj normal `X<CR>:echo "#include <<C-R>q>"<CR>
 	map <C-K> "wyiw:call AddInclude(GetIncludeFile(@w))<CR>
 	map t<C-]> "wyiw:call Goto(@w)<CR>
+	nmap <C-RightMouse> <LeftMouse>t<C-]>
 endf
 
 command! -nargs=1 -complete=file NewFile call DoNewFile("<args>")
