@@ -1,15 +1,19 @@
 diff --git a/pathogen_bundle/fuzzyfinder/autoload/fuf.vim b/pathogen_bundle/fuzzyfinder/autoload/fuf.vim
-index fe9e6eb..e630b5a 100644
+index fe9e6eb..9c43758 100644
 --- a/pathogen_bundle/fuzzyfinder/autoload/fuf.vim
 +++ b/pathogen_bundle/fuzzyfinder/autoload/fuf.vim
-@@ -18,7 +18,12 @@ endif
+@@ -18,7 +18,16 @@ endif
  function fuf#glob(expr)
    " Substitutes "\", because on Windows, "**\" doesn't include ".\",
    " but "**/" include "./". I don't know why.
 -  return split(glob(substitute(a:expr, '\', '/', 'g')), "\n")
 +  call system('which find')
 +  if v:shell_error == 0
-+    return split(system('find . \( '.join(map(split(&wildignore,','), '"-name \"".substitute(v:val, "/\\*\\|\\*/", "", "g")."\""'), ' -o ').' \) -prune -o -print'), "\n")
++    if strlen(&wildignore) == 0
++      return split(system('find .'), "\n")
++	else
++      return split(system('find . \( '.join(map(split(&wildignore,','), '"-name \"".substitute(v:val, "/\\*\\|\\*/", "", "g")."\""'), ' -o ').' \) -prune -o -print'), "\n")
++	end
 +  else
 +    return split(glob(substitute(a:expr, '\', '/', 'g')), "\n")
 +  end
