@@ -233,8 +233,11 @@ endf
 function! GetTagsInContext(symbol, context)
 	let ctx = map(copy(a:context), '(strlen(v:val) > 0) ? v:val : "__anon\\d*"')
 	let tags = []
-	while len(ctx) > 0
+	while 1
 		let tags += taglist('^'.join(ctx + [a:symbol.'$'], '::'))
+		if len(ctx) == 0
+			break
+		end
 		call remove(ctx, -1)
 	endw
 	return tags
