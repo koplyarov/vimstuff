@@ -139,6 +139,7 @@ if !exists("g:vimstuff_sourced")
 	let g:TagHighlightSettings['DoNotGenerateTags'] = 'True'
 
 	"nmap <F1> yyjp>>^dW:s/([^)]*)//g<CR>iprintf("TRACE: <ESC>A<BSlash>n");<ESC>:noh<CR>
+	nmap ZZ :echo "Save and exit prevented! =)"<CR>
 	map <F3> :FufCoverageFile<CR>
 	nmap <F8> :cn<CR>
 	nmap <F7> :cN<CR>
