@@ -221,7 +221,7 @@ function! GetCppPath()
 			call searchpairpos('(', '', ')', 'bW')
 			let [sl, sp] = searchpos('[^:,\s\n\t]\(\s\|\n\)\zs\ze\S*\(\s\|\n\)*(', 'becWn')
 			let [el, ep] = searchpos('[^:,\s\n\t]\(\s\|\n\)\S*\zs\ze\(\s\|\n\)*(', 'becWn')
-			let res = split(GetTextBetweenPositions(sl, sp, el, ep), '::') + res
+			let res = filter(split(GetTextBetweenPositions(sl, sp, el, ep), '::'), 'v:val != "while" && v:val != "for" && v:val != "if"') + res
 		endif
 		let [l, p] = searchpairpos('{', '', '}', 'bW')
 	endw
