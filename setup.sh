@@ -56,6 +56,7 @@ for PATHOGEN_BUNDLE in $PATHOGEN_BUNDLES; do
 done
 
 AddAction VIMSTUFF_SETUP Patch -p1 clang_complete.patch
+AddAction VIMSTUFF_SETUP Patch -p1 fuf.patch
 AddAction VIMSTUFF_SETUP AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
 
 case "x$1" in
