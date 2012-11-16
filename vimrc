@@ -217,10 +217,10 @@ if !exists("g:vimstuff_sourced")
 				let [el, ep] = searchpos('\(class\|struct\)\(\s\|\n\)*\S*\zs\ze\(\s\|\n\)*\(\:\([^{};]\|\n\)*\)\?{', 'becWn')
 				call insert(res, GetTextBetweenPositions(sl, sp, el, ep))
 			endif
-			let [l2, p2] = searchpos(')\(\s\|\n\)*{', 'becWn')
+			let [l2, p2] = searchpos(')\(\s\|\n\)*\(const\(\s\|\n\)*\)\?{', 'becWn')
 			if l == l2 && p == p2
 				let save_cursor_2 = getpos('.')
-				call searchpos('\zs\ze)\(\s\|\n\)*{', 'becW')
+				call searchpos('\zs\ze)\(\s\|\n\)*\(const\(\s\|\n\)*\)\?{', 'becW')
 				call searchpairpos('(', '', ')', 'bW')
 				let [sl, sp] = searchpos('[^:,\s\n\t]\(\s\|\n\)\zs\ze\S*\(\s\|\n\)*(', 'becWn')
 				let [el, ep] = searchpos('[^:,\s\n\t]\(\s\|\n\)\S*\zs\ze\(\s\|\n\)*(', 'becWn')
