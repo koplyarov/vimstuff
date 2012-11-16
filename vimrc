@@ -219,9 +219,8 @@ function! GetCppPath()
 			let save_cursor_2 = getpos('.')
 			call searchpos('\zs\ze)\(\s\|\n\)*{', 'becW')
 			call searchpairpos('(', '', ')', 'bW')
-			let [sl, sp] = searchpos('\(\s\|\n\)\zs\ze\S*\(\s\|\n\)*(', 'becWn')
-			let [el, ep] = [sl, sp]
-			let [el, ep] = searchpos('\(\s\|\n\)\S*\zs\ze\(\s\|\n\)*(', 'becWn')
+			let [sl, sp] = searchpos('[^:,\s\n\t]\(\s\|\n\)\zs\ze\S*\(\s\|\n\)*(', 'becWn')
+			let [el, ep] = searchpos('[^:,\s\n\t]\(\s\|\n\)\S*\zs\ze\(\s\|\n\)*(', 'becWn')
 			let res = split(GetTextBetweenPositions(sl, sp, el, ep), '::') + res
 		endif
 		let [l, p] = searchpairpos('{', '', '}', 'bW')
