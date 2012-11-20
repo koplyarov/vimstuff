@@ -1,7 +1,7 @@
-diff --git a/pathogen_bundle/fuzzyfinder/autoload/fuf.vim b/pathogen_bundle/fuzzyfinder/autoload/fuf.vim
+diff --git a/fuzzyfinder/autoload/fuf.vim b/fuzzyfinder/autoload/fuf.vim
 index fe9e6eb..9c43758 100644
---- a/pathogen_bundle/fuzzyfinder/autoload/fuf.vim
-+++ b/pathogen_bundle/fuzzyfinder/autoload/fuf.vim
+--- a/fuzzyfinder/autoload/fuf.vim
++++ b/fuzzyfinder/autoload/fuf.vim
 @@ -18,7 +18,16 @@ endif
  function fuf#glob(expr)
    " Substitutes "\", because on Windows, "**\" doesn't include ".\",

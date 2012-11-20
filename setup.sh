@@ -31,18 +31,30 @@ UpdateVimHelpTags() {
 }
 
 
+CreateSetup VIMSTUFF_SETUP_SYMLINKS
 CreateSetup VIMSTUFF_SETUP
+
+AddAction VIMSTUFF_SETUP_SYMLINKS MkDir "$VIM_DIR"
+AddAction VIMSTUFF_SETUP_SYMLINKS MkDir "$VIM_DIR/autoload"
+AddAction VIMSTUFF_SETUP_SYMLINKS MkDir "$VIM_DIR/syntax"
+AddAction VIMSTUFF_SETUP_SYMLINKS MkDir "$VIM_DIR/doc"
+
 AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR"
 AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR/autoload"
 AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR/syntax"
 AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR/doc"
 
-AddAction VIMSTUFF_SETUP Symlink "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
-AddAction VIMSTUFF_SETUP Symlink "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
-AddAction VIMSTUFF_SETUP Symlink "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
+AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
+AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
+AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
+
+AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
+AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
+AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
 
 for SYNTAX_FILE in $SYNTAX_FILES; do
-	AddAction VIMSTUFF_SETUP Symlink "$SCRIPT_DIR/syntax/$SYNTAX_FILE" "$VIM_DIR/syntax/$SYNTAX_FILE"
+	AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/syntax/$SYNTAX_FILE" "$VIM_DIR/syntax/$SYNTAX_FILE"
+	AddAction VIMSTUFF_SETUP Cp "$SCRIPT_DIR/syntax/$SYNTAX_FILE" "$VIM_DIR/syntax/$SYNTAX_FILE"
 done
 
 for PATHOGEN_BUNDLE in $PATHOGEN_BUNDLES; do
@@ -50,18 +62,29 @@ for PATHOGEN_BUNDLE in $PATHOGEN_BUNDLES; do
 	if [ -d "$DOC_DIR" ]; then
 		for DOC_FILE in `ls -1 $DOC_DIR/*.txt`; do
 			DOC_FILE=`basename $DOC_FILE`
-			AddAction VIMSTUFF_SETUP Symlink "$DOC_DIR/$DOC_FILE" "$VIM_DIR/doc/$DOC_FILE"
+			AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$DOC_DIR/$DOC_FILE" "$VIM_DIR/doc/$DOC_FILE"
+			AddAction VIMSTUFF_SETUP Cp "$DOC_DIR/$DOC_FILE" "$VIM_DIR/doc/$DOC_FILE"
 		done
 	fi
 done
 
-AddAction VIMSTUFF_SETUP Patch -p1 clang_complete.patch
-AddAction VIMSTUFF_SETUP Patch -p1 fuf.patch
+AddAction VIMSTUFF_SETUP_SYMLINKS Patch "$SCRIPT_DIR/pathogen_bundle" -p1 clang_complete.patch
+AddAction VIMSTUFF_SETUP_SYMLINKS Patch "$SCRIPT_DIR/pathogen_bundle" -p1 fuf.patch
+AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 clang_complete.patch
+AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 fuf.patch
+
+AddAction VIMSTUFF_SETUP_SYMLINKS AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
 AddAction VIMSTUFF_SETUP AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
+
+if [ "x$2" = "xsymlinks" ]; then
+	SETUP="VIMSTUFF_SETUP_SYMLINKS"
+else
+	SETUP="VIMSTUFF_SETUP"
+fi
 
 case "x$1" in
 "xinstall")
-	if Install VIMSTUFF_SETUP; then
+	if Install $SETUP; then
 		UpdateVimHelpTags
 		Log "$DELIM"
 		Log "vimstuff installed!"
@@ -71,7 +94,7 @@ case "x$1" in
 	fi
 	;;
 "xremove")
-	Uninstall VIMSTUFF_SETUP
+	Uninstall $SETUP
 	UpdateVimHelpTags
 	Log "$DELIM"
 	Log "vimstuff removed!"
@@ -79,7 +102,7 @@ case "x$1" in
 "xupdate")
 	UpdateFunc() {
 		Log "Removing current revision of vimstuff"
-		$0 remove
+		$0 remove $1
 		Log "Pulling new revision from git"
 		git pull
 		if [ $? -ne 0 ]; then
@@ -91,12 +114,12 @@ case "x$1" in
 		Log "Updating git submodules"
 		git submodule update || Log Warning "Could not update git submodules!"
 		Log "Installing new revision of vimstuff"
-		$0 install || Fail "Could not install vimstuff!"
+		$0 install $1 || Fail "Could not install vimstuff!"
 		exit 0
 	}
-	UpdateFunc
+	UpdateFunc $2
 	;;
 *)
-	Fail "usage: $SCRIPT_NAME install|remove|update"
+	Fail "usage: $SCRIPT_NAME install|remove|update [symlinks]"
 	;;
 esac
