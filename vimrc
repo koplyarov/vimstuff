@@ -22,6 +22,9 @@ if !exists("g:vimstuff_sourced")
 
 	colorscheme torte
 
+	autocmd VimLeavePre * colorscheme default
+
+
 	" Resetting colors for ubuntu 12.10 vim =(
 	hi Pmenu			ctermfg=7 ctermbg=5 gui=bold guifg=White guibg=DarkGray
 	hi PmenuSel			ctermfg=7 ctermbg=0 guibg=DarkGrey
