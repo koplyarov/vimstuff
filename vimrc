@@ -149,6 +149,7 @@ if !exists("g:vimstuff_sourced")
 	nmap <F5> "zyiw:Search \<<C-R>z\><CR><CR>:cw<CR>
 	nmap <F6> "zyiw:tabf <C-R>%<CR>:tag <C-R>z<CR>
 	nmap <S-F5> :make<CR>
+	nmap <C-B> :echo substitute(system('git blame -L '.line('.').','.line('.').' '.Relpath(@%)), '^\([^(]*([^)]*)\).*$', '\1', '')<CR>
 	nmap <C-\> "zyiw:ptag <C-R>z<CR>
 	nmap g<C-\> "zyiw:ptj <C-R>z<CR>
 	map gd "qyiw:call searchdecl("<C-R>q", 0, 1)<CR>:let @/='\<'.@q.'\>'<CR>:set hlsearch<CR>:echo @q<CR>
