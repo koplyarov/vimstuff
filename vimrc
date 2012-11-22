@@ -133,7 +133,7 @@ if !exists("g:vimstuff_sourced")
 	"end
 
 	" Remove clang-complete stupid mappings
-	au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp iunmap <Tab>
+	au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp silent! execute 'iunmap <Tab>'
 
 	if 0 " exists('*ResetSnippets')
 		au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp call ResetSnippets('cpp') | call ResetSnippets('c') | call ExtractSnipsFile('/home/koplyarov/.vim/my-snippets/cpp.snippets', 'cpp') | call ExtractSnipsFile('/home/koplyarov/.vim/my-snippets/c.snippets', 'c')
