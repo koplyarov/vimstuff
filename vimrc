@@ -129,6 +129,11 @@ if !exists("g:vimstuff_sourced")
 			if has_key(entry, 'bufnr') && entry['bufnr'] != 0
 				let has_entries = 1
 				let filename = bufname(entry['bufnr'])
+				if exists('*CustomQuickFixPatcher')
+					if CustomQuickFixPatcher(filename, entry)
+						continue
+					end
+				end
 				if !file_readable(filename)
 					for dir in g:subdirectories
 						if file_readable(dir.'/'.filename)
