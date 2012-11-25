@@ -134,7 +134,7 @@ if !exists("g:vimstuff_sourced")
 						continue
 					end
 				end
-				if !file_readable(filename)
+				if !file_readable(filename) && exists('g:subdirectories')
 					for dir in g:subdirectories
 						if file_readable(dir.'/'.filename)
 							let entry['bufnr']=bufnr(dir.'/'.filename, 1)
