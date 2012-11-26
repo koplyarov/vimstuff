@@ -131,6 +131,8 @@ if !exists("g:vimstuff_sourced")
 	endf
 
 	function FixQuickFix()
+		let build_dir = GetBuildDir()
+
 		let has_entries = 0
 
 		let qflist = getqflist()
@@ -150,6 +152,10 @@ if !exists("g:vimstuff_sourced")
 					for dir in g:subdirectories
 						if file_readable(dir.'/'.filename)
 							let entry['bufnr']=bufnr(dir.'/'.filename, 1)
+							break
+						end
+						if file_readable(build_dir.dir.'/'.filename)
+							let entry['bufnr']=bufnr(build_dir.dir.'/'.filename, 1)
 							break
 						end
 					endfor
