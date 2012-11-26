@@ -128,12 +128,15 @@ if !exists("g:vimstuff_sourced")
 		for entry in qflist
 			if has_key(entry, 'bufnr') && entry['bufnr'] != 0
 				let has_entries = 1
-				let filename = bufname(entry['bufnr'])
-				if exists('*CustomQuickFixPatcher')
-					if CustomQuickFixPatcher(filename, entry)
-						continue
-					end
+			end
+			if exists('*CustomQuickFixPatcher')
+				if CustomQuickFixPatcher(entry)
+					continue
 				end
+			end
+			if has_key(entry, 'bufnr') && entry['bufnr'] != 0
+				let has_entries = 1
+				let filename = bufname(entry['bufnr'])
 				if !file_readable(filename) && exists('g:subdirectories')
 					for dir in g:subdirectories
 						if file_readable(dir.'/'.filename)
