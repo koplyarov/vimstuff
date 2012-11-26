@@ -121,6 +121,15 @@ if !exists("g:vimstuff_sourced")
 	command! -nargs=1 -complete=file NewFile call DoNewFile("<args>")
 	command! -nargs=1 -complete=tag Search call DoSearch('<args>')
 
+	function GetBuildDir()
+		let ml = matchlist(&makeprg, '-C \(\S*\)')
+		if len(ml) > 1
+			return ml[1].'/'
+		else
+			return ''
+		end
+	endf
+
 	function FixQuickFix()
 		let has_entries = 0
 
