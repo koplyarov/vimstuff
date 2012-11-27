@@ -88,6 +88,41 @@ if !exists("g:vimstuff_sourced")
 	endf
 
 
+	function! GetTabVar(tabnr, var)
+		let current_tab = tabpagenr()
+		let old_eventignore = &eventignore
+
+		set eventignore=all
+		exec "tabnext " . a:tabnr
+
+		let got_result = 0
+		if exists('t:' . a:var)
+			exec 'let v = t:' . a:var
+			let got_result = 1
+		endif
+
+		exec "tabnext " . current_tab
+		let &ei = old_eventignore
+
+		if got_result
+			return {'value':v}
+		else
+			return {}
+		end
+	endfunction
+
+
+	function! HasNERDTrees()
+		let treeBufNames = []
+		for i in range(1, tabpagenr("$"))
+			if len(GetTabVar(i, 'NERDTreeBufName')) > 0
+				return 1
+			endif
+		endfor
+		return 0
+	endf
+
+
 	function! DoSearch(expression)
 		let args = split(a:expression)
 		let expression = a:expression
@@ -209,6 +244,22 @@ if !exists("g:vimstuff_sourced")
 	noremap <M-Down> ]}
 	noremap <M-Left> [(
 	noremap <M-Right> ])
+
+	function! MirrorOrToggleNERDTree()
+		if HasNERDTrees()
+			if exists('t:NERDTreeBufName')
+				NERDTreeToggle
+			else
+				NERDTreeMirror
+			end
+		else
+			NERDTreeToggle
+		end
+	endf
+
+	nmap <C-N><C-N> :call MirrorOrToggleNERDTree() <CR>
+	nmap <C-N>n :call MirrorOrToggleNERDTree() <CR>
+	nmap <C-N>f :NERDTreeFind<CR>
 
 
 	"//<editor-fold defaultstate="collapsed" desc="global references">
