@@ -544,7 +544,7 @@ if !exists("g:vimstuff_sourced")
 
 
 	function! GetManSections(str)
-		return filter(split(system("man -f ".a:str." | sed 's/[^(]*(\\([^)]*\\)).*$/\\1/g'"), '\n'), 'eval(v:val)')
+		return filter(split(system("man -f ".a:str." 2>&1 | sed -n 's/[^(]*(\\([^)]*\\)).*$/\\1/p'"), '\n'), 'eval(v:val)')
 	endf
 
 	function! GetManSection(str)
