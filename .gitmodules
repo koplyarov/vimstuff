@@ -22,3 +22,6 @@
 [submodule "shstuff"]
 	path = shstuff
 	url = https://github.com/koplyarov/shstuff.git
+[submodule "pathogen_bundle/nerdtree"]
+	path = pathogen_bundle/nerdtree
+	url = https://github.com/scrooloose/nerdtree.git
