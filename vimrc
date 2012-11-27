@@ -31,6 +31,10 @@ if !exists("g:vimstuff_sourced")
 	hi PmenuSbar		ctermbg=7 guibg=Grey
 	hi PmenuThumb		cterm=reverse gui=reverse
 
+	let g:NERDCustomDelimiters = {
+		\ 'qml': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' }
+	\ }
+
 	let g:fuf_coveragefile_exclude = '\v\~$|\.(o|exe|dll|bak|png|jpg|orig|sw[po]|pyc)$|(^|[/\\])\.(hg|git|bzr)($|[/\\])'
 	let g:clang_complete_auto=0
 	let g:clang_hl_errors=0
@@ -143,7 +147,7 @@ if !exists("g:vimstuff_sourced")
 	function! InitCppHotKeys()
 		command! -nargs=1 -complete=file HeaderToCpp call DoHeaderToCpp("<args>")
 
-		map <F2> :call DoComment()<CR>
+		"map <F2> :call DoComment()<CR>
 		nmap <C-F7> :let @z=Relpath('<C-R>%')<CR>:make <C-R>z.o<CR>
 		nmap <F4> :HeaderToCpp <C-R>%<CR>
 		"map <C-K> mX"wyiw:keepj tag <C-R>w<CR>:while match(@%, "\.h$") == -1 && match(@%, "\.hpp$") == -1<CR>keepj tn<CR>endw<CR>:let @q=Relpath(@%)<CR>:keepj normal 'XG<CR>:keepj ?#include<CR>:noh<CR>o#include <<C-R>q><ESC>:keepj normal V{<CR>:sort u<CR>:keepj normal `X<CR>:echo "#include <<C-R>q>"<CR>
@@ -227,6 +231,8 @@ if !exists("g:vimstuff_sourced")
 	let g:TagHighlightSettings['DoNotGenerateTags'] = 'True'
 
 	"nmap <F1> yyjp>>^dW:s/([^)]*)//g<CR>iprintf("TRACE: <ESC>A<BSlash>n");<ESC>:noh<CR>
+	nmap <F2> <BSlash>c<Space>
+	vmap <F2> <BSlash>c<Space>
 	nmap ZZ :echo "Save and exit prevented! =)"<CR>
 	map <F3> :FufCoverageFile<CR>
 	nmap <F8> :cn<CR>
