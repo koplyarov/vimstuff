@@ -544,39 +544,45 @@ if !exists("g:vimstuff_sourced")
 
 
 	function! GetManSections(str)
-		return filter(split(system("man -f ".a:str." 2>&1 | sed -n 's/[^(]*(\\([^)]*\\)).*$/\\1/p'"), '\n'), 'eval(v:val)')
+		return split(system("man -f ".a:str." 2>&1 | sed -n 's/[^(]*(\\([^)]*\\)).*$/\\1/p'"), '\n')
 	endf
 
 	function! GetManSection(str)
-		return index(GetManSections(a:str), g:man_section) != -1 ? g:man_section : -1
+		let sections = GetManSections(a:str)
+		return index(sections, b:man_section) != -1 ? b:man_section : (len(sections) != 0 ? sections[0] : -1)
 	endf
 
 	function! OpenMan(str, ...)
+		let man_section = string(len(a:000) == 0 ? -1 : (a:000[0] == 0 ? -1 : a:000[0]))
+		let sections = GetManSections(a:str)
+		if man_section == -1 && len(sections) > 0
+			let man_section = sections[0]
+		end
+
+		let man_pages_bufnr_new = bufnr('vimstuff man pages reader ['.a:str.', '.man_section.']', 1)
 		if !exists('g:man_pages_bufnr')
-			let g:man_pages_bufnr = bufnr('vimstuff man pages reader', 1)
-			let g:man_pages_bufnr_has_mappings = 0
+			let g:man_pages_bufnr = man_pages_bufnr_new
 		end
 
 		let window_nr = bufwinnr(g:man_pages_bufnr)
 		if window_nr == -1
 			top split
-			execute 'buffer '.g:man_pages_bufnr
-			if !g:man_pages_bufnr_has_mappings
-				map <buffer> <CR> :call OpenMan(expand('<cword>'), GetManSection(expand('<cword>')))<CR>
-				let g:man_pages_bufnr_has_mappings = 1
-			end
 		else
 			exec window_nr."wincmd w"
 		end
+		let g:man_pages_bufnr = man_pages_bufnr_new
+		execute 'buffer '.g:man_pages_bufnr
 
-		let g:man_section = len(a:000) == 0 ? -1 : (a:000[0] == 0 ? -1 : a:000[0])
-		let sections = GetManSections(a:str)
-		if g:man_section == -1 && len(sections) == 1
-			let g:man_section = sections[0]
+		if !exists('b:man_pages_bufnr_has_mappings')
+			map <buffer> <CR> :call OpenMan(expand('<cword>'), GetManSection(expand('<cword>')))<CR>
+			let b:man_pages_bufnr_has_mappings = 1
 		end
-		let section = g:man_section == -1 ? '' : g:man_section.' '
+		let b:man_section = man_section
+
+		let section = man_section == -1 ? '' : man_section.' '
 
 		set ma
+		set noswf
 		silent 1,$delete _
 		silent! execute 'r!man '.section.a:str.' | col -b'
 		silent 1delete _
