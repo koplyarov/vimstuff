@@ -259,6 +259,7 @@ if !exists("g:vimstuff_sourced")
 
 	nmap <C-N><C-N> :call MirrorOrToggleNERDTree() <CR>
 	nmap <C-N>n :call MirrorOrToggleNERDTree() <CR>
+	nmap <C-N><C-F> :NERDTreeFind<CR>
 	nmap <C-N>f :NERDTreeFind<CR>
 
 
