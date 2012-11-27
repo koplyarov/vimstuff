@@ -543,6 +543,14 @@ if !exists("g:vimstuff_sourced")
 	endf
 
 
+	function! GetManSections(str)
+		return filter(split(system("man -f ".a:str." | sed 's/[^(]*(\\([^)]*\\)).*$/\\1/g'"), '\n'), 'eval(v:val)')
+	endf
+
+	function! GetManSection(str)
+		return index(GetManSections(a:str), g:man_section) != -1 ? g:man_section : -1
+	endf
+
 	function! OpenMan(str, ...)
 		if !exists('g:man_pages_bufnr')
 			let g:man_pages_bufnr = bufnr('vimstuff man pages reader', 1)
@@ -554,17 +562,23 @@ if !exists("g:vimstuff_sourced")
 			top split
 			execute 'buffer '.g:man_pages_bufnr
 			if !g:man_pages_bufnr_has_mappings
-				map <buffer> <CR> :call OpenMan(expand('<cword>'))<CR>
+				map <buffer> <CR> :call OpenMan(expand('<cword>'), GetManSection(expand('<cword>')))<CR>
 				let g:man_pages_bufnr_has_mappings = 1
 			end
 		else
 			exec window_nr."wincmd w"
 		end
 
+		let g:man_section = len(a:000) == 0 ? -1 : (a:000[0] == 0 ? -1 : a:000[0])
+		let sections = GetManSections(a:str)
+		if g:man_section == -1 && len(sections) == 1
+			let g:man_section = sections[0]
+		end
+		let section = g:man_section == -1 ? '' : g:man_section.' '
+
 		set ma
-		let section = len(a:000) == 0 ? '' : (a:000[0] != 0 ? a:000[0].' ' : '')
 		silent 1,$delete _
-		execute 'r!man '.section.a:str
+		silent! execute 'r!man '.section.a:str.' | col -b'
 		silent 1delete _
 		set ft=man
 		set noma
@@ -572,6 +586,8 @@ if !exists("g:vimstuff_sourced")
 	endf
 
 	nmap K :<C-U>call OpenMan(expand('<cword>'), v:count)<CR>
+
+	command! -nargs=+ -complete=shellcmd Man call OpenMan(<f-args>)
 
 	if (filereadable(".vimrc") && (getcwd() != $HOME))
 		source .vimrc
