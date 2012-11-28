@@ -595,6 +595,18 @@ if !exists("g:vimstuff_sourced")
 
 	command! -nargs=+ -complete=shellcmd Man call OpenMan(<f-args>)
 
+
+	function! CountTweets()
+		%s/\d\d \S\S\S \(.*\) ‏@.*$/=== \1/g
+		%s/ Retweeted by \(.*\)$/=== \1/g
+		v/^=== /d
+		silent 1,$sor
+		normal gg
+		normal "zdG
+		let @z = system('uniq -c | sort -rn', @z)
+		normal "zP
+	endf
+
 	if (filereadable(".vimrc") && (getcwd() != $HOME))
 		source .vimrc
 	endif
