@@ -595,10 +595,17 @@ if !exists("g:vimstuff_sourced")
 
 	command! -nargs=+ -complete=shellcmd Man call OpenMan(<f-args>)
 
-
 	function! CountTweets()
-		%s/\d\d \S\S\S \(.*\) ‏@.*$/=== \1/g
-		%s/ Retweeted by \(.*\)$/=== \1/g
+		normal gg
+		^/\d\+\s\?\S\+ \(.*\) ‏@.*$
+		normal kdgg
+		normal GNjdG
+		g/^\d\+\s\?\S\+ \(.*\) ‏@.*$/normal J
+		g/^\(\s*Показать\s\)\|\(Развернуть\)/d
+		g/^\(\s*View\s\)\|\(Expand\)\|\(\s*from\s\)/d
+		%s/^\d\+ \S\+ \(.*\) ‏@.*$/=== \1/g
+		%s/^\sRetweeted by \(.*\)$/=== \1/g
+		%s/^\s\(.*\)$/=== \1/g
 		v/^=== /d
 		silent 1,$sor
 		normal gg
