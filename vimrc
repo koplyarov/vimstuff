@@ -238,7 +238,7 @@ if !exists("g:vimstuff_sourced")
 	nmap <F8> :cn<CR>
 	nmap <F7> :cN<CR>
 	nmap <F5> "zyiw:Search \<<C-R>z\><CR><CR>:cw<CR>
-	nmap <F6> "zyiw:tabf <C-R>%<CR>:tag <C-R>z<CR>
+	nmap <F6> "zyiw:tabnew<CR>:tag <C-R>z<CR>
 	nmap <S-F5> :make<CR>
 	command! -nargs=0 GitBlame echo substitute(system('git blame -L '.line('.').','.line('.').' '.Relpath(@%)), '^\([^(]*([^)]*)\).*$', '\1', '')
 	command! -nargs=0 GitShow execute '!git show '.substitute(system('git blame -L '.line('.').','.line('.').' '.Relpath(@%)), '^\(\x*\)\s.*$', '\1', '')
