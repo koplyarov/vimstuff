@@ -597,7 +597,7 @@ if !exists("g:vimstuff_sourced")
 
 	function! CountTweets()
 		normal gg
-		silent! ^/\d\+\s\?\S\+ \(.*\) ‏@.*$
+		silent! /^\d\+\s\?\S\+ \(.*\) ‏@.*$
 		normal kdgg
 		normal GNjdG
 		silent! g/^\d\+\s\?\S\+ \(.*\) ‏@.*$/normal J
