@@ -57,6 +57,10 @@ if !exists("g:vimstuff_sourced")
 		silent! execute subst_cmd
 	endf
 
+	let g:c_std_includes = 'stdio\.h\|memory\.h\|ctype.h'
+	let g:cpp_std_includes = 'vector\|string\|set\|map\|list\|deque\|queue\|memory\|stdexcept\|iostream\|algorithm\|functional\|streambuf\|utility\|sstream\|fstream\|type_info'
+	let g:platform_includes = 'windows\.h\|wintypes\.h'
+
 	function! DoNewFile(filename)
 		let command_str = g:createCodeFileScript . " " . a:filename
 		call system(command_str)
@@ -139,7 +143,7 @@ if !exists("g:vimstuff_sourced")
 			endtry
 		end
 		let excludes_list = ["*map", "*tex", "*html", "*git*", "*doxygen*", "*svn*", "*entries", "*all-wcprops", "depend*", "*includecache", "tags", "valgrind*", "types_*.taghl", "types_*.vim"]
-		let excludedirs_list = ["etc", "build", ".git", "CMakeFiles"]
+		let excludedirs_list = ["etc", "build", ".git", "CMakeFiles", ".svn"]
 		let excludes_string = "--exclude=\"" . join(excludes_list, "\" --exclude=\"") . "\" --exclude-dir=\"" . join(excludedirs_list, "\" --exclude-dir=\"") . "\""
 		execute "grep " . excludes_string . " -A " . context_lines . " -rI \"" . expression . "\" ./"
 	endf
@@ -514,21 +518,39 @@ if !exists("g:vimstuff_sourced")
 		if strlen(a:inc) == 0
 			return
 		end
+		let include_line = '#include <'.a:inc.'>'
 		if search('#include <'.escape(a:inc, '&*./\').'>', 'bWn') != 0
-			echo '#include <'.a:inc.'> already exists!'
+			echo include_line.' already exists!'
 			return
 		end
+
+		let includes_pattern = ''
+		if exists('g:include_priorities')
+			for i in range(0, len(g:include_priorities) - 1)
+				if match(include_line, '#include <\('.g:include_priorities[i].'\)>') != -1
+					let includes_pattern = g:include_priorities[i]
+					"echo i.': '.g:include_priorities[i]
+				end
+			endfor
+		end
+
 		let save_cursor = getpos('.')
-		let l = search('#include', 'bW')
+		let l = 0
+		if strlen(includes_pattern) > 0
+			let l = search('#include <\('.includes_pattern.'\)', 'bW')
+		end
+		if l == 0
+			let l = search('#include', 'bW')
+		end
 		if l == 0
 			call setpos('.', [save_cursor[0], 1, 1, save_cursor[3]])
 			if strlen(getline(1)) != 0
 				let l = search('^$', 'Wc')
 			end
-			call append(l, ['', '#include <'.a:inc.'>', ''])
+			call append(l, ['', include_line, ''])
 			let lines_inserted = 3
 		else
-			call append(l, '#include <'.a:inc.'>')
+			call append(l, include_line)
 			let lines_inserted = 1
 			let b = search('^$', 'Wbcn')
 			let e = search('^$', 'Wcn')
@@ -539,7 +561,7 @@ if !exists("g:vimstuff_sourced")
 			normal! 
 		endfor
 		redraw
-		echo '#include <'.a:inc.'>'
+		echo include_line
 	endf
 
 
