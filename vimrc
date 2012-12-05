@@ -210,7 +210,7 @@ if !exists("g:vimstuff_sourced")
 	endf
 
 
-	au QuickfixCmdPost make nested if FixQuickFix() | cn | end | cw
+	au QuickfixCmdPost make nested if FixQuickFix() | silent! cn | end | cw
 	au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp call InitCppHotKeys()
 	au BufRead,BufNewFile *.qml set filetype=qml
 	au BufRead,BufNewFile *.decl set filetype=qml
