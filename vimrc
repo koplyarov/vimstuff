@@ -58,7 +58,7 @@ if !exists("g:vimstuff_sourced")
 	endf
 
 	let g:c_std_includes = 'stdio\.h\|memory\.h\|ctype.h'
-	let g:cpp_std_includes = 'vector\|string\|set\|map\|list\|deque\|queue\|memory\|stdexcept\|iostream\|algorithm\|functional\|streambuf\|utility\|sstream\|fstream\|type_info'
+	let g:cpp_std_includes = 'vector\|string\|set\|map\|list\|deque\|queue\|memory\|stdexcept\|iostream\|algorithm\|functional\|streambuf\|utility\|sstream\|fstream\|typeinfo'
 	let g:platform_includes = 'windows\.h\|wintypes\.h'
 
 	function! DoNewFile(filename)
@@ -453,7 +453,7 @@ if !exists("g:vimstuff_sourced")
 		call ExtendIncludes(std_includes, 'utility', [ 'pair' ])
 		call ExtendIncludes(std_includes, 'sstream', [ 'stringstream', 'istringstream', 'ostringstream', 'basic_stringstream', 'basic_istringstream', 'basic_ostringstream' ])
 		call ExtendIncludes(std_includes, 'fstream', [ 'fstream', 'ifstream', 'ofstream', 'basic_fstream', 'basic_ifstream', 'basic_ofstream' ])
-		call ExtendIncludes(std_includes, 'type_info', [ 'type_info', 'bad_cast', 'bad_typeid' ])
+		call ExtendIncludes(std_includes, 'typeinfo', [ 'type_info', 'bad_cast', 'bad_typeid' ])
 
 		if has_key(std_includes, a:symbol)
 			return std_includes[a:symbol]
