@@ -378,7 +378,11 @@ if !exists("g:vimstuff_sourced")
 	function! GotoTag(tag)
 		let path = Relpath(a:tag['filename'])
 		execute 'edit ' . path
-		silent execute a:tag['cmd']
+		let cmd = a:tag['cmd']
+		if cmd[0] == '/'
+			let cmd = '/\M' . strpart(cmd, 1)
+		endif
+		silent execute cmd
 	endf
 
 	function! Goto(symbol)
