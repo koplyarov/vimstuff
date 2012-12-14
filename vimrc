@@ -35,6 +35,7 @@ if !exists("g:vimstuff_sourced")
 		\ 'qml': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' }
 	\ }
 
+	let g:snippets_dir = $HOME.'/.vim/my-snippets'
 	let g:fuf_coveragefile_exclude = '\v\~$|\.(o|exe|dll|bak|png|jpg|orig|sw[po]|pyc)$|(^|[/\\])\.(hg|git|bzr)($|[/\\])'
 	let g:clang_complete_auto=0
 	let g:clang_hl_errors=0
@@ -223,11 +224,7 @@ if !exists("g:vimstuff_sourced")
 	"end
 
 	" Remove clang-complete stupid mappings
-	au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp silent! execute 'iunmap <Tab>'
-
-	if 0 " exists('*ResetSnippets')
-		au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp call ResetSnippets('cpp') | call ResetSnippets('c') | call ExtractSnipsFile('/home/koplyarov/.vim/my-snippets/cpp.snippets', 'cpp') | call ExtractSnipsFile('/home/koplyarov/.vim/my-snippets/c.snippets', 'c')
-	endif
+	"au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp silent! execute 'iunmap <Tab>'
 
 	if !exists('g:TagHighlightSettings')
 		let g:TagHighlightSettings = {}
