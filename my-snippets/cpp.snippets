@@ -74,7 +74,7 @@ snippet Srvi
 
 		class ${1:`substitute(Filename('$1', 'SomeService'), 'Provider$', '', '')`}Provider : public ServiceProvider<I$1>
 		{ };
-	
+
 	}
 snippet Srvd
 	#include <`substitute(Relpath(@%), '.cpp$', '.h', '')`>
@@ -88,5 +88,5 @@ snippet Srvd
 	#else
 		TOOLKIT_SERVICE_NOT_SUPPORTED(I${1:`substitute(Filename('$1', 'SomeService'), 'Provider$', '', '')`});
 	#endif
-	
+
 	}
