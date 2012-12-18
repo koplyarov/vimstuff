@@ -266,6 +266,8 @@ if !exists("g:vimstuff_sourced")
 		end
 	endf
 
+	nmap <C-F><C-F> :call VimCommanderToggle() <CR>
+	nmap <C-F>f :call VimCommanderToggle() <CR>
 	nmap <C-N><C-N> :call MirrorOrToggleNERDTree() <CR>
 	nmap <C-N>n :call MirrorOrToggleNERDTree() <CR>
 	nmap <C-N><C-F> :NERDTreeFind<CR>
