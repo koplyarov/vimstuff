@@ -149,6 +149,11 @@ if !exists("g:vimstuff_sourced")
 		execute "grep " . excludes_string . " -A " . context_lines . " -rI \"" . expression . "\" ./"
 	endf
 
+	function! InitGitHotKeys()
+		map <2-LeftMouse> <LeftMouse> "zyiw:if match(@z, '\x\{40\}') != -1 <Bar> execute "!git show ".@z <Bar> end<CR>
+		nmap <CR> "zyiw:if match(@z, '\x\{40\}') != -1 <Bar> execute "!git show ".@z <Bar> end<CR>
+	endf
+
 	function! InitCppHotKeys()
 		command! -nargs=1 -complete=file HeaderToCpp call DoHeaderToCpp("<args>")
 
@@ -213,6 +218,7 @@ if !exists("g:vimstuff_sourced")
 
 	au QuickfixCmdPost make nested if FixQuickFix() | silent! cn | cw | else | ccl | end
 	au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp call InitCppHotKeys()
+	au BufRead,BufNewFile *.git call InitGitHotKeys()
 	au BufRead,BufNewFile *.qml set filetype=qml
 	au BufRead,BufNewFile *.decl set filetype=qml
 	au BufRead,BufNewFile *.cmix set filetype=cmix
