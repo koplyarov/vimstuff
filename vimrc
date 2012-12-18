@@ -150,8 +150,8 @@ if !exists("g:vimstuff_sourced")
 	endf
 
 	function! InitGitHotKeys()
-		map <2-LeftMouse> <LeftMouse> "zyiw:if match(@z, '\x\{40\}') != -1 <Bar> execute "!git show ".@z <Bar> end<CR>
-		nmap <CR> "zyiw:if match(@z, '\x\{40\}') != -1 <Bar> execute "!git show ".@z <Bar> end<CR>
+		map <2-LeftMouse> <LeftMouse> "zyiw:if match(@z, '\x\{40\}') != -1 <Bar> execute "!clear; git show --color ".@z." <Bar> less -RSX"<Bar> end<CR>
+		nmap <CR> "zyiw:if match(@z, '\x\{40\}') != -1 <Bar> execute "!clear; git show --color ".@z." <Bar> less -RSX"<Bar> end<CR>
 	endf
 
 	function! InitCppHotKeys()
