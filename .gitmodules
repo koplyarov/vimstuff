@@ -28,3 +28,6 @@
 [submodule "pathogen_bundle/nerdcommenter"]
 	path = pathogen_bundle/nerdcommenter
 	url = https://github.com/scrooloose/nerdcommenter.git
+[submodule "pathogen_bundle/vimcommander"]
+	path = pathogen_bundle/vimcommander
+	url = https://github.com/vim-scripts/vimcommander.git
