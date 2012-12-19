@@ -276,8 +276,8 @@ if !exists("g:vimstuff_sourced")
 	nmap <C-F>f :call VimCommanderToggle() <CR>
 	nmap <C-N><C-N> :call MirrorOrToggleNERDTree() <CR>
 	nmap <C-N>n :call MirrorOrToggleNERDTree() <CR>
-	nmap <C-N><C-F> :NERDTreeFind<CR>
-	nmap <C-N>f :NERDTreeFind<CR>
+	nmap <C-N><C-F> :let @q = bufname("%") <Bar> NERDTreeMirror <Bar> execute bufwinnr(@q).'wincmd w' <Bar> NERDTreeFind<CR>
+	nmap <C-N>f :let @q = bufname("%") <Bar> NERDTreeMirror <Bar> execute bufwinnr(@q).'wincmd w' <Bar> NERDTreeFind<CR>
 
 
 	"//<editor-fold defaultstate="collapsed" desc="global references">
