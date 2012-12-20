@@ -255,8 +255,8 @@ if !exists("g:vimstuff_sourced")
 	nmap g<C-\> "zyiw:ptj <C-R>z<CR>
 	map gd "qyiw:call searchdecl("<C-R>q", 0, 1)<CR>:let @/='\<'.@q.'\>'<CR>:set hlsearch<CR>:echo @q<CR>
 	inoremap <Nul> <Space> <BS><BS><C-X><C-O>
-	noremap <M-Up> [{
-	noremap <M-Down> ]}
+	noremap <M-Up> [{zz
+	noremap <M-Down> ]}zz
 	noremap <M-Left> [(
 	noremap <M-Right> ])
 
