@@ -58,7 +58,7 @@ if !exists("g:vimstuff_sourced")
 		silent! execute subst_cmd
 	endf
 
-	let g:c_std_includes = 'stdio\.h\|memory\.h\|ctype.h'
+	let g:c_std_includes = 'stdio\.h\|string\.h\|ctype.h'
 	let g:cpp_std_includes = 'vector\|string\|set\|map\|list\|deque\|queue\|memory\|stdexcept\|iostream\|algorithm\|functional\|streambuf\|utility\|sstream\|fstream\|typeinfo'
 	let g:platform_includes = 'windows\.h\|wintypes\.h'
 
