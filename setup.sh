@@ -1,5 +1,15 @@
 #!/bin/bash
 
+USAGE_MSG="Usage:
+	setup.sh [flags] action
+actions:
+	install                 install vimstuff
+	remove                  remove vimstuff
+	help                    show this message
+flags:
+	--symlinks              use symlinks instead of copying all the stuff to .vim directory
+"
+
 VIM_DIR="$HOME/.vim"
 CWD=`pwd`
 SCRIPT_NAME=`basename $0`
@@ -76,13 +86,21 @@ AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 fuf.patch
 AddAction VIMSTUFF_SETUP_SYMLINKS AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
 AddAction VIMSTUFF_SETUP AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
 
-if [ "x$2" = "xsymlinks" ]; then
-	SETUP="VIMSTUFF_SETUP_SYMLINKS"
-else
-	SETUP="VIMSTUFF_SETUP"
-fi
+SETUP="VIMSTUFF_SETUP"
 
-case "x$1" in
+ArgParser () {
+	case "$1" in
+	"install"|"remove")		ACTION=$1 ;;
+	"help"|"--help"|"-h")	echo "$USAGE_MSG" >&2; exit 0 ;;
+	"--symlinks")			SETUP="VIMSTUFF_SETUP_SYMLINKS" ;;
+	*)						return 255 ;;
+	esac
+}
+
+
+ParseArguments ArgParser "$@" || { echo "$USAGE_MSG" 1>&2; exit 1; }
+
+case "x$ACTION" in
 "xinstall")
 	if Install $SETUP; then
 		UpdateVimHelpTags
@@ -120,6 +138,7 @@ case "x$1" in
 	UpdateFunc $2
 	;;
 *)
-	Fail "usage: $SCRIPT_NAME install|remove|update [symlinks]"
+	echo "$USAGE_MSG" 1>&2
+	Fail "No action specified!"
 	;;
 esac
