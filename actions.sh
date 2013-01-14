@@ -11,3 +11,7 @@ undo_AddVimCfgLine() {
 	LINE="`EscapeForSed "$2"`"
 	sed -i "s/^$LINE/\"$LINE/g" $1
 }
+
+msg_VimBall() { echo "Installing vimball '$1'"; }
+do_VimBall() { vim +"source $1" +"qa"; }
+undo_VimBall() { vim +"RmVimball $1" +"qa"; }
