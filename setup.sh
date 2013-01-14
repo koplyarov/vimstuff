@@ -44,6 +44,9 @@ UpdateVimHelpTags() {
 CreateSetup VIMSTUFF_SETUP_SYMLINKS
 CreateSetup VIMSTUFF_SETUP
 
+AddAction VIMSTUFF_SETUP_SYMLINKS DownloadFile "http://www.vim.org/scripts/download_script.php?src_id=12700" "$SCRIPT_DIR/edc.vba"
+AddAction VIMSTUFF_SETUP DownloadFile "http://www.vim.org/scripts/download_script.php?src_id=12700" "$SCRIPT_DIR/edc.vba"
+
 AddAction VIMSTUFF_SETUP_SYMLINKS MkDir "$VIM_DIR"
 AddAction VIMSTUFF_SETUP_SYMLINKS MkDir "$VIM_DIR/autoload"
 AddAction VIMSTUFF_SETUP_SYMLINKS MkDir "$VIM_DIR/syntax"
@@ -82,6 +85,9 @@ AddAction VIMSTUFF_SETUP_SYMLINKS Patch "$SCRIPT_DIR/pathogen_bundle" -p1 clang_
 AddAction VIMSTUFF_SETUP_SYMLINKS Patch "$SCRIPT_DIR/pathogen_bundle" -p1 fuf.patch
 AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 clang_complete.patch
 AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 fuf.patch
+
+AddAction VIMSTUFF_SETUP_SYMLINKS VimBall "$SCRIPT_DIR/edc.vba"
+AddAction VIMSTUFF_SETUP VimBall "$SCRIPT_DIR/edc.vba"
 
 AddAction VIMSTUFF_SETUP_SYMLINKS AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
 AddAction VIMSTUFF_SETUP AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
