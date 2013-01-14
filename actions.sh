@@ -14,4 +14,4 @@ undo_AddVimCfgLine() {
 
 msg_VimBall() { echo "Installing vimball '$1'"; }
 do_VimBall() { vim +"source $1" +"qa"; }
-undo_VimBall() { vim +"RmVimball $1" +"qa"; }
+undo_VimBall() { vim +"RmVimball `basename "$1"`"; }
