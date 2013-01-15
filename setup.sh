@@ -90,10 +90,10 @@ SETUP="VIMSTUFF_SETUP"
 
 ArgParser () {
 	case "$1" in
-	"install"|"remove")		ACTION=$1 ;;
-	"help"|"--help"|"-h")	echo "$USAGE_MSG" >&2; exit 0 ;;
-	"--symlinks")			SETUP="VIMSTUFF_SETUP_SYMLINKS" ;;
-	*)						return 255 ;;
+	"install"|"remove"|"update")	ACTION=$1 ;;
+	"help"|"--help"|"-h")			echo "$USAGE_MSG" >&2; exit 0 ;;
+	"--symlinks")					SETUP="VIMSTUFF_SETUP_SYMLINKS" ;;
+	*)								return 255 ;;
 	esac
 }
 
