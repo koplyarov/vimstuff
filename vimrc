@@ -165,6 +165,7 @@ if !exists("g:vimstuff_sourced")
 		map t<C-]> "wyiw:call Goto(@w)<CR>
 		nmap <C-RightMouse> <LeftMouse>t<C-]>
 		nmap <C-P> :echo join(GetCppPath(), '::')<CR>
+		nmap g% :call searchpair('<', '', '>', getline('.')[col('.') - 1] == '>' ? 'bW' : 'W')<CR>
 	endf
 
 	command! -nargs=1 -complete=file NewFile call DoNewFile("<args>")
