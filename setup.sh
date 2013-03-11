@@ -44,9 +44,6 @@ UpdateVimHelpTags() {
 CreateSetup VIMSTUFF_SETUP_SYMLINKS
 CreateSetup VIMSTUFF_SETUP
 
-AddAction VIMSTUFF_SETUP_SYMLINKS DownloadFile "http://www.vim.org/scripts/download_script.php?src_id=12700" "$SCRIPT_DIR/edc.vba"
-AddAction VIMSTUFF_SETUP DownloadFile "http://www.vim.org/scripts/download_script.php?src_id=12700" "$SCRIPT_DIR/edc.vba"
-
 AddAction VIMSTUFF_SETUP_SYMLINKS MkDir "$VIM_DIR"
 AddAction VIMSTUFF_SETUP_SYMLINKS MkDir "$VIM_DIR/autoload"
 AddAction VIMSTUFF_SETUP_SYMLINKS MkDir "$VIM_DIR/syntax"
@@ -86,19 +83,17 @@ AddAction VIMSTUFF_SETUP_SYMLINKS Patch "$SCRIPT_DIR/pathogen_bundle" -p1 fuf.pa
 AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 clang_complete.patch
 AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 fuf.patch
 
-AddAction VIMSTUFF_SETUP_SYMLINKS VimBall "$SCRIPT_DIR/edc.vba"
-AddAction VIMSTUFF_SETUP VimBall "$SCRIPT_DIR/edc.vba"
-
 AddAction VIMSTUFF_SETUP_SYMLINKS AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
 AddAction VIMSTUFF_SETUP AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
 
 SETUP="VIMSTUFF_SETUP"
+FLAGS=""
 
 ArgParser () {
 	case "$1" in
 	"install"|"remove"|"update")	ACTION=$1 ;;
 	"help"|"--help"|"-h")			echo "$USAGE_MSG" >&2; exit 0 ;;
-	"--symlinks")					SETUP="VIMSTUFF_SETUP_SYMLINKS" ;;
+	"--symlinks")					SETUP="VIMSTUFF_SETUP_SYMLINKS"; FLAGS="$FLAGS --symlinks" ;;
 	*)								return 255 ;;
 	esac
 }
@@ -126,11 +121,11 @@ case "x$ACTION" in
 "xupdate")
 	UpdateFunc() {
 		Log "Removing current revision of vimstuff"
-		$0 remove $1
+		$0 $FLAGS remove
 		Log "Pulling new revision from git"
 		git pull
 		if [ $? -ne 0 ]; then
-			$0 install || Log Warning "Could not install vimstuff!"
+			$0 $FLAGS install || Log Warning "Could not install vimstuff!"
 			Fail "Could not pull new version!"
 		fi
 		Log "Initializing git submodules"
@@ -138,7 +133,7 @@ case "x$ACTION" in
 		Log "Updating git submodules"
 		git submodule update || Log Warning "Could not update git submodules!"
 		Log "Installing new revision of vimstuff"
-		$0 install $1 || Fail "Could not install vimstuff!"
+		$0 $FLAGS install || Fail "Could not install vimstuff!"
 		exit 0
 	}
 	UpdateFunc $2
