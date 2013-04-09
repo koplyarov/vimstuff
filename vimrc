@@ -131,22 +131,11 @@ if !exists("g:vimstuff_sourced")
 		return 0
 	endf
 
-
 	function! DoSearch(expression)
-		let args = split(a:expression)
-		let expression = a:expression
-		let context_lines = 0
-		if len(args) > 1
-			try
-				let context_lines = args[-1]
-				call remove(args, 0)
-				let expression = join(args, " ")
-			endtry
-		end
 		let excludes_list = ["*map", "*tex", "*html", "*git*", "*doxygen*", "*svn*", "*entries", "*all-wcprops", "depend*", "*includecache", "tags", "valgrind*", "types_*.taghl", "types_*.vim"]
 		let excludedirs_list = ["etc", "build", ".git", "CMakeFiles", ".svn"]
 		let excludes_string = "--exclude=\"" . join(excludes_list, "\" --exclude=\"") . "\" --exclude-dir=\"" . join(excludedirs_list, "\" --exclude-dir=\"") . "\""
-		execute "grep " . excludes_string . " -A " . context_lines . " -rI \"" . expression . "\" ./"
+		execute "grep " . excludes_string . " -rI \"" . a:expression . "\" ./"
 	endf
 
 	function! InitGitHotKeys()
