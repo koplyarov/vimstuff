@@ -73,9 +73,9 @@ if !exists("g:vimstuff_sourced")
 		if stridx(a:filename, ".hpp") != -1
 			let filename_str = substitute(a:filename, "\\.hpp$", ".cpp", "")
 		elseif stridx(a:filename, ".h") != -1
-			let filename_str = substitute(a:filename, "\\.h$", ".cpp", "")
+			let filename_str = substitute(a:filename, "\\.h$", ".c", "")
 			if !filereadable(filename_str)
-				let filename_str = substitute(a:filename, "\\.h$", ".c", "")
+				let filename_str = substitute(a:filename, "\\.h$", ".cpp", "")
 			endif
 		elseif stridx(a:filename, ".cpp") != -1
 			let filename_str = substitute(a:filename, "\\.cpp$", ".h", "")
