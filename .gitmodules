@@ -31,3 +31,6 @@
 [submodule "pathogen_bundle/matchit"]
 	path = pathogen_bundle/matchit
 	url = https://github.com/tsaleh/vim-matchit.git
+[submodule "pathogen_bundle/vim-template"]
+	path = pathogen_bundle/vim-template
+	url = https://github.com/thinca/vim-template.git
