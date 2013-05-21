@@ -24,6 +24,40 @@ if !exists("g:vimstuff_sourced")
 
 	autocmd VimLeavePre * colorscheme default
 
+	function! GetCppNamespaceFromPath(path)
+		return []
+	endfunction
+
+	function! GetHeaderFile(pathStr)
+	endfunction
+
+	autocmd User plugin-template-loaded call s:template_keywords()
+	function! s:template_keywords()
+		%s/<+FILENAME+>/\=toupper(substitute(expand('%'), '[-.\/\\\\:]', '_', 'g'))/ge
+		%s/<+FILENAME_MANGLED+>/\=toupper(substitute(expand('%'), '[-.\/\\\\:]', '_', 'g'))/ge
+		%s/<+DATE+>/\=strftime('%Y-%m-%d')/ge
+		let namespaces=GetCppNamespaceFromPath(split(Relpath(expand('%')), '/'))
+		if len(namespaces) == 0
+			g/<+NAMESPACES_OPEN+>/de
+			g/<+NAMESPACES_CLOSE+>/de
+		else
+			let namespaces_string = ''
+			for ns in namespaces
+				if len(namespaces_string) > 0
+					let namespaces_string .= " {\n"
+				endif
+				let namespaces_string .= 'namespace '.ns
+			endfor
+			let namespaces_string .= "\n{"
+			%s/<+NAMESPACES_OPEN+>/\=namespaces_string/ge
+			%s/<+NAMESPACES_CLOSE+>/\=repeat('}', len(namespaces))/ge
+		endif
+		silent %s/<%=\(.\{-}\)%>/\=eval(submatch(1))/ge
+		if search('<+CURSOR+>')
+			execute 'normal! "_da>'
+		endif
+		" And more...
+	endfunction
 
 	" Resetting colors for ubuntu 12.10 vim =(
 	hi Pmenu			ctermfg=7 ctermbg=5 gui=bold guifg=White guibg=DarkGray
@@ -67,6 +101,19 @@ if !exists("g:vimstuff_sourced")
 		call system(command_str)
 		let open_cmd = "e " . a:filename
 		silent execute open_cmd
+	endf
+
+	function! GetHeaderFile(filename)
+		let filename_str = ''
+		if stridx(a:filename, ".cpp") != -1
+			let filename_str = substitute(a:filename, "\\.cpp$", ".h", "")
+			if !filereadable(filename_str)
+				let filename_str = substitute(a:filename, "\\.cpp$", ".hpp", "")
+			endif
+		elseif stridx(a:filename, ".c") != -1
+			let filename_str = substitute(a:filename, "\\.c$", ".h", "")
+		endif
+		return filename_str
 	endf
 
 	function! DoHeaderToCpp(filename)
