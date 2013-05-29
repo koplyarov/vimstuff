@@ -1,0 +1,8 @@
+#ifndef <+FILENAME_MANGLED+>
+#define <+FILENAME_MANGLED+>
+
+<+NAMESPACES_OPEN+>
+<+CURSOR+>
+<+NAMESPACES_CLOSE+>
+
+#endif

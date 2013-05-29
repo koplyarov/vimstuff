@@ -1,5 +1,15 @@
 #!/bin/bash
 
+USAGE_MSG="Usage:
+	setup.sh [flags] action
+actions:
+	install                 install vimstuff
+	remove                  remove vimstuff
+	help                    show this message
+flags:
+	--symlinks              use symlinks instead of copying all the stuff to .vim directory
+"
+
 VIM_DIR="$HOME/.vim"
 CWD=`pwd`
 SCRIPT_NAME=`basename $0`
@@ -47,10 +57,12 @@ AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR/doc"
 AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
 AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
 AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
+AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/template" "$VIM_DIR/template"
 
 AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
 AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
 AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
+AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/template" "$VIM_DIR/template"
 
 for SYNTAX_FILE in $SYNTAX_FILES; do
 	AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/syntax/$SYNTAX_FILE" "$VIM_DIR/syntax/$SYNTAX_FILE"
@@ -76,13 +88,22 @@ AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 fuf.patch
 AddAction VIMSTUFF_SETUP_SYMLINKS AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
 AddAction VIMSTUFF_SETUP AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
 
-if [ "x$2" = "xsymlinks" ]; then
-	SETUP="VIMSTUFF_SETUP_SYMLINKS"
-else
-	SETUP="VIMSTUFF_SETUP"
-fi
+SETUP="VIMSTUFF_SETUP"
+FLAGS=""
 
-case "x$1" in
+ArgParser () {
+	case "$1" in
+	"install"|"remove"|"update")	ACTION=$1 ;;
+	"help"|"--help"|"-h")			echo "$USAGE_MSG" >&2; exit 0 ;;
+	"--symlinks")					SETUP="VIMSTUFF_SETUP_SYMLINKS"; FLAGS="$FLAGS --symlinks" ;;
+	*)								return 255 ;;
+	esac
+}
+
+
+ParseArguments ArgParser "$@" || { echo "$USAGE_MSG" 1>&2; exit 1; }
+
+case "x$ACTION" in
 "xinstall")
 	if Install $SETUP; then
 		UpdateVimHelpTags
@@ -102,11 +123,11 @@ case "x$1" in
 "xupdate")
 	UpdateFunc() {
 		Log "Removing current revision of vimstuff"
-		$0 remove $1
+		$0 $FLAGS remove
 		Log "Pulling new revision from git"
 		git pull
 		if [ $? -ne 0 ]; then
-			$0 install || Log Warning "Could not install vimstuff!"
+			$0 $FLAGS install || Log Warning "Could not install vimstuff!"
 			Fail "Could not pull new version!"
 		fi
 		Log "Initializing git submodules"
@@ -114,12 +135,13 @@ case "x$1" in
 		Log "Updating git submodules"
 		git submodule update || Log Warning "Could not update git submodules!"
 		Log "Installing new revision of vimstuff"
-		$0 install $1 || Fail "Could not install vimstuff!"
+		$0 $FLAGS install || Fail "Could not install vimstuff!"
 		exit 0
 	}
 	UpdateFunc $2
 	;;
 *)
-	Fail "usage: $SCRIPT_NAME install|remove|update [symlinks]"
+	echo "$USAGE_MSG" 1>&2
+	Fail "No action specified!"
 	;;
 esac

@@ -24,6 +24,40 @@ if !exists("g:vimstuff_sourced")
 
 	autocmd VimLeavePre * colorscheme default
 
+	function! GetCppNamespaceFromPath(path)
+		return []
+	endfunction
+
+	function! GetHeaderFile(pathStr)
+	endfunction
+
+	autocmd User plugin-template-loaded call s:template_keywords()
+	function! s:template_keywords()
+		%s/<+FILENAME+>/\=toupper(substitute(expand('%'), '[-.\/\\\\:]', '_', 'g'))/ge
+		%s/<+FILENAME_MANGLED+>/\=toupper(substitute(expand('%'), '[-.\/\\\\:]', '_', 'g'))/ge
+		%s/<+DATE+>/\=strftime('%Y-%m-%d')/ge
+		let namespaces=GetCppNamespaceFromPath(split(Relpath(expand('%')), '/'))
+		if len(namespaces) == 0
+			g/<+NAMESPACES_OPEN+>/de
+			g/<+NAMESPACES_CLOSE+>/de
+		else
+			let namespaces_string = ''
+			for ns in namespaces
+				if len(namespaces_string) > 0
+					let namespaces_string .= " {\n"
+				endif
+				let namespaces_string .= 'namespace '.ns
+			endfor
+			let namespaces_string .= "\n{"
+			%s/<+NAMESPACES_OPEN+>/\=namespaces_string/ge
+			%s/<+NAMESPACES_CLOSE+>/\=repeat('}', len(namespaces))/ge
+		endif
+		silent %s/<%=\(.\{-}\)%>/\=eval(submatch(1))/ge
+		if search('<+CURSOR+>')
+			execute 'normal! "_da>'
+		endif
+		" And more...
+	endfunction
 
 	" Resetting colors for ubuntu 12.10 vim =(
 	hi Pmenu			ctermfg=7 ctermbg=5 gui=bold guifg=White guibg=DarkGray
@@ -69,13 +103,26 @@ if !exists("g:vimstuff_sourced")
 		silent execute open_cmd
 	endf
 
+	function! GetHeaderFile(filename)
+		let filename_str = ''
+		if stridx(a:filename, ".cpp") != -1
+			let filename_str = substitute(a:filename, "\\.cpp$", ".h", "")
+			if !filereadable(filename_str)
+				let filename_str = substitute(a:filename, "\\.cpp$", ".hpp", "")
+			endif
+		elseif stridx(a:filename, ".c") != -1
+			let filename_str = substitute(a:filename, "\\.c$", ".h", "")
+		endif
+		return filename_str
+	endf
+
 	function! DoHeaderToCpp(filename)
 		if stridx(a:filename, ".hpp") != -1
 			let filename_str = substitute(a:filename, "\\.hpp$", ".cpp", "")
 		elseif stridx(a:filename, ".h") != -1
-			let filename_str = substitute(a:filename, "\\.h$", ".cpp", "")
+			let filename_str = substitute(a:filename, "\\.h$", ".c", "")
 			if !filereadable(filename_str)
-				let filename_str = substitute(a:filename, "\\.h$", ".c", "")
+				let filename_str = substitute(a:filename, "\\.h$", ".cpp", "")
 			endif
 		elseif stridx(a:filename, ".cpp") != -1
 			let filename_str = substitute(a:filename, "\\.cpp$", ".h", "")
@@ -133,22 +180,11 @@ if !exists("g:vimstuff_sourced")
 		return 0
 	endf
 
-
 	function! DoSearch(expression)
-		let args = split(a:expression)
-		let expression = a:expression
-		let context_lines = 0
-		if len(args) > 1
-			try
-				let context_lines = args[-1]
-				call remove(args, 0)
-				let expression = join(args, " ")
-			endtry
-		end
 		let excludes_list = ["*map", "*tex", "*html", "*git*", "*doxygen*", "*svn*", "*entries", "*all-wcprops", "depend*", "*includecache", "tags", "valgrind*", "types_*.taghl", "types_*.vim"]
 		let excludedirs_list = ["etc", "build", ".git", "CMakeFiles", ".svn"]
 		let excludes_string = "--exclude=\"" . join(excludes_list, "\" --exclude=\"") . "\" --exclude-dir=\"" . join(excludedirs_list, "\" --exclude-dir=\"") . "\""
-		execute "grep " . excludes_string . " -A " . context_lines . " -rI \"" . expression . "\" ./"
+		execute "grep " . excludes_string . " -rI \"" . a:expression . "\" ./"
 	endf
 
 	function! InitGitHotKeys()
@@ -167,6 +203,7 @@ if !exists("g:vimstuff_sourced")
 		map t<C-]> "wyiw:call Goto(@w)<CR>
 		nmap <C-RightMouse> <LeftMouse>t<C-]>
 		nmap <C-P> :echo join(GetCppPath(), '::')<CR>
+		nmap g% :call searchpair('<', '', '>', getline('.')[col('.') - 1] == '>' ? 'bW' : 'W')<CR>
 	endf
 
 	command! -nargs=1 -complete=file NewFile call DoNewFile("<args>")
@@ -247,6 +284,7 @@ if !exists("g:vimstuff_sourced")
 	nmap <F8> :cn<CR>
 	nmap <F7> :cN<CR>
 	nmap <F5> "zyiw:Search \<<C-R>z\><CR><CR>:cw<CR>
+	nmap <C-F5> "zyiw:Search \(virtual\s\s*\)\?\(public\\<Bar>protected\\<Bar>private\)\s\s*\(virtual\)\?\s\s*\<<C-R>z\><CR><CR>:cw<CR>
 	nmap <F6> "zyiw:tabnew<CR>:tag <C-R>z<CR>
 	nmap <S-F5> :make<CR>
 	command! -nargs=0 GitBlame echo substitute(system('git blame -L '.line('.').','.line('.').' '.Relpath(@%)), '^\([^(]*([^)]*)\).*$', '\1', '')

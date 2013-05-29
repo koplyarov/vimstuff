@@ -7,9 +7,6 @@
 [submodule "pathogen_bundle/snipmate"]
 	path = pathogen_bundle/snipmate
 	url = https://github.com/msanders/snipmate.vim.git
-[submodule "pathogen_bundle/vtreeexplorer"]
-	path = pathogen_bundle/vtreeexplorer
-	url = https://github.com/vim-scripts/vtreeexplorer.git
 [submodule "pathogen_bundle/fuzzyfinder"]
 	path = pathogen_bundle/fuzzyfinder
 	url = https://github.com/vim-scripts/FuzzyFinder.git
@@ -31,3 +28,9 @@
 [submodule "pathogen_bundle/vimcommander"]
 	path = pathogen_bundle/vimcommander
 	url = https://github.com/vim-scripts/vimcommander.git
+[submodule "pathogen_bundle/matchit"]
+	path = pathogen_bundle/matchit
+	url = https://github.com/tsaleh/vim-matchit.git
+[submodule "pathogen_bundle/vim-template"]
+	path = pathogen_bundle/vim-template
+	url = https://github.com/thinca/vim-template.git
