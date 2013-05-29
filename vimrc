@@ -84,6 +84,8 @@ if !exists("g:vimstuff_sourced")
 			endif
 		elseif stridx(a:filename, ".c") != -1
 			let filename_str = substitute(a:filename, "\\.c$", ".h", "")
+		elseif stridx(a:filename, ".decl") != -1
+			let filename_str = substitute(a:filename, "\\.decl$", ".cpp", "")
 		endif
 		let open_cmd = "e " . filename_str
 		silent execute open_cmd
