@@ -24,6 +24,9 @@ if !exists("g:vimstuff_sourced")
 
 	autocmd VimLeavePre * colorscheme default
 
+	let g:clang_jumpto_declaration_key = "c<C-]>"
+	let g:clang_jumpto_back_key = "c<C-O>"
+
 	function! GetCppNamespaceFromPath(path)
 		return []
 	endfunction
