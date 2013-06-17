@@ -81,6 +81,7 @@ for PATHOGEN_BUNDLE in $PATHOGEN_BUNDLES; do
 done
 
 AddAction VIMSTUFF_SETUP_SYMLINKS Patch "$SCRIPT_DIR/pathogen_bundle" -p1 fuf.patch
+AddAction VIMSTUFF_SETUP_SYMLINKS Patch "$SCRIPT_DIR/pathogen_bundle" -p1 nerdcommenter.patch
 AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 fuf.patch
 
 AddAction VIMSTUFF_SETUP_SYMLINKS AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"

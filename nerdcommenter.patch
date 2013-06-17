@@ -1,0 +1,13 @@
+diff --git a/nerdcommenter/plugin/NERD_commenter.vim b/nerdcommenter/plugin/NERD_commenter.vim
+index f33634d..93bdb86 100644
+--- a/nerdcommenter/plugin/NERD_commenter.vim
++++ b/nerdcommenter/plugin/NERD_commenter.vim
+@@ -102,7 +102,7 @@ let s:delimiterMap = {
+     \ 'caos': { 'left': '*' },
+     \ 'calibre': { 'left': '//' },
+     \ 'catalog': { 'left': '--', 'right': '--' },
+-    \ 'c': { 'left': '/*','right': '*/', 'leftAlt': '//' },
++    \ 'c': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
+     \ 'cf': { 'left': '<!---', 'right': '--->' },
+     \ 'cfg': { 'left': '#' },
+     \ 'cg': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
