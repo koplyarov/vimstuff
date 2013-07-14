@@ -31,9 +31,6 @@ if !exists("g:vimstuff_sourced")
 		return []
 	endfunction
 
-	function! GetHeaderFile(pathStr)
-	endfunction
-
 	autocmd User plugin-template-loaded call s:template_keywords()
 	function! s:template_keywords()
 		%s/<+FILENAME+>/\=toupper(substitute(expand('%'), '[-.\/\\\\:]', '_', 'g'))/ge
@@ -106,6 +103,17 @@ if !exists("g:vimstuff_sourced")
 		silent execute open_cmd
 	endf
 
+	func! ConvertIncludeFilename(filename)
+		if exists('g:include_directories')
+			for dir in g:include_directories
+				if a:filename[0 : len(dir) - 1] == dir
+					return a:filename[((a:filename[len(dir)] == '/') ? len(dir) + 1 : len(dir)):]
+				end
+			endfor
+		end
+		return a:filename
+	endf
+
 	function! GetHeaderFile(filename)
 		let filename_str = ''
 		if stridx(a:filename, ".cpp") != -1
@@ -116,7 +124,7 @@ if !exists("g:vimstuff_sourced")
 		elseif stridx(a:filename, ".c") != -1
 			let filename_str = substitute(a:filename, "\\.c$", ".h", "")
 		endif
-		return filename_str
+		return ConvertIncludeFilename(filename_str)
 	endf
 
 	function! DoHeaderToCpp(filename)
@@ -478,17 +486,6 @@ if !exists("g:vimstuff_sourced")
 			end
 		end
 		return result
-	endf
-
-	func! ConvertIncludeFilename(filename)
-		if exists('g:include_directories')
-			for dir in g:include_directories
-				if a:filename[0 : len(dir) - 1] == dir
-					return a:filename[((a:filename[len(dir)] == '/') ? len(dir) + 1 : len(dir)):]
-				end
-			endfor
-		end
-		return a:filename
 	endf
 
 	function GetIncludeFile(symbol)
