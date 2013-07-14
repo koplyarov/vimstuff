@@ -480,6 +480,17 @@ if !exists("g:vimstuff_sourced")
 		return result
 	endf
 
+	func! ConvertIncludeFilename(filename)
+		if exists('g:include_directories')
+			for dir in g:include_directories
+				if a:filename[0 : len(dir) - 1] == dir
+					return a:filename[((a:filename[len(dir)] == '/') ? len(dir) + 1 : len(dir)):]
+				end
+			endfor
+		end
+		return a:filename
+	endf
+
 	function GetIncludeFile(symbol)
 		let std_includes = {}
 		function! ExtendIncludes(dict, file, symbols)
@@ -534,23 +545,23 @@ if !exists("g:vimstuff_sourced")
 		end
 
 		if len(s:filenames) == 1
-			return s:filenames[0]
+			return ConvertIncludeFilename(s:filenames[0])
 		end
 
 		let ns1 = GetTagNamespace(tags[0])
 		let ns2 = GetTagNamespace(tags[1])
 		if ns1 == s:ns && ns2 != s:ns
-			return s:filenames[0]
+			return ConvertIncludeFilename(s:filenames[0])
 		end
 		if GetCommonSublistLen(ns1, s:ns) == len(s:ns) && GetCommonSublistLen(ns2, s:ns) != len(s:ns)
-			return s:filenames[0]
+			return ConvertIncludeFilename(s:filenames[0])
 		end
 		if GetCommonSublistLen(ns1, s:ns) == len(ns1) && GetCommonSublistLen(ns2, s:ns) != len(ns2)
-			return s:filenames[0]
+			return ConvertIncludeFilename(s:filenames[0])
 		end
 
 		function! IncludesComplete(A,L,P)
-			return s:filenames
+			return map(s:filenames, 'ConvertIncludeFilename(v:val)')
 		endf
 		return input('Multiple tags found, make your choice: ', s:filenames[0], 'customlist,IncludesComplete')
 	endf
