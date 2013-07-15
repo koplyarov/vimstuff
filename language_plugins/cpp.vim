@@ -38,7 +38,7 @@ let g:c_std_includes = 'stdio\.h\|string\.h\|ctype.h\|cstdio\|cstring'
 let g:cpp_std_includes = 'vector\|string\|set\|map\|list\|deque\|queue\|memory\|stdexcept\|iostream\|algorithm\|functional\|streambuf\|utility\|sstream\|fstream\|typeinfo'
 let g:platform_includes = 'windows\.h\|wintypes\.h'
 
-func! ConvertIncludeFilename(filename)
+func! RemoveIncludeDirectory(filename)
 	if exists('g:include_directories')
 		for dir in g:include_directories
 			if a:filename[0 : len(dir) - 1] == dir
@@ -206,23 +206,23 @@ function GetIncludeFile(symbol)
 	end
 
 	if len(s:filenames) == 1
-		return ConvertIncludeFilename(s:filenames[0])
+		return RemoveIncludeDirectory(s:filenames[0])
 	end
 
 	let ns1 = GetTagNamespace(tags[0])
 	let ns2 = GetTagNamespace(tags[1])
 	if ns1 == s:ns && ns2 != s:ns
-		return ConvertIncludeFilename(s:filenames[0])
+		return RemoveIncludeDirectory(s:filenames[0])
 	end
 	if GetCommonSublistLen(ns1, s:ns) == len(s:ns) && GetCommonSublistLen(ns2, s:ns) != len(s:ns)
-		return ConvertIncludeFilename(s:filenames[0])
+		return RemoveIncludeDirectory(s:filenames[0])
 	end
 	if GetCommonSublistLen(ns1, s:ns) == len(ns1) && GetCommonSublistLen(ns2, s:ns) != len(ns2)
-		return ConvertIncludeFilename(s:filenames[0])
+		return RemoveIncludeDirectory(s:filenames[0])
 	end
 
 	function! IncludesComplete(A,L,P)
-		return map(s:filenames, 'ConvertIncludeFilename(v:val)')
+		return map(s:filenames, 'RemoveIncludeDirectory(v:val)')
 	endf
 	return input('Multiple tags found, make your choice: ', s:filenames[0], 'customlist,IncludesComplete')
 endf
