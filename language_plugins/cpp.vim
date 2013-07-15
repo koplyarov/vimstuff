@@ -135,6 +135,24 @@ function! GetCommonSublistLen(l1, l2)
 endf
 
 
+function CppNamespace(ns) " TODO use prototypes for such objects
+	let self = {}
+
+	let self.ns = a:ns
+
+	function self.compareTags(t1, t2)
+		let ns1 = a:t1.getNamespace().ns
+		let ns2 = a:t2.getNamespace().ns
+		let res = (len(ns1) - GetCommonSublistLen(ns1, self.ns)) - (len(ns2) - GetCommonSublistLen(ns2, self.ns))
+		if res == 0
+			let res = GetCommonSublistLen(ns2, self.ns) - GetCommonSublistLen(ns1, self.ns)
+		end
+		return res
+	endf
+
+	return self
+endf
+
 function! CppTag(rawTag)
 	let self = {}
 
@@ -142,13 +160,13 @@ function! CppTag(rawTag)
 
 	function self.getNamespace()
 		if has_key(self.rawTag, 'namespace')
-			return split(self.rawTag['namespace'], '::')
+			return CppNamespace(split(self.rawTag['namespace'], '::'))
 		end
 		if has_key(self.rawTag, 'struct')
-			return split(self.rawTag['struct'], '::')
+			return CppNamespace(split(self.rawTag['struct'], '::'))
 		end
 		if has_key(self.rawTag, 'class')
-			return split(self.rawTag['class'], '::')
+			return CppNamespace(split(self.rawTag['class'], '::'))
 		end
 	endf
 
@@ -157,7 +175,7 @@ endf
 
 
 function GetTagNamespace(tag)
-	return CppTag(a:tag).getNamespace()
+	return CppTag(a:tag).getNamespace().ns
 endf
 
 function GetIncludeFile(symbol)
@@ -191,17 +209,12 @@ function GetIncludeFile(symbol)
 		return std_includes[a:symbol]
 	end
 
-	func! MyCompare(a1, a2)
-		let ns1 = GetTagNamespace(a:a1)
-		let ns2 = GetTagNamespace(a:a2)
-		let res = (len(ns1) - GetCommonSublistLen(ns1, s:ns)) - (len(ns2) - GetCommonSublistLen(ns2, s:ns))
-		if res == 0
-			let res = GetCommonSublistLen(ns2, s:ns) - GetCommonSublistLen(ns1, s:ns)
-		end
-		return res
+	function! MyCompare(t1, t2)
+		return s:ns_obj.compareTags(CppTag(a:t1), CppTag(a:t2)) " =(
 	endf
 
 	let s:ns = GetCppNamespace()
+	let s:ns_obj = CppNamespace(s:ns)
 	let tags = filter(taglist("\\<".a:symbol."\\>"), 'v:val["filename"] =~ "\\.\\(h\\|hpp\\)$"') " Headers only
 	call sort(tags, 'MyCompare')
 	let s:filenames = map(copy(tags), "v:val['filename']")
