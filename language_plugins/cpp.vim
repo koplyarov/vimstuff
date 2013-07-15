@@ -296,6 +296,8 @@ function! CppSyntax()
 	return self
 endf
 
+let g:include_priorities = []
+
 function! CppPlugin()
 	let self = LangPlugin()
 

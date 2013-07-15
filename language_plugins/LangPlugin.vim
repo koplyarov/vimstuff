@@ -12,7 +12,7 @@ function! LangPlugin()
 		end
 
 		let includes_group = -1
-		if exists('a:include_priorities')
+		if len(a:include_priorities) > 0
 			for i in range(0, len(a:include_priorities) - 1)
 				if match(include_line, self.syntax.getImportRegex(a:include_priorities[i])) != -1
 					let includes_group = i
