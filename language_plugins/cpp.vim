@@ -135,21 +135,29 @@ function! GetCommonSublistLen(l1, l2)
 endf
 
 
+function! CppTag(rawTag)
+	let self = {}
+
+	let self.rawTag = a:rawTag
+
+	function self.getNamespace()
+		if has_key(self.rawTag, 'namespace')
+			return split(self.rawTag['namespace'], '::')
+		end
+		if has_key(self.rawTag, 'struct')
+			return split(self.rawTag['struct'], '::')
+		end
+		if has_key(self.rawTag, 'class')
+			return split(self.rawTag['class'], '::')
+		end
+	endf
+
+	return self
+endf
+
+
 function GetTagNamespace(tag)
-	let result=[]
-	if has_key(a:tag, 'namespace')
-		let result = split(a:tag['namespace'], '::')
-	else
-		if has_key(a:tag, 'struct')
-			let result = split(a:tag['struct'], '::')
-			"call remove(result, -1)
-		end
-		if has_key(a:tag, 'class')
-			let result = split(a:tag['class'], '::')
-			"call remove(result, -1)
-		end
-	end
-	return result
+	return CppTag(a:tag).getNamespace()
 endf
 
 function GetIncludeFile(symbol)
@@ -292,6 +300,7 @@ function! CppPlugin()
 	let self = LangPlugin()
 
 	let self.syntax = CppSyntax()
+	let self.parseTag = function('CppTag')
 
 	if exists('g:cpp_plugin_ext')
 		let self.ext = g:cpp_plugin_ext
