@@ -246,8 +246,8 @@ if !exists("g:vimstuff_sourced")
 		return i + 1
 	endf
 
-	source /home/koplyarov/work/vimstuff/language_plugins/cpp.vim
-
+	runtime language_plugins/LangPlugin.vim
+	runtime language_plugins/cpp.vim
 
 	function! GetManSections(str)
 		return split(system("man -f ".a:str." 2>&1 | sed -n 's/[^(]*(\\([^)]*\\)).*$/\\1/p'"), '\n')
