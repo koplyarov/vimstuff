@@ -59,29 +59,24 @@ function! GetHeaderFile(filename)
 	elseif stridx(a:filename, ".c") != -1
 		let filename_str = substitute(a:filename, "\\.c$", ".h", "")
 	endif
-	return ConvertIncludeFilename(filename_str)
+	return RemoveIncludeDirectory(filename_str)
 endf
 
-function! DoHeaderToCpp(filename)
-	if stridx(a:filename, ".hpp") != -1
-		let filename_str = substitute(a:filename, "\\.hpp$", ".cpp", "")
-	elseif stridx(a:filename, ".h") != -1
-		let filename_str = substitute(a:filename, "\\.h$", ".c", "")
-		if !filereadable(filename_str)
-			let filename_str = substitute(a:filename, "\\.h$", ".cpp", "")
-		endif
-	elseif stridx(a:filename, ".cpp") != -1
-		let filename_str = substitute(a:filename, "\\.cpp$", ".h", "")
-		if !filereadable(filename_str)
-			let filename_str = substitute(a:filename, "\\.cpp$", ".hpp", "")
-		endif
-	elseif stridx(a:filename, ".c") != -1
-		let filename_str = substitute(a:filename, "\\.c$", ".h", "")
-	elseif stridx(a:filename, ".decl") != -1
-		let filename_str = substitute(a:filename, "\\.decl$", ".cpp", "")
-	endif
-	let open_cmd = "e " . filename_str
-	silent execute open_cmd
+function! HeaderToCpp(filename)
+	let substitute_ext = { 'hpp': 'cpp', 'h': 'c;cpp', 'cpp': 'h;hpp', 'c': 'h' }
+	for src in keys(substitute_ext)
+		let regex = '\.'.src.'$'
+		if a:filename =~ regex
+			for dst in split(substitute_ext[src], ';')
+				let filename_to_open = substitute(a:filename, regex, '.'.dst, '')
+				if filereadable(filename_to_open)
+					break
+				end
+			endfor
+			silent execute 'e '.filename_to_open
+			break
+		end
+	endfor
 endf
 
 nmap <C-F5> "zyiw:Search \(virtual\s\s*\)\?\(public\\<Bar>protected\\<Bar>private\)\s\s*\(virtual\)\?\s\s*\<<C-R>z\><CR><CR>:cw<CR>
@@ -303,10 +298,8 @@ function! CppPlugin()
 	end
 	
 	function self.initHotkeys()
-		command! -nargs=1 -complete=file HeaderToCpp call DoHeaderToCpp("<args>")
-
 		nmap <C-F7> :let @z=Relpath('<C-R>%')<CR>:make <C-R>z.o<CR>
-		nmap <F4> :HeaderToCpp <C-R>%<CR>
+		nmap <F4> :call HeaderToCpp('<C-R>%')<CR>
 		map <C-K> "wyiw:call g:cpp_plugin.addImport(GetIncludeFile(@w), g:include_priorities)<CR>
 		map t<C-]> "wyiw:call Goto(@w)<CR>
 		nmap <C-RightMouse> <LeftMouse>t<C-]>
