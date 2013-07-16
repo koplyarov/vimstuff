@@ -62,23 +62,6 @@ function! GetHeaderFile(filename)
 	return RemoveIncludeDirectory(filename_str)
 endf
 
-function! HeaderToCpp(filename)
-	let substitute_ext = { 'hpp': 'cpp', 'h': 'c;cpp', 'cpp': 'h;hpp', 'c': 'h' }
-	for src in keys(substitute_ext)
-		let regex = '\.'.src.'$'
-		if a:filename =~ regex
-			for dst in split(substitute_ext[src], ';')
-				let filename_to_open = substitute(a:filename, regex, '.'.dst, '')
-				if filereadable(filename_to_open)
-					break
-				end
-			endfor
-			silent execute 'e '.filename_to_open
-			break
-		end
-	endfor
-endf
-
 nmap <C-F5> "zyiw:Search \(virtual\s\s*\)\?\(public\\<Bar>protected\\<Bar>private\)\s\s*\(virtual\)\?\s\s*\<<C-R>z\><CR><CR>:cw<CR>
 
 function! GetTagsInContext(symbol, context)
@@ -162,10 +145,6 @@ function! CppTag(rawTag)
 endf
 
 
-function GetTagNamespace(tag)
-	return CppTag(a:tag).getNamespace().ns
-endf
-
 function GetIncludeFile(symbol)
 	let std_includes = {}
 	function! ExtendIncludes(dict, file, symbols)
@@ -218,8 +197,8 @@ function GetIncludeFile(symbol)
 		return RemoveIncludeDirectory(s:filenames[0])
 	end
 
-	let ns1 = GetTagNamespace(tags[0])
-	let ns2 = GetTagNamespace(tags[1])
+	let ns1 = CppTag(tags[0]).getNamespace().ns
+	let ns2 = CppTag(tags[1]).getNamespace().ns
 	if ns1 == s:ns && ns2 != s:ns
 		return RemoveIncludeDirectory(s:filenames[0])
 	end
@@ -318,18 +297,31 @@ function! CppPlugin()
 	let self.parseTag = function('CppTag')
 	let self.createLocation = function('CppLocation')
 
-	if exists('g:cpp_plugin_ext')
-		let self.ext = g:cpp_plugin_ext
-	end
-
-	function self.initHotkeys()
+	function self.initHotkeys() " TODO move this out of CppPlugin
 		nmap <C-F7> :let @z=Relpath('<C-R>%')<CR>:make <C-R>z.o<CR>
-		nmap <F4> :call HeaderToCpp('<C-R>%')<CR>
+		nmap <F4> :call g:cpp_plugin.headerToCpp('<C-R>%')<CR>
 		map <C-K> "wyiw:call g:cpp_plugin.addImport(GetIncludeFile(@w), g:include_priorities)<CR>
 		map t<C-]> "wyiw:call Goto(@w)<CR>
 		nmap <C-RightMouse> <LeftMouse>t<C-]>
 		nmap <C-P> :echo join(GetCppPath(), '::')<CR>
 		nmap g% :call searchpair('<', '', '>', getline('.')[col('.') - 1] == '>' ? 'bW' : 'W')<CR>
+	endf
+
+	function self.headerToCpp(filename)
+		let substitute_ext = { 'hpp': 'cpp', 'h': 'c;cpp', 'cpp': 'h;hpp', 'c': 'h' }
+		for src in keys(substitute_ext)
+			let regex = '\.'.src.'$'
+			if a:filename =~ regex
+				for dst in split(substitute_ext[src], ';')
+					let filename_to_open = substitute(a:filename, regex, '.'.dst, '')
+					if filereadable(filename_to_open)
+						break
+					end
+				endfor
+				silent execute 'e '.filename_to_open
+				break
+			end
+		endfor
 	endf
 
 	return self
