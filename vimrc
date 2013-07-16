@@ -246,6 +246,7 @@ if !exists("g:vimstuff_sourced")
 		return i + 1
 	endf
 
+	runtime my_scripts/toolkit.vim
 	runtime language_plugins/LangPlugin.vim
 	runtime language_plugins/cpp.vim
 

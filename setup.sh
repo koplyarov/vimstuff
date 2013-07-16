@@ -58,12 +58,14 @@ AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/pathogen_bundle" "$VIM_DI
 AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
 AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
 AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/template" "$VIM_DIR/template"
+AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/my_scripts" "$VIM_DIR/my_scripts"
 AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/language_plugins" "$VIM_DIR/language_plugins"
 
 AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
 AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
 AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
 AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/template" "$VIM_DIR/template"
+AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/my_scripts" "$VIM_DIR/my_scripts"
 AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/language_plugins" "$VIM_DIR/language_plugins"
 
 for SYNTAX_FILE in $SYNTAX_FILES; do
