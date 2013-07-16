@@ -259,20 +259,20 @@ function SortBuf(begin, end)
 	endfor
 endf
 
-function! CppSyntax()
+function CppLocationPathEntry(type, name)
+	let self = { 'type': a:type, 'name': a:name }
+	return self
+endf
+
+function CppLocation(rawLocation)
 	let self = {}
 
-	function self.getImportLine(dependency)
-		return '#include <'.a:dependency.'>'
-	endf
-	
-	function self.getImportRegex(regex)
-		return '#include <\('.a:regex.'\)'
-	endf
+	let self.rawLocation = a:rawLocation
 
-	function self.getCurrentLocation()
+	function self.getLocationPath()
 		let res = []
 		let save_cursor = getpos('.')
+		call setpos('.', self.rawLocation)
 		let [l, p] = [0, 0]
 		let [l, p] = searchpairpos('{', '', '}', 'b')
 		while l != 0 || p != 0
@@ -280,23 +280,22 @@ function! CppSyntax()
 			if l == l2 && p == p2
 				let [sl, sp] = searchpos('namespace\(\s\|\n\)*\zs\ze\S*\(\s\|\n\)*{', 'becWn')
 				let [el, ep] = searchpos('namespace\(\s\|\n\)*\S*\zs\ze\(\s\|\n\)*{', 'becWn')
-				call insert(res, { 'type': 'namespace', 'name': GetTextBetweenPositions(sl, sp, el, ep) } )
+				call insert(res, CppLocationPathEntry('namespace', GetTextBetweenPositions(sl, sp, el, ep)))
 			endif
 			let [l2, p2] = searchpos('\(class\|struct\)\(\s\|\n\)*\S*\(\s\|\n\)*\(\:\([^{};]\|\n\)*\)\?{', 'becWn')
 			if l == l2 && p == p2
 				let [sl, sp] = searchpos('\(class\|struct\)\(\s\|\n\)*\zs\ze\S*\(\s\|\n\)*\(\:\([^{};]\|\n\)*\)\?{', 'becWn')
 				let [el, ep] = searchpos('\(class\|struct\)\(\s\|\n\)*\S*\zs\ze\(\s\|\n\)*\(\:\([^{};]\|\n\)*\)\?{', 'becWn')
-				call insert(res, { 'type': 'class', 'name': GetTextBetweenPositions(sl, sp, el, ep) } )
+				call insert(res, CppLocationPathEntry('class', GetTextBetweenPositions(sl, sp, el, ep)))
 			endif
 			let [l2, p2] = searchpos(')\(\s\|\n\)*\(const\(\s\|\n\)*\)\?{', 'becWn')
 			if l == l2 && p == p2
-				let save_cursor_2 = getpos('.')
 				call searchpos('\zs\ze)\(\s\|\n\)*\(const\(\s\|\n\)*\)\?{', 'becW')
 				call searchpairpos('(', '', ')', 'bW')
 				let [sl, sp] = searchpos('[^:,\s\n\t]\(\s\|\n\)\zs\ze\S*\(\s\|\n\)*(', 'becWn')
 				let [el, ep] = searchpos('[^:,\s\n\t]\(\s\|\n\)\S*\zs\ze\(\s\|\n\)*(', 'becWn')
 				let func_res = filter(split(GetTextBetweenPositions(sl, sp, el, ep), '::'), 'v:val != "while" && v:val != "for" && v:val != "if"')
-				let func_res = map(func_res, '{ "type": "function_or_class", "name": v:val }')
+				let func_res = map(func_res, 'CppLocationPathEntry("function_or_class", v:val)')
 				let res = func_res + res
 			endif
 			let [l, p] = searchpairpos('{', '', '}', 'bW')
@@ -305,6 +304,19 @@ function! CppSyntax()
 		return res
 	endf
 
+	return self
+endf
+
+function! CppSyntax()
+	let self = {}
+
+	function self.getImportLine(dependency)
+		return '#include <'.a:dependency.'>'
+	endf
+
+	function self.getImportRegex(regex)
+		return '#include <\('.a:regex.'\)'
+	endf
 
 	return self
 endf
@@ -316,11 +328,12 @@ function! CppPlugin()
 
 	let self.syntax = CppSyntax()
 	let self.parseTag = function('CppTag')
+	let self.createLocation = function('CppLocation')
 
 	if exists('g:cpp_plugin_ext')
 		let self.ext = g:cpp_plugin_ext
 	end
-	
+
 	function self.initHotkeys()
 		nmap <C-F7> :let @z=Relpath('<C-R>%')<CR>:make <C-R>z.o<CR>
 		nmap <F4> :call HeaderToCpp('<C-R>%')<CR>
@@ -337,11 +350,11 @@ endf
 let g:cpp_plugin = CppPlugin()
 
 function! GetCppPath()
-	return map(g:cpp_plugin.syntax.getCurrentLocation(), 'v:val["name"]')
+	return map(g:cpp_plugin.createLocation(getpos('.')).getLocationPath(), 'v:val["name"]')
 endf
 
 function! GetCppNamespace()
-	return map(filter(g:cpp_plugin.syntax.getCurrentLocation(), 'v:val["type"] == "namespace"'), 'v:val["name"]')
+	return map(filter(g:cpp_plugin.createLocation(getpos('.')).getLocationPath(), 'v:val["type"] == "namespace"'), 'v:val["name"]')
 endf
 
 au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp call g:cpp_plugin.initHotkeys()
