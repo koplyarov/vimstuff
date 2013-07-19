@@ -84,7 +84,7 @@ function! GetMembers(fullSymbol)
 endf
 
 function! GetTags(symbol)
-	return GetTagsInContext(a:symbol, map(g:cpp_plugin.createLocation(getpos('.')).getLocationPath().rawPath, 'v:val["name"]'))
+	return GetTagsInContext(a:symbol, map(g:cpp_plugin.createLocation(getpos('.')).getLocationPath().getRaw(), 'v:val["name"]'))
 endf
 
 function! GotoTag(tag)
@@ -111,14 +111,14 @@ function CppNamespace(ns) " TODO use prototypes for such objects
 
 	let self._ns = a:ns
 
-	function self.get()
+	function self.getRaw()
 		return copy(self._ns)
 	endf
 
 	function self.compareTags(t1, t2)
-		let ns = self.get()
-		let ns1 = a:t1.getNamespace().get()
-		let ns2 = a:t2.getNamespace().get()
+		let ns = self.getRaw()
+		let ns1 = a:t1.getNamespace()
+		let ns2 = a:t2.getNamespace()
 		let res = (len(ns1) - GetCommonSublistLen(ns1, ns)) - (len(ns2) - GetCommonSublistLen(ns2, ns))
 		if res == 0
 			let res = GetCommonSublistLen(ns2, ns) - GetCommonSublistLen(ns1, ns)
@@ -127,6 +127,10 @@ function CppNamespace(ns) " TODO use prototypes for such objects
 	endf
 
 	return self
+endf
+
+function CppPluginException(msg)
+	return "CppPluginException: ".a:msg
 endf
 
 function! CppTag(rawTag)
@@ -138,16 +142,13 @@ function! CppTag(rawTag)
 		return copy(self._rawTag)
 	endf
 
-	function self.getNamespace()
-		if has_key(self.getRaw(), 'namespace')
-			return CppNamespace(split(self.getRaw()['namespace'], '::'))
-		end
-		if has_key(self.getRaw(), 'struct')
-			return CppNamespace(split(self.getRaw()['struct'], '::'))
-		end
-		if has_key(self.getRaw(), 'class')
-			return CppNamespace(split(self.getRaw()['class'], '::'))
-		end
+	function self.getNamespace() " TODO Rename this method
+		for key in ['namespace', 'struct', 'class']
+			if has_key(self.getRaw(), key)
+				return split(self.getRaw()[key], '::')
+			end
+		endfor
+		throw CppPluginException('unknown tag type!')
 	endf
 
 	return self
@@ -189,8 +190,8 @@ function GetIncludeFile(langPlugin, symbol)
 		return s:ns_obj.compareTags(CppTag(a:t1), CppTag(a:t2)) " =(
 	endf
 
-	let s:ns = a:langPlugin.createLocation(getpos('.')).getLocationPath().getNamespace()
-	let s:ns_obj = CppNamespace(s:ns)
+	let s:ns_obj = a:langPlugin.createLocation(getpos('.')).getLocationPath().getNamespace()
+	let s:ns = s:ns_obj.getRaw()
 	let tags = filter(taglist("\\<".a:symbol."\\>"), 'v:val["filename"] =~ "\\.\\(h\\|hpp\\)$"') " Headers only
 	call sort(tags, 'MyCompare')
 	let s:filenames = map(copy(tags), "v:val['filename']")
@@ -206,8 +207,8 @@ function GetIncludeFile(langPlugin, symbol)
 		return RemoveIncludeDirectory(s:filenames[0])
 	end
 
-	let ns1 = CppTag(tags[0]).getNamespace().ns
-	let ns2 = CppTag(tags[1]).getNamespace().ns
+	let ns1 = CppTag(tags[0]).getNamespace()
+	let ns2 = CppTag(tags[1]).getNamespace()
 	if ns1 == s:ns && ns2 != s:ns
 		return RemoveIncludeDirectory(s:filenames[0])
 	end
@@ -250,7 +251,7 @@ function CppLocationPath(rawPath)
 	endf
 
 	function self.getNamespace()
-		return map(filter(self.getRaw(), 'v:val["type"] == "namespace"'), 'v:val["name"]')
+		return CppNamespace(map(filter(self.getRaw(), 'v:val["type"] == "namespace"'), 'v:val["name"]'))
 	endf
 
 	function self.toString()
