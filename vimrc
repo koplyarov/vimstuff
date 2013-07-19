@@ -231,6 +231,9 @@ if !exists("g:vimstuff_sourced")
 
 	function! GetTextBetweenPositions(line1, col1, line2, col2)
 		let lines = getline(a:line1, a:line2)
+		if len(lines) == 0
+			return ''
+		end
 		let lines[-1] = lines[-1][: a:col2 - 2]
 		let lines[0] = lines[0][a:col1 - 1:]
 		return join(lines, "\n")
