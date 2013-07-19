@@ -197,7 +197,6 @@ function GetIncludeFile(langPlugin, symbol)
 	call sort(tags, 'MyCompare')
 	let s:filenames = map(copy(tags), 'v:val["filename"]')
 	let tags = filter(copy(tags), 'index(s:filenames, v:val["filename"], v:key + 1)==-1')
-	let s:filenames = map(copy(tags), 'Relpath(v:val["filename"])')
 
 	if len(tags) == 0
 		echo "No tags found!"
@@ -226,10 +225,10 @@ function GetIncludeFile(langPlugin, symbol)
 		call add(s:choices, a:langPlugin.getImportForTag(t))
 	endfor
 
-	function! IncludesComplete(A,L,P)
+	function! ImportsComplete(A,L,P)
 		return s:choices
 	endf
-	return input('Multiple tags found, make your choice: ', s:choices[0], 'customlist,IncludesComplete')
+	return input('Multiple tags found, make your choice: ', s:choices[0], 'customlist,ImportsComplete')
 endf
 
 function SortBuf(begin, end)
