@@ -186,43 +186,50 @@ function GetIncludeFile(langPlugin, symbol)
 		return std_includes[a:symbol]
 	end
 
+	let s:langPlugin = a:langPlugin " =(
+
 	function! MyCompare(t1, t2)
-		return s:ns_obj.compareTags(CppTag(a:t1), CppTag(a:t2)) " =(
+		return s:ns_obj.compareTags(s:langPlugin.parseTag(a:t1), s:langPlugin.parseTag(a:t2)) " =(
 	endf
 
 	let s:ns_obj = a:langPlugin.createLocation(getpos('.')).getLocationPath().getNamespace()
-	let tags = a:langPlugin.filterImportableTags(taglist("\\<".a:symbol."\\>"))
+	let tags = a:langPlugin.filterImportableTags(taglist('\<'.a:symbol.'\>'))
 	call sort(tags, 'MyCompare')
-	let s:filenames = map(copy(tags), "v:val['filename']")
+	let s:filenames = map(copy(tags), 'v:val["filename"]')
 	let tags = filter(copy(tags), 'index(s:filenames, v:val["filename"], v:key + 1)==-1')
-	let s:filenames = map(copy(tags), "Relpath(v:val['filename'])")
+	let s:filenames = map(copy(tags), 'Relpath(v:val["filename"])')
 
-	if len(s:filenames) == 0
+	if len(tags) == 0
 		echo "No tags found!"
 		return ''
 	end
 
-	if len(s:filenames) == 1
-		return RemoveIncludeDirectory(s:filenames[0])
+	if len(tags) == 1
+		return a:langPlugin.getImportForTag(tags[0])
 	end
 
 	let ns = s:ns_obj.getRaw()
-	let ns1 = CppTag(tags[0]).getNamespace()
-	let ns2 = CppTag(tags[1]).getNamespace()
+	let ns1 = a:langPlugin.parseTag(tags[0]).getNamespace()
+	let ns2 = a:langPlugin.parseTag(tags[1]).getNamespace()
 	if ns1 == ns && ns2 != ns
-		return RemoveIncludeDirectory(s:filenames[0])
+		return a:langPlugin.getImportForTag(tags[0])
 	end
 	if GetCommonSublistLen(ns1, ns) == len(ns) && GetCommonSublistLen(ns2, ns) != len(ns)
-		return RemoveIncludeDirectory(s:filenames[0])
+		return a:langPlugin.getImportForTag(tags[0])
 	end
 	if GetCommonSublistLen(ns1, ns) == len(ns1) && GetCommonSublistLen(ns2, ns) != len(ns2)
-		return RemoveIncludeDirectory(s:filenames[0])
+		return a:langPlugin.getImportForTag(tags[0])
 	end
 
+	let s:choices = []
+	for t in tags
+		call add(s:choices, a:langPlugin.getImportForTag(t))
+	endfor
+
 	function! IncludesComplete(A,L,P)
-		return map(s:filenames, 'RemoveIncludeDirectory(v:val)')
+		return s:choices
 	endf
-	return input('Multiple tags found, make your choice: ', s:filenames[0], 'customlist,IncludesComplete')
+	return input('Multiple tags found, make your choice: ', s:choices[0], 'customlist,IncludesComplete')
 endf
 
 function SortBuf(begin, end)
@@ -347,6 +354,10 @@ function! CppPlugin()
 
 	function self.filterImportableTags(taglist)
 		return filter(a:taglist, 'v:val["filename"] =~ "\\.\\(h\\|hpp\\)$"') " Headers only
+	endf
+
+	function self.getImportForTag(tag)
+		return RemoveIncludeDirectory(Relpath(a:tag['filename']))
 	endf
 
 	function self.openAlternativeFile(filename)
