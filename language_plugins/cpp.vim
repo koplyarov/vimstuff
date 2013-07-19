@@ -84,7 +84,7 @@ function! GetMembers(fullSymbol)
 endf
 
 function! GetTags(symbol)
-	return GetTagsInContext(a:symbol, GetCppPath())
+	return GetTagsInContext(a:symbol, map(g:cpp_plugin.createLocation(getpos('.')).getLocationPath().rawPath, 'v:val["name"]'))
 endf
 
 function! GotoTag(tag)
@@ -109,14 +109,19 @@ endf
 function CppNamespace(ns) " TODO use prototypes for such objects
 	let self = {}
 
-	let self.ns = a:ns
+	let self._ns = a:ns
+
+	function self.get()
+		return copy(self._ns)
+	endf
 
 	function self.compareTags(t1, t2)
-		let ns1 = a:t1.getNamespace().ns
-		let ns2 = a:t2.getNamespace().ns
-		let res = (len(ns1) - GetCommonSublistLen(ns1, self.ns)) - (len(ns2) - GetCommonSublistLen(ns2, self.ns))
+		let ns = self.get()
+		let ns1 = a:t1.getNamespace().get()
+		let ns2 = a:t2.getNamespace().get()
+		let res = (len(ns1) - GetCommonSublistLen(ns1, ns)) - (len(ns2) - GetCommonSublistLen(ns2, ns))
 		if res == 0
-			let res = GetCommonSublistLen(ns2, self.ns) - GetCommonSublistLen(ns1, self.ns)
+			let res = GetCommonSublistLen(ns2, ns) - GetCommonSublistLen(ns1, ns)
 		end
 		return res
 	endf
@@ -127,17 +132,21 @@ endf
 function! CppTag(rawTag)
 	let self = {}
 
-	let self.rawTag = a:rawTag
+	let self._rawTag = a:rawTag
+
+	function self.getRaw()
+		return copy(self._rawTag)
+	endf
 
 	function self.getNamespace()
-		if has_key(self.rawTag, 'namespace')
-			return CppNamespace(split(self.rawTag['namespace'], '::'))
+		if has_key(self.getRaw(), 'namespace')
+			return CppNamespace(split(self.getRaw()['namespace'], '::'))
 		end
-		if has_key(self.rawTag, 'struct')
-			return CppNamespace(split(self.rawTag['struct'], '::'))
+		if has_key(self.getRaw(), 'struct')
+			return CppNamespace(split(self.getRaw()['struct'], '::'))
 		end
-		if has_key(self.rawTag, 'class')
-			return CppNamespace(split(self.rawTag['class'], '::'))
+		if has_key(self.getRaw(), 'class')
+			return CppNamespace(split(self.getRaw()['class'], '::'))
 		end
 	endf
 
@@ -145,7 +154,7 @@ function! CppTag(rawTag)
 endf
 
 
-function GetIncludeFile(symbol)
+function GetIncludeFile(langPlugin, symbol)
 	let std_includes = {}
 	function! ExtendIncludes(dict, file, symbols)
 		for s in a:symbols
@@ -180,7 +189,7 @@ function GetIncludeFile(symbol)
 		return s:ns_obj.compareTags(CppTag(a:t1), CppTag(a:t2)) " =(
 	endf
 
-	let s:ns = GetCppNamespace()
+	let s:ns = a:langPlugin.createLocation(getpos('.')).getLocationPath().getNamespace()
 	let s:ns_obj = CppNamespace(s:ns)
 	let tags = filter(taglist("\\<".a:symbol."\\>"), 'v:val["filename"] =~ "\\.\\(h\\|hpp\\)$"') " Headers only
 	call sort(tags, 'MyCompare')
@@ -231,15 +240,39 @@ function CppLocationPathEntry(type, name)
 	return self
 endf
 
+function CppLocationPath(rawPath)
+	let self = {}
+
+	let self._rawPath = a:rawPath
+
+	function self.getRaw()
+		return copy(self._rawPath)
+	endf
+
+	function self.getNamespace()
+		return map(filter(self.getRaw(), 'v:val["type"] == "namespace"'), 'v:val["name"]')
+	endf
+
+	function self.toString()
+		return join(map(self.getRaw(), 'v:val["name"]'), '::')
+	endf
+
+	return self
+endf
+
 function CppLocation(rawLocation)
 	let self = {}
 
-	let self.rawLocation = a:rawLocation
+	let self._rawLocation = a:rawLocation
+
+	function self.getRaw()
+		return copy(self._rawLocation)
+	endf
 
 	function self.getLocationPath()
 		let res = []
 		let save_cursor = getpos('.')
-		call setpos('.', self.rawLocation)
+		call setpos('.', self.getRaw())
 		let [l, p] = [0, 0]
 		let [l, p] = searchpairpos('{', '', '}', 'b')
 		while l != 0 || p != 0
@@ -268,7 +301,7 @@ function CppLocation(rawLocation)
 			let [l, p] = searchpairpos('{', '', '}', 'bW')
 		endw
 		call setpos('.', save_cursor)
-		return res
+		return CppLocationPath(res)
 	endf
 
 	return self
@@ -300,10 +333,10 @@ function! CppPlugin()
 	function self.initHotkeys() " TODO move this out of CppPlugin
 		nmap <C-F7> :let @z=Relpath('<C-R>%')<CR>:make <C-R>z.o<CR>
 		nmap <F4> :call g:cpp_plugin.headerToCpp('<C-R>%')<CR>
-		map <C-K> "wyiw:call g:cpp_plugin.addImport(GetIncludeFile(@w), g:include_priorities)<CR>
+		map <C-K> "wyiw:call g:cpp_plugin.addImport(GetIncludeFile(g:cpp_plugin, @w), g:include_priorities)<CR>
 		map t<C-]> "wyiw:call Goto(@w)<CR>
 		nmap <C-RightMouse> <LeftMouse>t<C-]>
-		nmap <C-P> :echo join(GetCppPath(), '::')<CR>
+		nmap <C-P> :echo g:cpp_plugin.createLocation(getpos('.')).getLocationPath().toString()<CR>
 		nmap g% :call searchpair('<', '', '>', getline('.')[col('.') - 1] == '>' ? 'bW' : 'W')<CR>
 	endf
 
@@ -330,11 +363,7 @@ endf
 let g:cpp_plugin = CppPlugin()
 
 function! GetCppPath()
-	return map(g:cpp_plugin.createLocation(getpos('.')).getLocationPath(), 'v:val["name"]')
-endf
-
-function! GetCppNamespace()
-	return map(filter(g:cpp_plugin.createLocation(getpos('.')).getLocationPath(), 'v:val["type"] == "namespace"'), 'v:val["name"]')
+	return g:cpp_plugin.createLocation(getpos('.')).getLocationPath().toString()
 endf
 
 au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp call g:cpp_plugin.initHotkeys()
