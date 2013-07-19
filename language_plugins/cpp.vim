@@ -191,8 +191,7 @@ function GetIncludeFile(langPlugin, symbol)
 	endf
 
 	let s:ns_obj = a:langPlugin.createLocation(getpos('.')).getLocationPath().getNamespace()
-	let s:ns = s:ns_obj.getRaw()
-	let tags = filter(taglist("\\<".a:symbol."\\>"), 'v:val["filename"] =~ "\\.\\(h\\|hpp\\)$"') " Headers only
+	let tags = a:langPlugin.filterImportableTags(taglist("\\<".a:symbol."\\>"))
 	call sort(tags, 'MyCompare')
 	let s:filenames = map(copy(tags), "v:val['filename']")
 	let tags = filter(copy(tags), 'index(s:filenames, v:val["filename"], v:key + 1)==-1')
@@ -207,15 +206,16 @@ function GetIncludeFile(langPlugin, symbol)
 		return RemoveIncludeDirectory(s:filenames[0])
 	end
 
+	let ns = s:ns_obj.getRaw()
 	let ns1 = CppTag(tags[0]).getNamespace()
 	let ns2 = CppTag(tags[1]).getNamespace()
-	if ns1 == s:ns && ns2 != s:ns
+	if ns1 == ns && ns2 != ns
 		return RemoveIncludeDirectory(s:filenames[0])
 	end
-	if GetCommonSublistLen(ns1, s:ns) == len(s:ns) && GetCommonSublistLen(ns2, s:ns) != len(s:ns)
+	if GetCommonSublistLen(ns1, ns) == len(ns) && GetCommonSublistLen(ns2, ns) != len(ns)
 		return RemoveIncludeDirectory(s:filenames[0])
 	end
-	if GetCommonSublistLen(ns1, s:ns) == len(ns1) && GetCommonSublistLen(ns2, s:ns) != len(ns2)
+	if GetCommonSublistLen(ns1, ns) == len(ns1) && GetCommonSublistLen(ns2, ns) != len(ns2)
 		return RemoveIncludeDirectory(s:filenames[0])
 	end
 
@@ -343,6 +343,10 @@ function! CppPlugin()
 		nmap <C-RightMouse> <LeftMouse>t<C-]>
 		nmap <C-P> :echo g:cpp_plugin.createLocation(getpos('.')).getLocationPath().toString()<CR>
 		nmap g% :call searchpair('<', '', '>', getline('.')[col('.') - 1] == '>' ? 'bW' : 'W')<CR>
+	endf
+
+	function self.filterImportableTags(taglist)
+		return filter(a:taglist, 'v:val["filename"] =~ "\\.\\(h\\|hpp\\)$"') " Headers only
 	endf
 
 	function self.openAlternativeFile(filename)
