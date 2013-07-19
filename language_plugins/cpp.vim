@@ -331,9 +331,13 @@ function! CppPlugin()
 	let self.parseTag = function('CppTag')
 	let self.createLocation = function('CppLocation')
 
+	function self.buildFile() " TODO create BuildSystemPlugin
+		exec Relpath('<C-R>%').'.o'
+	endf
+
 	function self.initHotkeys() " TODO move this out of CppPlugin
-		nmap <C-F7> :let @z=Relpath('<C-R>%')<CR>:make <C-R>z.o<CR>
-		nmap <F4> :call g:cpp_plugin.headerToCpp('<C-R>%')<CR>
+		nmap <C-F7> :call g:cpp_plugin.buildFile('<C-R>%')<CR>
+		nmap <F4> :call g:cpp_plugin.openAlternativeFile('<C-R>%')<CR>
 		map <C-K> "wyiw:call g:cpp_plugin.addImport(GetIncludeFile(g:cpp_plugin, @w), g:include_priorities)<CR>
 		map t<C-]> "wyiw:call Goto(@w)<CR>
 		nmap <C-RightMouse> <LeftMouse>t<C-]>
@@ -341,7 +345,7 @@ function! CppPlugin()
 		nmap g% :call searchpair('<', '', '>', getline('.')[col('.') - 1] == '>' ? 'bW' : 'W')<CR>
 	endf
 
-	function self.headerToCpp(filename)
+	function self.openAlternativeFile(filename)
 		let substitute_ext = { 'hpp': 'cpp', 'h': 'c;cpp', 'cpp': 'h;hpp', 'c': 'h' }
 		for src in keys(substitute_ext)
 			let regex = '\.'.src.'$'
