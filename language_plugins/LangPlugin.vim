@@ -145,6 +145,15 @@ function! LangPlugin()
 		echo include_line
 	endf
 
+	function self.gotoSymbol(symbol)
+		let tags = self.createLocation(getpos('.')).getTags(a:symbol)
+		if len(tags) > 0
+			call tags[0].goto()
+		else
+			call self.gotoLocalSymbol(a:symbol)
+		end
+	endf
+
 	function self.openAlternativeFile(filename)
 		silent execute 'e '.self.getAlternativeFile(a:filename)
 	endf

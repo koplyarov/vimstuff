@@ -295,7 +295,7 @@ function! CppPlugin()
 		nmap <C-F7> :call g:cpp_plugin.buildFile('<C-R>%')<CR>
 		nmap <F4> :call g:cpp_plugin.openAlternativeFile('<C-R>%')<CR>
 		map <C-K> "wyiw:call g:cpp_plugin.addImport(g:cpp_plugin.getImport(@w), g:include_priorities)<CR>
-		map t<C-]> "wyiw:call Goto(@w)<CR>
+		map t<C-]> "wyiw:call g:cpp_plugin.gotoSymbol(@w)<CR>
 		nmap <C-RightMouse> <LeftMouse>t<C-]>
 		nmap <C-P> :echo g:cpp_plugin.createLocation(getpos('.')).getLocationPath().toString()<CR>
 		nmap g% :call searchpair('<', '', '>', getline('.')[col('.') - 1] == '>' ? 'bW' : 'W')<CR>
@@ -334,6 +334,10 @@ function! CppPlugin()
 				return alternative_filename
 			end
 		endfor
+	endf
+
+	function self.gotoLocalSymbol(symbol)
+		call searchdecl(a:symbol, 0, 1)
 	endf
 
 	return self
