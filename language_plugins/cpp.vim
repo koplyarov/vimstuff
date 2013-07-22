@@ -56,85 +56,91 @@ function! GetMembers(fullSymbol)
 endf
 
 
-function CppNamespace(ns) " TODO use prototypes for such objects
-	let self = {}
+function CppNamespace(ns)
+	if !exists('s:CppNamespace')
+		let s:CppNamespace = {}
 
+		function s:CppNamespace.getRaw()
+			return deepcopy(self._ns)
+		endf
+
+		function s:CppNamespace.compareTags(t1, t2)
+			let ns = self.getRaw()
+			let ns1 = a:t1.getScope()
+			let ns2 = a:t2.getScope()
+			let res = (len(ns1) - GetCommonSublistLen(ns1, ns)) - (len(ns2) - GetCommonSublistLen(ns2, ns))
+			if res == 0
+				let res = GetCommonSublistLen(ns2, ns) - GetCommonSublistLen(ns1, ns)
+			end
+			return res
+		endf
+	end
+
+	let self = copy(s:CppNamespace)
 	let self._ns = a:ns
-
-	function self.getRaw()
-		return deepcopy(self._ns)
-	endf
-
-	function self.compareTags(t1, t2)
-		let ns = self.getRaw()
-		let ns1 = a:t1.getScope()
-		let ns2 = a:t2.getScope()
-		let res = (len(ns1) - GetCommonSublistLen(ns1, ns)) - (len(ns2) - GetCommonSublistLen(ns2, ns))
-		if res == 0
-			let res = GetCommonSublistLen(ns2, ns) - GetCommonSublistLen(ns1, ns)
-		end
-		return res
-	endf
-
 	return self
 endf
 
 
 function! CppTag(rawTag)
-	let self = {}
+	if !exists('s:CppTag')
+		let s:CppTag = {}
 
+		function s:CppTag.getRaw()
+			return deepcopy(self._rawTag)
+		endf
+
+		function s:CppTag.getScope()
+			for key in ['namespace', 'struct', 'class']
+				if has_key(self.getRaw(), key)
+					return split(self.getRaw()[key], '::')
+				end
+			endfor
+			throw CppPluginException('unknown tag type!')
+		endf
+
+		function s:CppTag.goto()
+			execute 'edit '.Relpath(self._rawTag['filename'])
+			let cmd = self._rawTag['cmd']
+			if cmd[0] == '/'
+				let cmd = '/\M' . strpart(cmd, 1)
+			endif
+			silent execute cmd
+		endf
+	end
+
+	let self = copy(s:CppTag)
 	let self._rawTag = a:rawTag
-
-	function self.getRaw()
-		return deepcopy(self._rawTag)
-	endf
-
-	function self.getScope() " TODO Rename this method
-		for key in ['namespace', 'struct', 'class']
-			if has_key(self.getRaw(), key)
-				return split(self.getRaw()[key], '::')
-			end
-		endfor
-		throw CppPluginException('unknown tag type!')
-	endf
-
-	function self.goto()
-		execute 'edit '.Relpath(self._rawTag['filename'])
-		let cmd = self._rawTag['cmd']
-		if cmd[0] == '/'
-			let cmd = '/\M' . strpart(cmd, 1)
-		endif
-		silent execute cmd
-	endf
-
 	return self
 endf
 
 
-function FrameworkInfo(namespace)
-	let self = {}
+function CppFrameworkInfo(namespace)
+	if !exists('s:CppFrameworkInfo')
+		let s:CppFrameworkInfo = {}
 
+		function s:CppFrameworkInfo.getNamespace()
+			return deepcopy(self._namespace)
+		endf
+
+		function s:CppFrameworkInfo._extendIncludes(file, symbols)
+			for s in a:symbols
+				let self._includes[s] = a:file
+			endfor
+		endf
+
+		function s:CppFrameworkInfo.hasSymbol(symbol)
+			return has_key(self._includes, a:symbol)
+		endf
+
+		function s:CppFrameworkInfo.getImport(symbol)
+			return self._includes[a:symbol]
+		endf
+	end
+
+	let self = copy(s:CppFrameworkInfo)
 	let self._namespace = a:namespace
 	let self._includes = {}
-
-	function self.getNamespace()
-		return deepcopy(self._namespace)
-	endf
-
-	function self._extendIncludes(file, symbols)
-		for s in a:symbols
-			let self._includes[s] = a:file
-		endfor
-	endf
-
-	function self.hasSymbol(symbol)
-		return has_key(self._includes, a:symbol)
-	endf
-
-	function self.getImport(symbol)
-		return self._includes[a:symbol]
-	endf
-
 	return self
 endf
 
@@ -146,83 +152,87 @@ endf
 
 
 function CppLocationPath(rawPath)
-	let self = {}
+	if !exists('s:CppLocationPath')
+		let s:CppLocationPath = {}
 
+		function s:CppLocationPath.getRaw()
+			return deepcopy(self._rawPath)
+		endf
+
+		function s:CppLocationPath.getNamespace()
+			return CppNamespace(map(filter(self.getRaw(), 'v:val["type"] == "namespace"'), 'v:val["name"]'))
+		endf
+
+		function s:CppLocationPath.toString()
+			return join(map(self.getRaw(), 'v:val["name"]'), '::')
+		endf
+	end
+
+	let self = copy(s:CppLocationPath)
 	let self._rawPath = a:rawPath
-
-	function self.getRaw()
-		return deepcopy(self._rawPath)
-	endf
-
-	function self.getNamespace()
-		return CppNamespace(map(filter(self.getRaw(), 'v:val["type"] == "namespace"'), 'v:val["name"]'))
-	endf
-
-	function self.toString()
-		return join(map(self.getRaw(), 'v:val["name"]'), '::')
-	endf
-
 	return self
 endf
 
 
 function CppLocation(rawLocation)
-	let self = {}
+	if !exists('s:CppLocation')
+		let s:CppLocation = {}
 
+		function s:CppLocation.getRaw()
+			return deepcopy(self._rawLocation)
+		endf
+
+		function s:CppLocation.getLocationPath()
+			let res = []
+			let save_cursor = getpos('.')
+			call setpos('.', self.getRaw())
+			let [l, p] = [0, 0]
+			let [l, p] = searchpairpos('{', '', '}', 'b')
+			while l != 0 || p != 0
+				let [l2, p2] = searchpos('namespace\(\s\|\n\)*\S*\(\s\|\n\)*{', 'becWn')
+				if l == l2 && p == p2
+					let [sl, sp] = searchpos('namespace\(\s\|\n\)*\zs\ze\S*\(\s\|\n\)*{', 'becWn')
+					let [el, ep] = searchpos('namespace\(\s\|\n\)*\S*\zs\ze\(\s\|\n\)*{', 'becWn')
+					call insert(res, CppLocationPathEntry('namespace', GetTextBetweenPositions(sl, sp, el, ep)))
+				endif
+				let [l2, p2] = searchpos('\(class\|struct\)\(\s\|\n\)*\S*\(\s\|\n\)*\(\:\([^{};]\|\n\)*\)\?{', 'becWn')
+				if l == l2 && p == p2
+					let [sl, sp] = searchpos('\(class\|struct\)\(\s\|\n\)*\zs\ze\S*\(\s\|\n\)*\(\:\([^{};]\|\n\)*\)\?{', 'becWn')
+					let [el, ep] = searchpos('\(class\|struct\)\(\s\|\n\)*\S*\zs\ze\(\s\|\n\)*\(\:\([^{};]\|\n\)*\)\?{', 'becWn')
+					call insert(res, CppLocationPathEntry('class', GetTextBetweenPositions(sl, sp, el, ep)))
+				endif
+				let [l2, p2] = searchpos(')\(\s\|\n\)*\(const\(\s\|\n\)*\)\?{', 'becWn')
+				if l == l2 && p == p2
+					call searchpos('\zs\ze)\(\s\|\n\)*\(const\(\s\|\n\)*\)\?{', 'becW')
+					call searchpairpos('(', '', ')', 'bW')
+					let [sl, sp] = searchpos('[^:,\s\n\t]\(\s\|\n\)\zs\ze\S*\(\s\|\n\)*(', 'becWn')
+					let [el, ep] = searchpos('[^:,\s\n\t]\(\s\|\n\)\S*\zs\ze\(\s\|\n\)*(', 'becWn')
+					let func_res = filter(split(GetTextBetweenPositions(sl, sp, el, ep), '::'), 'v:val != "while" && v:val != "for" && v:val != "if"')
+					let func_res = map(func_res, 'CppLocationPathEntry("function_or_class", v:val)')
+					let res = func_res + res
+				endif
+				let [l, p] = searchpairpos('{', '', '}', 'bW')
+			endw
+			call setpos('.', save_cursor)
+			return CppLocationPath(res)
+		endf
+
+		function s:CppLocation.getTags(symbol)
+			let ctx = map(map(self.getLocationPath().getRaw(), 'v:val["name"]'), '(strlen(v:val) > 0) ? v:val : "__anon\\d*"')
+			let tags = []
+			while 1
+				let tags += taglist('^'.join(ctx + [a:symbol.'$'], '::'))
+				if len(ctx) == 0
+					break
+				end
+				call remove(ctx, -1)
+			endw
+			return map(tags, 'CppTag(v:val)')
+		endf
+	end
+
+	let self = copy(s:CppLocation)
 	let self._rawLocation = a:rawLocation
-
-	function self.getRaw()
-		return deepcopy(self._rawLocation)
-	endf
-
-	function self.getLocationPath()
-		let res = []
-		let save_cursor = getpos('.')
-		call setpos('.', self.getRaw())
-		let [l, p] = [0, 0]
-		let [l, p] = searchpairpos('{', '', '}', 'b')
-		while l != 0 || p != 0
-			let [l2, p2] = searchpos('namespace\(\s\|\n\)*\S*\(\s\|\n\)*{', 'becWn')
-			if l == l2 && p == p2
-				let [sl, sp] = searchpos('namespace\(\s\|\n\)*\zs\ze\S*\(\s\|\n\)*{', 'becWn')
-				let [el, ep] = searchpos('namespace\(\s\|\n\)*\S*\zs\ze\(\s\|\n\)*{', 'becWn')
-				call insert(res, CppLocationPathEntry('namespace', GetTextBetweenPositions(sl, sp, el, ep)))
-			endif
-			let [l2, p2] = searchpos('\(class\|struct\)\(\s\|\n\)*\S*\(\s\|\n\)*\(\:\([^{};]\|\n\)*\)\?{', 'becWn')
-			if l == l2 && p == p2
-				let [sl, sp] = searchpos('\(class\|struct\)\(\s\|\n\)*\zs\ze\S*\(\s\|\n\)*\(\:\([^{};]\|\n\)*\)\?{', 'becWn')
-				let [el, ep] = searchpos('\(class\|struct\)\(\s\|\n\)*\S*\zs\ze\(\s\|\n\)*\(\:\([^{};]\|\n\)*\)\?{', 'becWn')
-				call insert(res, CppLocationPathEntry('class', GetTextBetweenPositions(sl, sp, el, ep)))
-			endif
-			let [l2, p2] = searchpos(')\(\s\|\n\)*\(const\(\s\|\n\)*\)\?{', 'becWn')
-			if l == l2 && p == p2
-				call searchpos('\zs\ze)\(\s\|\n\)*\(const\(\s\|\n\)*\)\?{', 'becW')
-				call searchpairpos('(', '', ')', 'bW')
-				let [sl, sp] = searchpos('[^:,\s\n\t]\(\s\|\n\)\zs\ze\S*\(\s\|\n\)*(', 'becWn')
-				let [el, ep] = searchpos('[^:,\s\n\t]\(\s\|\n\)\S*\zs\ze\(\s\|\n\)*(', 'becWn')
-				let func_res = filter(split(GetTextBetweenPositions(sl, sp, el, ep), '::'), 'v:val != "while" && v:val != "for" && v:val != "if"')
-				let func_res = map(func_res, 'CppLocationPathEntry("function_or_class", v:val)')
-				let res = func_res + res
-			endif
-			let [l, p] = searchpairpos('{', '', '}', 'bW')
-		endw
-		call setpos('.', save_cursor)
-		return CppLocationPath(res)
-	endf
-
-	function! self.getTags(symbol)
-		let ctx = map(map(self.getLocationPath().getRaw(), 'v:val["name"]'), '(strlen(v:val) > 0) ? v:val : "__anon\\d*"')
-		let tags = []
-		while 1
-			let tags += taglist('^'.join(ctx + [a:symbol.'$'], '::'))
-			if len(ctx) == 0
-				break
-			end
-			call remove(ctx, -1)
-		endw
-		return map(tags, 'CppTag(v:val)')
-	endf
-
 	return self
 endf
 
@@ -252,12 +262,12 @@ function! CppPlugin()
 	let self.parseTag = function('CppTag')
 	let self.createLocation = function('CppLocation')
 
-	let c_stdlib = FrameworkInfo(CppNamespace([]))
+	let c_stdlib = CppFrameworkInfo(CppNamespace([]))
 	call c_stdlib._extendIncludes('stdio.h', [ 'fclose', 'fopen', 'freopen', 'fdopen', 'remove', 'rename', 'rewind', 'tmpfile', 'clearerr', 'feof', 'ferror', 'fflush', 'fgetpos', 'fgetc', 'fgets', 'fputc', 'fputs', 'ftell', 'fseek', 'fsetpos', 'fread', 'fwrite', 'getc', 'getchar', 'gets', 'printf', 'vprintf', 'fprintf', 'vfprintf', 'sprintf', 'snprintf', 'vsprintf', 'perror', 'putc', 'putchar', 'fputchar', 'scanf', 'vscanf', 'fscanf', 'vfscanf', 'sscanf', 'vsscanf', 'setbuf', 'setvbuf', 'tmpnam', 'ungetc', 'puts' ])
 	call c_stdlib._extendIncludes('string.h', [ 'memcpy', 'memmove', 'memchr', 'memcmp', 'memset', 'strcat', 'strncat', 'strchr', 'strrchr', 'strcmp', 'strncmp', 'strcoll', 'strcpy', 'strncpy', 'strerror', 'strlen', 'strspn', 'strcspn', 'strpbrk', 'strstr', 'strtok', 'strxfrm' ])
 	call self.registerFramework(c_stdlib)
 
-	let cpp_stdlib = FrameworkInfo(CppNamespace(['std']))
+	let cpp_stdlib = CppFrameworkInfo(CppNamespace(['std']))
 	call cpp_stdlib._extendIncludes('vector', [ 'vector' ])
 	call cpp_stdlib._extendIncludes('string', [ 'string', 'basic_string' ])
 	call cpp_stdlib._extendIncludes('set', [ 'set' ])
