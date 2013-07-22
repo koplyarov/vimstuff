@@ -41,32 +41,6 @@ let g:cpp_std_includes = 'vector\|string\|set\|map\|list\|deque\|queue\|memory\|
 let g:platform_includes = 'windows\.h\|wintypes\.h'
 
 
-func! RemoveIncludeDirectory(filename)
-	if exists('g:include_directories')
-		for dir in g:include_directories
-			if a:filename[0 : len(dir) - 1] == dir
-				return a:filename[((a:filename[len(dir)] == '/') ? len(dir) + 1 : len(dir)):]
-			end
-		endfor
-	end
-	return a:filename
-endf
-
-
-function! GetHeaderFile(filename)
-	let filename_str = ''
-	if stridx(a:filename, ".cpp") != -1
-		let filename_str = substitute(a:filename, "\\.cpp$", ".h", "")
-		if !filereadable(filename_str)
-			let filename_str = substitute(a:filename, "\\.cpp$", ".hpp", "")
-		endif
-	elseif stridx(a:filename, ".c") != -1
-		let filename_str = substitute(a:filename, "\\.c$", ".h", "")
-	endif
-	return RemoveIncludeDirectory(filename_str)
-endf
-
-
 nmap <C-F5> "zyiw:Search \(virtual\s\s*\)\?\(public\\<Bar>protected\\<Bar>private\)\s\s*\(virtual\)\?\s\s*\<<C-R>z\><CR><CR>:cw<CR>
 
 
@@ -340,7 +314,18 @@ function! CppPlugin()
 	endf
 
 	function self.getImportForTag(tag)
-		return RemoveIncludeDirectory(Relpath(a:tag['filename']))
+		return self.getImportForPath(Relpath(a:tag['filename']))
+	endf
+
+	function self.getImportForPath(filename)
+		if exists('g:include_directories')
+			for dir in g:include_directories
+				if a:filename[0 : len(dir) - 1] == dir
+					return a:filename[((a:filename[len(dir)] == '/') ? len(dir) + 1 : len(dir)):]
+				end
+			endfor
+		end
+		return a:filename
 	endf
 
 	function self.getAlternativeFile(filename)
