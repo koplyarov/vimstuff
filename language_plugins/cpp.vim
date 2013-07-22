@@ -351,9 +351,4 @@ endf
 let g:cpp_plugin = CppPlugin()
 
 
-function! GetCppPath()
-	return g:cpp_plugin.createLocation(getpos('.')).getLocationPath().toString()
-endf
-
-
 au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp call g:cpp_plugin.initHotkeys()
