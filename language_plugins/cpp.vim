@@ -56,16 +56,6 @@ function! GetMembers(fullSymbol)
 endf
 
 
-function! Goto(symbol)
-	let tags = g:cpp_plugin.createLocation(getpos('.')).getTags(a:symbol)
-	if len(tags) > 0
-		call tags[0].goto()
-	else
-		call searchdecl(a:symbol, 0, 1)
-	end
-endf
-
-
 function CppNamespace(ns) " TODO use prototypes for such objects
 	let self = {}
 
