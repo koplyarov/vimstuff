@@ -44,20 +44,6 @@ let g:platform_includes = 'windows\.h\|wintypes\.h'
 nmap <C-F5> "zyiw:Search \(virtual\s\s*\)\?\(public\\<Bar>protected\\<Bar>private\)\s\s*\(virtual\)\?\s\s*\<<C-R>z\><CR><CR>:cw<CR>
 
 
-function! GetTagsInContext(symbol, context)
-	let ctx = map(copy(a:context), '(strlen(v:val) > 0) ? v:val : "__anon\\d*"')
-	let tags = []
-	while 1
-		let tags += taglist('^'.join(ctx + [a:symbol.'$'], '::'))
-		if len(ctx) == 0
-			break
-		end
-		call remove(ctx, -1)
-	endw
-	return tags
-endf
-
-
 function! GetMembers(fullSymbol)
 	let tags = taglist('^'.a:fullSymbol.'::[^:]*$')
 	let membernames = map(copy(tags), 'strpart(v:val["name"], strlen(a:fullSymbol."::"))')
@@ -65,26 +51,10 @@ function! GetMembers(fullSymbol)
 endf
 
 
-function! GetTags(symbol)
-	return GetTagsInContext(a:symbol, map(g:cpp_plugin.createLocation(getpos('.')).getLocationPath().getRaw(), 'v:val["name"]'))
-endf
-
-
-function! GotoTag(tag)
-	let path = Relpath(a:tag['filename'])
-	execute 'edit ' . path
-	let cmd = a:tag['cmd']
-	if cmd[0] == '/'
-		let cmd = '/\M' . strpart(cmd, 1)
-	endif
-	silent execute cmd
-endf
-
-
 function! Goto(symbol)
-	let tags = GetTags(a:symbol)
+	let tags = g:cpp_plugin.createLocation(getpos('.')).getTags(a:symbol)
 	if len(tags) > 0
-		call GotoTag(tags[0])
+		call tags[0].goto()
 	else
 		call searchdecl(a:symbol, 0, 1)
 	end
@@ -136,6 +106,15 @@ function! CppTag(rawTag)
 			end
 		endfor
 		throw CppPluginException('unknown tag type!')
+	endf
+
+	function self.goto()
+		execute 'edit '.Relpath(self._rawTag['filename'])
+		let cmd = self._rawTag['cmd']
+		if cmd[0] == '/'
+			let cmd = '/\M' . strpart(cmd, 1)
+		endif
+		silent execute cmd
 	endf
 
 	return self
@@ -239,6 +218,19 @@ function CppLocation(rawLocation)
 		endw
 		call setpos('.', save_cursor)
 		return CppLocationPath(res)
+	endf
+
+	function! self.getTags(symbol)
+		let ctx = map(map(self.getLocationPath().getRaw(), 'v:val["name"]'), '(strlen(v:val) > 0) ? v:val : "__anon\\d*"')
+		let tags = []
+		while 1
+			let tags += taglist('^'.join(ctx + [a:symbol.'$'], '::'))
+			if len(ctx) == 0
+				break
+			end
+			call remove(ctx, -1)
+		endw
+		return map(tags, 'CppTag(v:val)')
 	endf
 
 	return self
