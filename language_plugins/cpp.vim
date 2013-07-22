@@ -297,7 +297,7 @@ function! CppPlugin()
 	let self.createLocation = function('CppLocation')
 
 	let c_stdlib = FrameworkInfo(CppNamespace([]))
-	call c_stdlib._extendIncludes('stdio.h', [ 'fclose', 'fopen', 'freopen', 'fdopen', 'remove', 'rename', 'rewind', 'tmpfile', 'Функции', 'для', 'операций', 'ввода-вывода', 'clearerr', 'feof', 'ferror', 'fflush', 'fgetpos', 'fgetc', 'fgets', 'fputc', 'fputs', 'ftell', 'fseek', 'fsetpos', 'fread', 'fwrite', 'getc', 'getchar', 'gets', 'printf', 'vprintf', 'fprintf', 'vfprintf', 'sprintf', 'snprintf', 'vsprintf', 'perror', 'putc', 'putchar', 'fputchar', 'scanf', 'vscanf', 'fscanf', 'vfscanf', 'sscanf', 'vsscanf', 'setbuf', 'setvbuf', 'tmpnam', 'ungetc', 'puts' ])
+	call c_stdlib._extendIncludes('stdio.h', [ 'fclose', 'fopen', 'freopen', 'fdopen', 'remove', 'rename', 'rewind', 'tmpfile', 'clearerr', 'feof', 'ferror', 'fflush', 'fgetpos', 'fgetc', 'fgets', 'fputc', 'fputs', 'ftell', 'fseek', 'fsetpos', 'fread', 'fwrite', 'getc', 'getchar', 'gets', 'printf', 'vprintf', 'fprintf', 'vfprintf', 'sprintf', 'snprintf', 'vsprintf', 'perror', 'putc', 'putchar', 'fputchar', 'scanf', 'vscanf', 'fscanf', 'vfscanf', 'sscanf', 'vsscanf', 'setbuf', 'setvbuf', 'tmpnam', 'ungetc', 'puts' ])
 	call c_stdlib._extendIncludes('string.h', [ 'memcpy', 'memmove', 'memchr', 'memcmp', 'memset', 'strcat', 'strncat', 'strchr', 'strrchr', 'strcmp', 'strncmp', 'strcoll', 'strcpy', 'strncpy', 'strerror', 'strlen', 'strspn', 'strcspn', 'strpbrk', 'strstr', 'strtok', 'strxfrm' ])
 	call self.registerFramework(c_stdlib)
 
@@ -343,19 +343,18 @@ function! CppPlugin()
 		return RemoveIncludeDirectory(Relpath(a:tag['filename']))
 	endf
 
-	function self.openAlternativeFile(filename)
+	function self.getAlternativeFile(filename)
 		let substitute_ext = { 'hpp': 'cpp', 'h': 'c;cpp', 'cpp': 'h;hpp', 'c': 'h' }
 		for src in keys(substitute_ext)
 			let regex = '\.'.src.'$'
 			if a:filename =~ regex
 				for dst in split(substitute_ext[src], ';')
-					let filename_to_open = substitute(a:filename, regex, '.'.dst, '')
-					if filereadable(filename_to_open)
-						break
+					let alternative_filename = substitute(a:filename, regex, '.'.dst, '')
+					if filereadable(alternative_filename)
+						return alternative_filename
 					end
 				endfor
-				silent execute 'e '.filename_to_open
-				break
+				return alternative_filename
 			end
 		endfor
 	endf

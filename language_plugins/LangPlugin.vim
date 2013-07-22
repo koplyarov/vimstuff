@@ -145,5 +145,9 @@ function! LangPlugin()
 		echo include_line
 	endf
 
+	function self.openAlternativeFile(filename)
+		silent execute 'e '.self.getAlternativeFile(a:filename)
+	endf
+
 	return self
 endf
