@@ -176,10 +176,6 @@ if !exists("g:vimstuff_sourced")
 	nmap <F7> :cN<CR>
 	nmap <F5> "zyiw:Search \<<C-R>z\><CR><CR>:cw<CR>
 	nmap <F6> "zyiw:tabnew<CR>:tag <C-R>z<CR>
-	command! -nargs=0 GitBlame echo substitute(system('git blame -L '.line('.').','.line('.').' '.Relpath(@%)), '^\([^(]*([^)]*)\).*$', '\1', '')
-	command! -nargs=0 GitShow execute '!git show '.substitute(system('git blame -L '.line('.').','.line('.').' '.Relpath(@%)), '^\(\x*\)\s.*$', '\1', '')
-	"nmap <C-B> :GitBlame<CR>
-	"nmap <C-B>c :GitShow<CR>
 	nmap <C-\> "zyiw:ptag <C-R>z<CR>
 	nmap g<C-\> "zyiw:ptj <C-R>z<CR>
 	map gd "qyiw:call searchdecl("<C-R>q", 0, 1)<CR>:let @/='\<'.@q.'\>'<CR>:set hlsearch<CR>:echo @q<CR>
@@ -250,6 +246,7 @@ if !exists("g:vimstuff_sourced")
 
 	runtime my_scripts/toolkit.vim
 	runtime buildsystem_plugins/buildsystems.vim
+	runtime vcs_plugins/vcs.vim
 	runtime indexer_plugins/ctags.vim
 	runtime language_plugins/LangPlugin.vim
 	runtime language_plugins/cpp.vim
