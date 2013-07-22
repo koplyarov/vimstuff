@@ -167,10 +167,10 @@ endf
 function ActivateLangPlugin(plugin)
 	let b:lang_plugin = a:plugin
 
-	nmap <buffer> <C-F7> :call b:lang_plugin.buildFile('<C-R>%')<CR>
-	nmap <buffer> <F4> :call b:lang_plugin.openAlternativeFile('<C-R>%')<CR>
-	map <buffer> <C-K> "wyiw:call b:lang_plugin.addImport(b:lang_plugin.getImport(@w), g:include_priorities)<CR>
-	map <buffer> t<C-]> "wyiw:call b:lang_plugin.gotoSymbol(@w)<CR>
-	nmap <buffer> <C-RightMouse> <LeftMouse>t<C-]>
-	nmap <buffer> <C-P> :echo b:lang_plugin.createLocation(getpos('.')).getLocationPath().toString()<CR>
+	nmap <silent> <buffer> <C-F7> :call b:lang_plugin.buildFile('<C-R>%')<CR>
+	nmap <silent> <buffer> <F4> :call b:lang_plugin.openAlternativeFile('<C-R>%')<CR>
+	map <silent> <buffer> <C-K> "wyiw:call b:lang_plugin.addImport(b:lang_plugin.getImport(@w), g:include_priorities)<CR>
+	map <silent> <buffer> t<C-]> "wyiw:call b:lang_plugin.gotoSymbol(@w)<CR>
+	nmap <silent> <buffer> <C-RightMouse> <LeftMouse>t<C-]>
+	nmap <silent> <buffer> <C-P> :echo b:lang_plugin.createLocation(getpos('.')).getLocationPath().toString()<CR>
 endf
