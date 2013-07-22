@@ -250,6 +250,7 @@ if !exists("g:vimstuff_sourced")
 	endf
 
 	runtime my_scripts/toolkit.vim
+	runtime indexer_plugins/ctags.vim
 	runtime language_plugins/LangPlugin.vim
 	runtime language_plugins/cpp.vim
 	runtime language_plugins/csharp.vim

@@ -82,39 +82,6 @@ function CppNamespace(ns)
 endf
 
 
-function CppTag(rawTag)
-	if !exists('s:CppTag')
-		let s:CppTag = {}
-
-		function s:CppTag.getRaw()
-			return deepcopy(self._rawTag)
-		endf
-
-		function s:CppTag.getScope()
-			for key in ['namespace', 'struct', 'class']
-				if has_key(self.getRaw(), key)
-					return split(self.getRaw()[key], '::')
-				end
-			endfor
-			throw CppPluginException('unknown tag type!')
-		endf
-
-		function s:CppTag.goto()
-			execute 'edit '.Relpath(self._rawTag['filename'])
-			let cmd = self._rawTag['cmd']
-			if cmd[0] == '/'
-				let cmd = '/\M' . strpart(cmd, 1)
-			endif
-			silent execute cmd
-		endf
-	end
-
-	let self = copy(s:CppTag)
-	let self._rawTag = a:rawTag
-	return self
-endf
-
-
 function CppFrameworkInfo()
 	return FrameworkInfoBase()
 endf
@@ -202,7 +169,7 @@ function CppLocation(rawLocation)
 				end
 				call remove(ctx, -1)
 			endw
-			return map(tags, 'CppTag(v:val)')
+			return map(tags, 'g:cpp_plugin.getSymbolInfo(v:val)')
 		endf
 	end
 
@@ -214,6 +181,8 @@ endf
 
 function CppSyntax()
 	let self = {}
+
+	let self.symbolDelimiter = '::'
 
 	function self.getImportLine(dependency)
 		return '#include <'.a:dependency.'>'
@@ -234,7 +203,7 @@ function CppPlugin()
 	let self = LangPlugin()
 
 	let self.syntax = CppSyntax()
-	let self.parseTag = function('CppTag')
+	let self.indexer = g:ctags_indexer
 	let self.createLocation = function('CppLocation')
 
 	let c_stdlib = CppFrameworkInfo()

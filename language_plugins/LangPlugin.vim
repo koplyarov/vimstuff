@@ -20,7 +20,7 @@ function LangPlugin()
 			let s:langPlugin = self " =(
 
 			function! MyCompare(t1, t2)
-				return s:ns_obj.compareTags(s:langPlugin.parseTag(a:t1), s:langPlugin.parseTag(a:t2)) " =(
+				return s:ns_obj.compareTags(s:langPlugin.getSymbolInfo(a:t1), s:langPlugin.getSymbolInfo(a:t2)) " =(
 			endf
 
 			let s:ns_obj = self.createLocation(getpos('.')).getLocationPath().getNamespace()
@@ -39,8 +39,8 @@ function LangPlugin()
 			end
 
 			let ns = s:ns_obj.getRaw()
-			let ns1 = self.parseTag(tags[0]).getScope()
-			let ns2 = self.parseTag(tags[1]).getScope()
+			let ns1 = self.getSymbolInfo(tags[0]).getScope()
+			let ns2 = self.getSymbolInfo(tags[1]).getScope()
 			if ns1 == ns && ns2 != ns
 				return self.getImportForTag(tags[0])
 			end
@@ -151,6 +151,10 @@ function LangPlugin()
 			else
 				call self.gotoLocalSymbol(a:symbol)
 			end
+		endf
+
+		function s:LangPlugin.getSymbolInfo(symbol)
+			return self.indexer.getSymbolInfo(a:symbol, self.syntax.symbolDelimiter)
 		endf
 
 		function s:LangPlugin.openAlternativeFile(filename)

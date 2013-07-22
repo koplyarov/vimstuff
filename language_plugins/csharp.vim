@@ -29,39 +29,6 @@ function CSharpNamespace(ns)
 endf
 
 
-function CSharpTag(rawTag)
-	if !exists('s:CSharpTag')
-		let s:CSharpTag = {}
-
-		function s:CSharpTag.getRaw()
-			return deepcopy(self._rawTag)
-		endf
-
-		function s:CSharpTag.getScope()
-			for key in ['namespace', 'struct', 'class']
-				if has_key(self.getRaw(), key)
-					return split(self.getRaw()[key], '\.')
-				end
-			endfor
-			throw CSharpPluginException('unknown tag type!')
-		endf
-
-		function s:CSharpTag.goto()
-			execute 'edit '.Relpath(self._rawTag['filename'])
-			let cmd = self._rawTag['cmd']
-			if cmd[0] == '/'
-				let cmd = '/\M' . strpart(cmd, 1)
-			endif
-			silent execute cmd
-		endf
-	end
-
-	let self = copy(s:CSharpTag)
-	let self._rawTag = a:rawTag
-	return self
-endf
-
-
 function CSharpFrameworkInfo()
 	return FrameworkInfoBase()
 endf
@@ -150,7 +117,7 @@ function CSharpLocation(rawLocation)
 				end
 				call remove(ctx, -1)
 			endw
-			return map(tags, 'CSharpTag(v:val)')
+			return map(tags, 'g:csharp_plugin.getSymbolInfo(v:val)')
 		endf
 	end
 
@@ -162,6 +129,8 @@ endf
 
 function CSharpSyntax()
 	let self = {}
+
+	let self.symbolDelimiter = '.'
 
 	function self.getImportLine(dependency)
 		return 'using '.a:dependency.';'
@@ -182,7 +151,7 @@ function CSharpPlugin()
 	let self = LangPlugin()
 
 	let self.syntax = CSharpSyntax()
-	let self.parseTag = function('CSharpTag')
+	let self.indexer = g:ctags_indexer
 	let self.createLocation = function('CSharpLocation')
 
 	let dotNet = CSharpFrameworkInfo()
