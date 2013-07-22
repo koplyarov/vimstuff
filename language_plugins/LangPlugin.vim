@@ -196,7 +196,6 @@ endf
 function ActivateLangPlugin(plugin)
 	let b:lang_plugin = a:plugin
 
-	nmap <silent> <buffer> <C-F7> :call b:lang_plugin.buildFile('<C-R>%')<CR>
 	if has_key(b:lang_plugin, 'getAlternativeFile')
 		nmap <silent> <buffer> <F4> :call b:lang_plugin.openAlternativeFile('<C-R>%')<CR>
 	end

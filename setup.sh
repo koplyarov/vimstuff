@@ -71,6 +71,7 @@ AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/template" "$VIM_DIR/template"
 AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/my_scripts" "$VIM_DIR/my_scripts"
 AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/language_plugins" "$VIM_DIR/language_plugins"
 AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/indexer_plugins" "$VIM_DIR/indexer_plugins"
+AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/buildsystem_plugins" "$VIM_DIR/buildsystem_plugins"
 
 for SYNTAX_FILE in $SYNTAX_FILES; do
 	AddAction VIMSTUFF_SETUP $CP "$SCRIPT_DIR/syntax/$SYNTAX_FILE" "$VIM_DIR/syntax/$SYNTAX_FILE"

@@ -231,10 +231,6 @@ function CppPlugin()
 	call cpp_stdlib._addImports('typeinfo', [ 'type_info', 'bad_cast', 'bad_typeid', 'typeid' ])
 	call self.registerFramework(cpp_stdlib)
 
-	function self.buildFile() " TODO create BuildSystemPlugin
-		exec Relpath('<C-R>%').'.o'
-	endf
-
 	function self.filterImportableTags(taglist)
 		return filter(a:taglist, 'v:val["filename"] =~ "\\.\\(h\\|hpp\\)$"') " Headers only
 	endf
