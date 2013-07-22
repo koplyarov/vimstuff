@@ -63,27 +63,7 @@ endf
 
 
 function CSharpFrameworkInfo()
-	if !exists('s:CSharpFrameworkInfo')
-		let s:CSharpFrameworkInfo = {}
-
-		function s:CSharpFrameworkInfo._extendImports(assembly, symbols)
-			for s in a:symbols
-				let self._symbols[s] = a:assembly
-			endfor
-		endf
-
-		function s:CSharpFrameworkInfo.hasSymbol(symbol)
-			return has_key(self._symbols, a:symbol)
-		endf
-
-		function s:CSharpFrameworkInfo.getImport(symbol)
-			return self._symbols[a:symbol]
-		endf
-	end
-
-	let self = copy(s:CSharpFrameworkInfo)
-	let self._symbols = {}
-	return self
+	return FrameworkInfoBase()
 endf
 
 
@@ -206,7 +186,7 @@ function CSharpPlugin()
 	let self.createLocation = function('CSharpLocation')
 
 	let dotNet = CSharpFrameworkInfo()
-	call dotNet._extendImports('System.Collections.Generic', [ 'IDictionary', 'IList' ]) " ...
+	call dotNet._addImports('System.Collections.Generic', [ 'IDictionary', 'IList' ]) " ...
 	call self.registerFramework(dotNet)
 
 	function self.filterImportableTags(taglist)

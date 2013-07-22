@@ -164,6 +164,31 @@ function LangPlugin()
 endf
 
 
+function FrameworkInfoBase()
+	if !exists('s:FrameworkInfoBase')
+		let s:FrameworkInfoBase = {}
+
+		function s:FrameworkInfoBase._addImports(packageStr, symbols)
+			for s in a:symbols
+				let self._symbols[s] = a:packageStr
+			endfor
+		endf
+
+		function s:FrameworkInfoBase.hasSymbol(symbol)
+			return has_key(self._symbols, a:symbol)
+		endf
+
+		function s:FrameworkInfoBase.getImport(symbol)
+			return self._symbols[a:symbol]
+		endf
+	end
+
+	let self = copy(s:FrameworkInfoBase)
+	let self._symbols = {}
+	return self
+endf
+
+
 function ActivateLangPlugin(plugin)
 	let b:lang_plugin = a:plugin
 

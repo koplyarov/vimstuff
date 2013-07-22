@@ -115,33 +115,8 @@ function CppTag(rawTag)
 endf
 
 
-function CppFrameworkInfo(namespace)
-	if !exists('s:CppFrameworkInfo')
-		let s:CppFrameworkInfo = {}
-
-		function s:CppFrameworkInfo.getNamespace()
-			return deepcopy(self._namespace)
-		endf
-
-		function s:CppFrameworkInfo._extendIncludes(file, symbols)
-			for s in a:symbols
-				let self._includes[s] = a:file
-			endfor
-		endf
-
-		function s:CppFrameworkInfo.hasSymbol(symbol)
-			return has_key(self._includes, a:symbol)
-		endf
-
-		function s:CppFrameworkInfo.getImport(symbol)
-			return self._includes[a:symbol]
-		endf
-	end
-
-	let self = copy(s:CppFrameworkInfo)
-	let self._namespace = a:namespace
-	let self._includes = {}
-	return self
+function CppFrameworkInfo()
+	return FrameworkInfoBase()
 endf
 
 
@@ -262,29 +237,29 @@ function CppPlugin()
 	let self.parseTag = function('CppTag')
 	let self.createLocation = function('CppLocation')
 
-	let c_stdlib = CppFrameworkInfo(CppNamespace([]))
-	call c_stdlib._extendIncludes('stdio.h', [ 'fclose', 'fopen', 'freopen', 'fdopen', 'remove', 'rename', 'rewind', 'tmpfile', 'clearerr', 'feof', 'ferror', 'fflush', 'fgetpos', 'fgetc', 'fgets', 'fputc', 'fputs', 'ftell', 'fseek', 'fsetpos', 'fread', 'fwrite', 'getc', 'getchar', 'gets', 'printf', 'vprintf', 'fprintf', 'vfprintf', 'sprintf', 'snprintf', 'vsprintf', 'perror', 'putc', 'putchar', 'fputchar', 'scanf', 'vscanf', 'fscanf', 'vfscanf', 'sscanf', 'vsscanf', 'setbuf', 'setvbuf', 'tmpnam', 'ungetc', 'puts' ])
-	call c_stdlib._extendIncludes('string.h', [ 'memcpy', 'memmove', 'memchr', 'memcmp', 'memset', 'strcat', 'strncat', 'strchr', 'strrchr', 'strcmp', 'strncmp', 'strcoll', 'strcpy', 'strncpy', 'strerror', 'strlen', 'strspn', 'strcspn', 'strpbrk', 'strstr', 'strtok', 'strxfrm' ])
+	let c_stdlib = CppFrameworkInfo()
+	call c_stdlib._addImports('stdio.h', [ 'fclose', 'fopen', 'freopen', 'fdopen', 'remove', 'rename', 'rewind', 'tmpfile', 'clearerr', 'feof', 'ferror', 'fflush', 'fgetpos', 'fgetc', 'fgets', 'fputc', 'fputs', 'ftell', 'fseek', 'fsetpos', 'fread', 'fwrite', 'getc', 'getchar', 'gets', 'printf', 'vprintf', 'fprintf', 'vfprintf', 'sprintf', 'snprintf', 'vsprintf', 'perror', 'putc', 'putchar', 'fputchar', 'scanf', 'vscanf', 'fscanf', 'vfscanf', 'sscanf', 'vsscanf', 'setbuf', 'setvbuf', 'tmpnam', 'ungetc', 'puts' ])
+	call c_stdlib._addImports('string.h', [ 'memcpy', 'memmove', 'memchr', 'memcmp', 'memset', 'strcat', 'strncat', 'strchr', 'strrchr', 'strcmp', 'strncmp', 'strcoll', 'strcpy', 'strncpy', 'strerror', 'strlen', 'strspn', 'strcspn', 'strpbrk', 'strstr', 'strtok', 'strxfrm' ])
 	call self.registerFramework(c_stdlib)
 
-	let cpp_stdlib = CppFrameworkInfo(CppNamespace(['std']))
-	call cpp_stdlib._extendIncludes('vector', [ 'vector' ])
-	call cpp_stdlib._extendIncludes('string', [ 'string', 'basic_string' ])
-	call cpp_stdlib._extendIncludes('set', [ 'set' ])
-	call cpp_stdlib._extendIncludes('map', [ 'map' ])
-	call cpp_stdlib._extendIncludes('list', [ 'list' ])
-	call cpp_stdlib._extendIncludes('deque', [ 'deque' ])
-	call cpp_stdlib._extendIncludes('queue', [ 'queue' ])
-	call cpp_stdlib._extendIncludes('memory', [ 'auto_ptr' ])
-	call cpp_stdlib._extendIncludes('stdexcept', [ 'logic_error', 'domain_error', 'invalid_argument', 'length_error', 'out_of_range', 'runtime_error', 'range_error', 'overflow_error', 'underflow_error' ])
-	call cpp_stdlib._extendIncludes('iostream', [ 'istream', 'ostream', 'basic_istream', 'basic_ostream', 'cin', 'cout', 'cerr', 'endl' ])
-	call cpp_stdlib._extendIncludes('algorithm', [ 'for_each', 'find', 'find_if', 'find_end', 'find_first_of', 'adjacent_find', 'count', 'count_if', 'mismatch', 'equal', 'search', 'search_n', 'copy', 'copy_backward', 'swap', 'swap_ranges', 'iter_swap', 'transform', 'replace', 'replace_if', 'replace_copy', 'replace_copy_if', 'fill', 'fill_n', 'generate', 'generate_n', 'remove', 'remove_if', 'remove_copy', 'remove_copy_if', 'unique', 'unique_copy', 'reverse', 'reverse_copy', 'rotate', 'rotate_copy', 'random_shuffle', 'partition', 'stable_partition', 'sort', 'stable_sort', 'partial_sort', 'partial_sort_copy', 'nth_element', 'lower_bound', 'upper_bound', 'equal_range', 'binary_search', 'merge', 'inplace_merge', 'includes', 'set_union', 'set_intersection', 'set_difference', 'set_symmetric_difference', 'push_heap', 'pop_heap', 'make_heap', 'sort_heap', 'min', 'max', 'min_element', 'max_element', 'lexicographical_compare', 'next_permutation', 'prev_permutation' ])
-	call cpp_stdlib._extendIncludes('functional', [ 'unary_function', 'binary_function', 'plus', 'minus', 'multiplies', 'divides', 'modulus', 'negate', 'equal_to', 'not_equal_to', 'greater', 'less', 'greater_equal', 'less_equal', 'logical_and', 'logical_or', 'logical_not', 'not1', 'not2', 'bind1st', 'bind2nd', 'ptr_fun', 'mem_fun', 'mem_fun_ref', 'unary_negate', 'binary_negate', 'binder1st', 'binder2nd', 'pointer_to_unary_function', 'pointer_to_binary_function', 'mem_fun_t', 'mem_fun1_t', 'const_mem_fun_t', 'const_mem_fun1_t', 'mem_fun_ref_t', 'mem_fun1_ref_t', 'const_mem_fun_ref_t', 'const_mem_fun1_ref_t' ])
-	call cpp_stdlib._extendIncludes('streambuf', [ 'streambuf' ])
-	call cpp_stdlib._extendIncludes('utility', [ 'pair' ])
-	call cpp_stdlib._extendIncludes('sstream', [ 'stringstream', 'istringstream', 'ostringstream', 'basic_stringstream', 'basic_istringstream', 'basic_ostringstream' ])
-	call cpp_stdlib._extendIncludes('fstream', [ 'fstream', 'ifstream', 'ofstream', 'basic_fstream', 'basic_ifstream', 'basic_ofstream' ])
-	call cpp_stdlib._extendIncludes('typeinfo', [ 'type_info', 'bad_cast', 'bad_typeid', 'typeid' ])
+	let cpp_stdlib = CppFrameworkInfo()
+	call cpp_stdlib._addImports('vector', [ 'vector' ])
+	call cpp_stdlib._addImports('string', [ 'string', 'basic_string' ])
+	call cpp_stdlib._addImports('set', [ 'set' ])
+	call cpp_stdlib._addImports('map', [ 'map' ])
+	call cpp_stdlib._addImports('list', [ 'list' ])
+	call cpp_stdlib._addImports('deque', [ 'deque' ])
+	call cpp_stdlib._addImports('queue', [ 'queue' ])
+	call cpp_stdlib._addImports('memory', [ 'auto_ptr' ])
+	call cpp_stdlib._addImports('stdexcept', [ 'logic_error', 'domain_error', 'invalid_argument', 'length_error', 'out_of_range', 'runtime_error', 'range_error', 'overflow_error', 'underflow_error' ])
+	call cpp_stdlib._addImports('iostream', [ 'istream', 'ostream', 'basic_istream', 'basic_ostream', 'cin', 'cout', 'cerr', 'endl' ])
+	call cpp_stdlib._addImports('algorithm', [ 'for_each', 'find', 'find_if', 'find_end', 'find_first_of', 'adjacent_find', 'count', 'count_if', 'mismatch', 'equal', 'search', 'search_n', 'copy', 'copy_backward', 'swap', 'swap_ranges', 'iter_swap', 'transform', 'replace', 'replace_if', 'replace_copy', 'replace_copy_if', 'fill', 'fill_n', 'generate', 'generate_n', 'remove', 'remove_if', 'remove_copy', 'remove_copy_if', 'unique', 'unique_copy', 'reverse', 'reverse_copy', 'rotate', 'rotate_copy', 'random_shuffle', 'partition', 'stable_partition', 'sort', 'stable_sort', 'partial_sort', 'partial_sort_copy', 'nth_element', 'lower_bound', 'upper_bound', 'equal_range', 'binary_search', 'merge', 'inplace_merge', 'includes', 'set_union', 'set_intersection', 'set_difference', 'set_symmetric_difference', 'push_heap', 'pop_heap', 'make_heap', 'sort_heap', 'min', 'max', 'min_element', 'max_element', 'lexicographical_compare', 'next_permutation', 'prev_permutation' ])
+	call cpp_stdlib._addImports('functional', [ 'unary_function', 'binary_function', 'plus', 'minus', 'multiplies', 'divides', 'modulus', 'negate', 'equal_to', 'not_equal_to', 'greater', 'less', 'greater_equal', 'less_equal', 'logical_and', 'logical_or', 'logical_not', 'not1', 'not2', 'bind1st', 'bind2nd', 'ptr_fun', 'mem_fun', 'mem_fun_ref', 'unary_negate', 'binary_negate', 'binder1st', 'binder2nd', 'pointer_to_unary_function', 'pointer_to_binary_function', 'mem_fun_t', 'mem_fun1_t', 'const_mem_fun_t', 'const_mem_fun1_t', 'mem_fun_ref_t', 'mem_fun1_ref_t', 'const_mem_fun_ref_t', 'const_mem_fun1_ref_t' ])
+	call cpp_stdlib._addImports('streambuf', [ 'streambuf' ])
+	call cpp_stdlib._addImports('utility', [ 'pair' ])
+	call cpp_stdlib._addImports('sstream', [ 'stringstream', 'istringstream', 'ostringstream', 'basic_stringstream', 'basic_istringstream', 'basic_ostringstream' ])
+	call cpp_stdlib._addImports('fstream', [ 'fstream', 'ifstream', 'ofstream', 'basic_fstream', 'basic_ifstream', 'basic_ofstream' ])
+	call cpp_stdlib._addImports('typeinfo', [ 'type_info', 'bad_cast', 'bad_typeid', 'typeid' ])
 	call self.registerFramework(cpp_stdlib)
 
 	function self.buildFile() " TODO create BuildSystemPlugin
