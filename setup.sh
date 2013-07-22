@@ -41,38 +41,39 @@ UpdateVimHelpTags() {
 }
 
 
-CreateSetup VIMSTUFF_SETUP_SYMLINKS
-CreateSetup VIMSTUFF_SETUP
+CP="Cp"
+CPDIR="CpDir"
+FLAGS=""
 
-AddAction VIMSTUFF_SETUP_SYMLINKS MkDir "$VIM_DIR"
-AddAction VIMSTUFF_SETUP_SYMLINKS MkDir "$VIM_DIR/autoload"
-AddAction VIMSTUFF_SETUP_SYMLINKS MkDir "$VIM_DIR/syntax"
-AddAction VIMSTUFF_SETUP_SYMLINKS MkDir "$VIM_DIR/doc"
+ArgParser () {
+	case "$1" in
+	"install"|"remove"|"update")	ACTION=$1 ;;
+	"help"|"--help"|"-h")			echo "$USAGE_MSG" >&2; exit 0 ;;
+	"--symlinks")					CP="Symlink"; CPDIR="Symlink"; FLAGS="$FLAGS --symlinks" ;;
+	*)								return 255 ;;
+	esac
+}
+
+ParseArguments ArgParser "$@" || { echo "$USAGE_MSG" 1>&2; exit 1; }
+
+
+CreateSetup VIMSTUFF_SETUP
 
 AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR"
 AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR/autoload"
 AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR/syntax"
 AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR/doc"
 
-AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
-AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
-AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
-AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/template" "$VIM_DIR/template"
-AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/my_scripts" "$VIM_DIR/my_scripts"
-AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/language_plugins" "$VIM_DIR/language_plugins"
-AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/indexer_plugins" "$VIM_DIR/indexer_plugins"
-
-AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
-AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
-AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
-AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/template" "$VIM_DIR/template"
-AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/my_scripts" "$VIM_DIR/my_scripts"
-AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/language_plugins" "$VIM_DIR/language_plugins"
-AddAction VIMSTUFF_SETUP CpDir "$SCRIPT_DIR/indexer_plugins" "$VIM_DIR/indexer_plugins"
+AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
+AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
+AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
+AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/template" "$VIM_DIR/template"
+AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/my_scripts" "$VIM_DIR/my_scripts"
+AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/language_plugins" "$VIM_DIR/language_plugins"
+AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/indexer_plugins" "$VIM_DIR/indexer_plugins"
 
 for SYNTAX_FILE in $SYNTAX_FILES; do
-	AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$SCRIPT_DIR/syntax/$SYNTAX_FILE" "$VIM_DIR/syntax/$SYNTAX_FILE"
-	AddAction VIMSTUFF_SETUP Cp "$SCRIPT_DIR/syntax/$SYNTAX_FILE" "$VIM_DIR/syntax/$SYNTAX_FILE"
+	AddAction VIMSTUFF_SETUP $CP "$SCRIPT_DIR/syntax/$SYNTAX_FILE" "$VIM_DIR/syntax/$SYNTAX_FILE"
 done
 
 for PATHOGEN_BUNDLE in $PATHOGEN_BUNDLES; do
@@ -80,37 +81,20 @@ for PATHOGEN_BUNDLE in $PATHOGEN_BUNDLES; do
 	if [ -d "$DOC_DIR" ]; then
 		for DOC_FILE in `ls -1 $DOC_DIR/*.txt`; do
 			DOC_FILE=`basename $DOC_FILE`
-			AddAction VIMSTUFF_SETUP_SYMLINKS Symlink "$DOC_DIR/$DOC_FILE" "$VIM_DIR/doc/$DOC_FILE"
-			AddAction VIMSTUFF_SETUP Cp "$DOC_DIR/$DOC_FILE" "$VIM_DIR/doc/$DOC_FILE"
+			AddAction VIMSTUFF_SETUP $CP "$DOC_DIR/$DOC_FILE" "$VIM_DIR/doc/$DOC_FILE"
 		done
 	fi
 done
 
-AddAction VIMSTUFF_SETUP_SYMLINKS Patch "$SCRIPT_DIR/pathogen_bundle" -p1 fuf.patch
-AddAction VIMSTUFF_SETUP_SYMLINKS Patch "$SCRIPT_DIR/pathogen_bundle" -p1 nerdcommenter.patch
 AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 fuf.patch
+AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 nerdcommenter.patch
 
-AddAction VIMSTUFF_SETUP_SYMLINKS AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
 AddAction VIMSTUFF_SETUP AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
 
-SETUP="VIMSTUFF_SETUP"
-FLAGS=""
-
-ArgParser () {
-	case "$1" in
-	"install"|"remove"|"update")	ACTION=$1 ;;
-	"help"|"--help"|"-h")			echo "$USAGE_MSG" >&2; exit 0 ;;
-	"--symlinks")					SETUP="VIMSTUFF_SETUP_SYMLINKS"; FLAGS="$FLAGS --symlinks" ;;
-	*)								return 255 ;;
-	esac
-}
-
-
-ParseArguments ArgParser "$@" || { echo "$USAGE_MSG" 1>&2; exit 1; }
 
 case "x$ACTION" in
 "xinstall")
-	if Install $SETUP; then
+	if Install VIMSTUFF_SETUP; then
 		UpdateVimHelpTags
 		Log "$DELIM"
 		Log "vimstuff installed!"
@@ -120,7 +104,7 @@ case "x$ACTION" in
 	fi
 	;;
 "xremove")
-	Uninstall $SETUP
+	Uninstall VIMSTUFF_SETUP
 	UpdateVimHelpTags
 	Log "$DELIM"
 	Log "vimstuff removed!"
