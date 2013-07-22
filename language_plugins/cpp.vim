@@ -44,6 +44,11 @@ let g:platform_includes = 'windows\.h\|wintypes\.h'
 nmap <C-F5> "zyiw:Search \(virtual\s\s*\)\?\(public\\<Bar>protected\\<Bar>private\)\s\s*\(virtual\)\?\s\s*\<<C-R>z\><CR><CR>:cw<CR>
 
 
+function CppPluginException(msg)
+	return "CppPluginException: ".a:msg
+endf
+
+
 function! GetMembers(fullSymbol)
 	let tags = taglist('^'.a:fullSymbol.'::[^:]*$')
 	let membernames = map(copy(tags), 'strpart(v:val["name"], strlen(a:fullSymbol."::"))')
@@ -82,11 +87,6 @@ function CppNamespace(ns) " TODO use prototypes for such objects
 	endf
 
 	return self
-endf
-
-
-function CppPluginException(msg)
-	return "CppPluginException: ".a:msg
 endf
 
 
@@ -291,16 +291,6 @@ function! CppPlugin()
 		exec Relpath('<C-R>%').'.o'
 	endf
 
-	function self.initHotkeys() " TODO move this out of CppPlugin
-		nmap <C-F7> :call g:cpp_plugin.buildFile('<C-R>%')<CR>
-		nmap <F4> :call g:cpp_plugin.openAlternativeFile('<C-R>%')<CR>
-		map <C-K> "wyiw:call g:cpp_plugin.addImport(g:cpp_plugin.getImport(@w), g:include_priorities)<CR>
-		map t<C-]> "wyiw:call g:cpp_plugin.gotoSymbol(@w)<CR>
-		nmap <C-RightMouse> <LeftMouse>t<C-]>
-		nmap <C-P> :echo g:cpp_plugin.createLocation(getpos('.')).getLocationPath().toString()<CR>
-		nmap g% :call searchpair('<', '', '>', getline('.')[col('.') - 1] == '>' ? 'bW' : 'W')<CR>
-	endf
-
 	function self.filterImportableTags(taglist)
 		return filter(a:taglist, 'v:val["filename"] =~ "\\.\\(h\\|hpp\\)$"') " Headers only
 	endf
@@ -346,5 +336,4 @@ endf
 
 let g:cpp_plugin = CppPlugin()
 
-
-au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp call g:cpp_plugin.initHotkeys()
+au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp call ActivateLangPlugin(g:cpp_plugin)
