@@ -1,10 +1,10 @@
-function! GetCppNamespaceFromPath(path)
+function GetCppNamespaceFromPath(path)
 	return []
 endfunction
 
 
 autocmd User plugin-template-loaded call s:template_keywords()
-function! s:template_keywords()
+function s:template_keywords()
 	%s/<+FILENAME+>/\=toupper(substitute(expand('%'), '[-.\/\\\\:]', '_', 'g'))/ge
 	%s/<+FILENAME_MANGLED+>/\=toupper(substitute(expand('%'), '[-.\/\\\\:]', '_', 'g'))/ge
 	%s/<+DATE+>/\=strftime('%Y-%m-%d')/ge
@@ -49,7 +49,7 @@ function CppPluginException(msg)
 endf
 
 
-function! GetMembers(fullSymbol)
+function GetMembers(fullSymbol)
 	let tags = taglist('^'.a:fullSymbol.'::[^:]*$')
 	let membernames = map(copy(tags), 'strpart(v:val["name"], strlen(a:fullSymbol."::"))')
 	return membernames
@@ -82,7 +82,7 @@ function CppNamespace(ns)
 endf
 
 
-function! CppTag(rawTag)
+function CppTag(rawTag)
 	if !exists('s:CppTag')
 		let s:CppTag = {}
 
@@ -237,7 +237,7 @@ function CppLocation(rawLocation)
 endf
 
 
-function! CppSyntax()
+function CppSyntax()
 	let self = {}
 
 	function self.getImportLine(dependency)
@@ -255,7 +255,7 @@ endf
 let g:include_priorities = []
 
 
-function! CppPlugin()
+function CppPlugin()
 	let self = LangPlugin()
 
 	let self.syntax = CppSyntax()

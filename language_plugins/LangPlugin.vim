@@ -1,4 +1,4 @@
-function! LangPlugin()
+function LangPlugin()
 	if !exists('s:LangPlugin')
 		let s:LangPlugin = {}
 
