@@ -62,7 +62,7 @@ function CppNamespace(ns) " TODO use prototypes for such objects
 	let self._ns = a:ns
 
 	function self.getRaw()
-		return copy(self._ns)
+		return deepcopy(self._ns)
 	endf
 
 	function self.compareTags(t1, t2)
@@ -86,7 +86,7 @@ function! CppTag(rawTag)
 	let self._rawTag = a:rawTag
 
 	function self.getRaw()
-		return copy(self._rawTag)
+		return deepcopy(self._rawTag)
 	endf
 
 	function self.getScope() " TODO Rename this method
@@ -118,7 +118,7 @@ function FrameworkInfo(namespace)
 	let self._includes = {}
 
 	function self.getNamespace()
-		return copy(self._namespace)
+		return deepcopy(self._namespace)
 	endf
 
 	function self._extendIncludes(file, symbols)
@@ -151,7 +151,7 @@ function CppLocationPath(rawPath)
 	let self._rawPath = a:rawPath
 
 	function self.getRaw()
-		return copy(self._rawPath)
+		return deepcopy(self._rawPath)
 	endf
 
 	function self.getNamespace()
@@ -172,7 +172,7 @@ function CppLocation(rawLocation)
 	let self._rawLocation = a:rawLocation
 
 	function self.getRaw()
-		return copy(self._rawLocation)
+		return deepcopy(self._rawLocation)
 	endf
 
 	function self.getLocationPath()

@@ -4,7 +4,7 @@ function! LangPlugin()
 	let self._frameworks = []
 
 	function self.getFrameworks()
-		return copy(self._frameworks)
+		return deepcopy(self._frameworks)
 	endf
 
 	function self.registerFramework(framework)
