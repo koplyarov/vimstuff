@@ -19,7 +19,6 @@ function CMakeBuildSystem()
 	function self._getSubdirectory(path)
 		let path = split(a:path, '/')
 		while len(path) >= 0
-			echo path
 			if filereadable(join(path, '/').(len(path) > 0 ? '/' : '').'CMakeLists.txt')
 				return join(path, '/')
 			end
