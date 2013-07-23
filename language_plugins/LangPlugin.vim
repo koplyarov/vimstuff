@@ -2,66 +2,6 @@ function LangPlugin()
 	if !exists('s:LangPlugin')
 		let s:LangPlugin = {}
 
-		function s:LangPlugin.getFrameworks()
-			return deepcopy(self._frameworks)
-		endf
-
-		function s:LangPlugin.registerFramework(framework)
-			call add(self._frameworks, a:framework)
-		endf
-
-		function s:LangPlugin.getImport(symbol)
-			for fw in self.getFrameworks()
-				if fw.hasSymbol(a:symbol)
-					return fw.getImport(a:symbol)
-				end
-			endfor
-
-			let s:langPlugin = self " =(
-
-			function! MyCompare(t1, t2)
-				return s:ns_obj.compareTags(s:langPlugin.getSymbolInfo(a:t1), s:langPlugin.getSymbolInfo(a:t2)) " =(
-			endf
-
-			let s:ns_obj = self.createLocation(getpos('.')).getLocationPath().getNamespace()
-			let tags = self.filterImportableTags(taglist('\<'.a:symbol.'\>'))
-			call sort(tags, 'MyCompare')
-			let s:filenames = map(copy(tags), 'v:val["filename"]')
-			let tags = filter(copy(tags), 'index(s:filenames, v:val["filename"], v:key + 1)==-1')
-
-			if len(tags) == 0
-				echo "No tags found!"
-				return ''
-			end
-
-			if len(tags) == 1
-				return self.getImportForTag(tags[0])
-			end
-
-			let ns = s:ns_obj.getRaw()
-			let ns1 = self.getSymbolInfo(tags[0]).getScope()
-			let ns2 = self.getSymbolInfo(tags[1]).getScope()
-			if ns1 == ns && ns2 != ns
-				return self.getImportForTag(tags[0])
-			end
-			if GetCommonSublistLen(ns1, ns) == len(ns) && GetCommonSublistLen(ns2, ns) != len(ns)
-				return self.getImportForTag(tags[0])
-			end
-			if GetCommonSublistLen(ns1, ns) == len(ns1) && GetCommonSublistLen(ns2, ns) != len(ns2)
-				return self.getImportForTag(tags[0])
-			end
-
-			let s:choices = []
-			for t in tags
-				call add(s:choices, self.getImportForTag(t))
-			endfor
-
-			function! ImportsComplete(A,L,P)
-				return s:choices
-			endf
-			return input('Multiple tags found, make your choice: ', s:choices[0], 'customlist,ImportsComplete')
-		endf
-
 		function s:LangPlugin.addImport(inc, import_priorities)
 			if strlen(a:inc) == 0
 				return
@@ -145,16 +85,12 @@ function LangPlugin()
 		endf
 
 		function s:LangPlugin.gotoSymbol(symbol)
-			let tags = self.createLocation(getpos('.')).getTags(a:symbol)
-			if len(tags) > 0
-				call tags[0].goto()
+			let symbols = self.indexer.getSymbolInfoAtLocation(a:symbol, self.createLocation(getpos('.')))
+			if len(symbols) > 0
+				call symbols[0].goto()
 			else
 				call self.gotoLocalSymbol(a:symbol)
 			end
-		endf
-
-		function s:LangPlugin.getSymbolInfo(symbol)
-			return self.indexer.getSymbolInfo(a:symbol, self.syntax.symbolDelimiter)
 		endf
 
 		function s:LangPlugin.openAlternativeFile(filename)
@@ -163,32 +99,6 @@ function LangPlugin()
 	end
 
 	let self = copy(s:LangPlugin)
-	let self._frameworks = []
-	return self
-endf
-
-
-function FrameworkInfoBase()
-	if !exists('s:FrameworkInfoBase')
-		let s:FrameworkInfoBase = {}
-
-		function s:FrameworkInfoBase._addImports(packageStr, symbols)
-			for s in a:symbols
-				let self._symbols[s] = a:packageStr
-			endfor
-		endf
-
-		function s:FrameworkInfoBase.hasSymbol(symbol)
-			return has_key(self._symbols, a:symbol)
-		endf
-
-		function s:FrameworkInfoBase.getImport(symbol)
-			return self._symbols[a:symbol]
-		endf
-	end
-
-	let self = copy(s:FrameworkInfoBase)
-	let self._symbols = {}
 	return self
 endf
 
@@ -199,7 +109,7 @@ function ActivateLangPlugin(plugin)
 	if has_key(b:lang_plugin, 'getAlternativeFile')
 		nmap <silent> <buffer> <F4> :call b:lang_plugin.openAlternativeFile('<C-R>%')<CR>
 	end
-	map <silent> <buffer> <C-K> "wyiw:call b:lang_plugin.addImport(b:lang_plugin.getImport(@w), g:include_priorities)<CR>
+	map <silent> <buffer> <C-K> "wyiw:call b:lang_plugin.addImport(b:lang_plugin.indexer.getImport(@w), g:include_priorities)<CR>
 	map <silent> <buffer> t<C-]> "wyiw:call b:lang_plugin.gotoSymbol(@w)<CR>
 	nmap <silent> <buffer> <C-RightMouse> <LeftMouse>t<C-]>
 	nmap <silent> <buffer> <C-P> :echo b:lang_plugin.createLocation(getpos('.')).getLocationPath().toString()<CR>

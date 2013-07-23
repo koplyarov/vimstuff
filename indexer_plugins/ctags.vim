@@ -3,6 +3,31 @@ function CTagsPluginException(msg)
 endf
 
 
+function CTagsFrameworkInfo()
+	if !exists('s:CTagsFrameworkInfo')
+		let s:CTagsFrameworkInfo = {}
+
+		function s:CTagsFrameworkInfo.addImports(packageStr, symbols)
+			for s in a:symbols
+				let self._symbols[s] = a:packageStr
+			endfor
+		endf
+
+		function s:CTagsFrameworkInfo.hasSymbol(symbol)
+			return has_key(self._symbols, a:symbol)
+		endf
+
+		function s:CTagsFrameworkInfo.getImport(symbol)
+			return self._symbols[a:symbol]
+		endf
+	end
+
+	let self = copy(s:CTagsFrameworkInfo)
+	let self._symbols = {}
+	return self
+endf
+
+
 function CTagsSymbolInfo(rawTag, symbolDelimiter)
 	if !exists('s:CTagsSymbolInfo')
 		let s:CTagsSymbolInfo = {}
@@ -24,6 +49,10 @@ function CTagsSymbolInfo(rawTag, symbolDelimiter)
 			endif
 			silent execute cmd
 		endf
+
+		function s:CTagsSymbolInfo.getFilename()
+			return self._rawTag['filename']
+		endf
 	end
 
 	let self = copy(s:CTagsSymbolInfo)
@@ -33,12 +62,86 @@ function CTagsSymbolInfo(rawTag, symbolDelimiter)
 endf
 
 
-function CTagsIndexer()
-	let self = {}
+function CTagsIndexer(langPlugin)
+	if !exists('s:CTagsIndexer')
+		let s:CTagsIndexer = {}
 
-	let self.getSymbolInfo = function('CTagsSymbolInfo')
+		function s:CTagsIndexer.getFrameworks()
+			return deepcopy(self._frameworks)
+		endf
 
+		function s:CTagsIndexer.registerFramework(framework)
+			call add(self._frameworks, a:framework)
+		endf
+
+		function s:CTagsIndexer._createSymbolInfo(tag)
+			return CTagsSymbolInfo(a:tag, self._syntax.symbolDelimiter)
+		endf
+
+		function s:CTagsIndexer.getSymbolInfoAtLocation(symbol, location)
+			let ctx = map(map(a:location.getLocationPath().getRaw(), 'v:val["name"]'), '(strlen(v:val) > 0) ? v:val : "__anon\\d*"')
+			let ctx = a:location.getLocationPath().getTagRegex()
+			let tags = []
+			while 1
+				let tags += taglist('^'.join(ctx + [a:symbol.'$'], self._syntax.symbolDelimiter))
+				if len(ctx) == 0
+					break
+				end
+				call remove(ctx, -1)
+			endw
+			return map(tags, 'self._createSymbolInfo(v:val)')
+		endf
+
+		function s:CTagsIndexer.matchSymbols(str)
+			return map(taglist(a:str), 'self._createSymbolInfo(v:val)')
+		endf
+
+		function s:CTagsIndexer.getImport(symbol)
+			for fw in self.getFrameworks()
+				if fw.hasSymbol(a:symbol)
+					return fw.getImport(a:symbol)
+				end
+			endfor
+
+			let ns_obj = self._langPlugin.createLocation(getpos('.')).getLocationPath().getNamespace()
+			let tags = self._langPlugin.filterImportableSymbols(self.matchSymbols('\<'.a:symbol.'\>'))
+			call sort(tags, ns_obj.compareSymbols, ns_obj)
+			let s:filenames = map(copy(tags), 'v:val.getFilename()')
+			let tags = filter(copy(tags), 'index(s:filenames, v:val.getFilename(), v:key + 1)==-1')
+
+			if len(tags) == 0
+				echo "No tags found!"
+				return ''
+			end
+
+			if len(tags) == 1
+				return self._langPlugin.getImportForSymbol(tags[0])
+			end
+
+			let ns = ns_obj.getRaw()
+			let ns1 = tags[0].getScope()
+			let ns2 = tags[1].getScope()
+			if ns1 == ns && ns2 != ns
+				return self._langPlugin.getImportForSymbol(tags[0])
+			end
+			if GetCommonSublistLen(ns1, ns) == len(ns) && GetCommonSublistLen(ns2, ns) != len(ns)
+				return self._langPlugin.getImportForSymbol(tags[0])
+			end
+			if GetCommonSublistLen(ns1, ns) == len(ns1) && GetCommonSublistLen(ns2, ns) != len(ns2)
+				return self._langPlugin.getImportForSymbol(tags[0])
+			end
+
+			let s:choices = map(tags, 'self._langPlugin.getImportForSymbol(v:val)')
+			function! ImportsComplete(A,L,P)
+				return s:choices
+			endf
+			return input('Multiple tags found, make your choice: ', s:choices[0], 'customlist,ImportsComplete')
+		endf
+	end
+
+	let self = copy(s:CTagsIndexer)
+	let self._syntax = a:langPlugin.syntax
+	let self._langPlugin = a:langPlugin
+	let self._frameworks = []
 	return self
 endf
-
-let g:ctags_indexer = CTagsIndexer()

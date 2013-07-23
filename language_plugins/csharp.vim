@@ -11,10 +11,10 @@ function CSharpNamespace(ns)
 			return deepcopy(self._ns)
 		endf
 
-		function s:CSharpNamespace.compareTags(t1, t2)
+		function s:CSharpNamespace.compareSymbols(s1, s2)
 			let ns = self.getRaw()
-			let ns1 = a:t1.getScope()
-			let ns2 = a:t2.getScope()
+			let ns1 = a:s1.getScope()
+			let ns2 = a:s2.getScope()
 			let res = (len(ns1) - GetCommonSublistLen(ns1, ns)) - (len(ns2) - GetCommonSublistLen(ns2, ns))
 			if res == 0
 				let res = GetCommonSublistLen(ns2, ns) - GetCommonSublistLen(ns1, ns)
@@ -26,11 +26,6 @@ function CSharpNamespace(ns)
 	let self = copy(s:CSharpNamespace)
 	let self._ns = a:ns
 	return self
-endf
-
-
-function CSharpFrameworkInfo()
-	return FrameworkInfoBase()
 endf
 
 
@@ -50,6 +45,10 @@ function CSharpLocationPath(rawPath)
 
 		function s:CSharpLocationPath.getNamespace()
 			return CSharpNamespace(map(filter(self.getRaw(), 'v:val["type"] == "namespace"'), 'v:val["name"]'))
+		endf
+
+		function s:CSharpLocationPath.getTagRegex()
+			return map(self.getRaw(), 'v:val["name"]')
 		endf
 
 		function s:CSharpLocationPath.toString()
@@ -106,19 +105,6 @@ function CSharpLocation(rawLocation)
 			call setpos('.', save_cursor)
 			return CSharpLocationPath(res)
 		endf
-
-		function s:CSharpLocation.getTags(symbol)
-			let ctx = map(self.getLocationPath().getRaw(), 'v:val["name"]')
-			let tags = []
-			while 1
-				let tags += taglist('^'.join(ctx + [a:symbol.'$'], '.'))
-				if len(ctx) == 0
-					break
-				end
-				call remove(ctx, -1)
-			endw
-			return map(tags, 'g:csharp_plugin.getSymbolInfo(v:val)')
-		endf
 	end
 
 	let self = copy(s:CSharpLocation)
@@ -151,19 +137,19 @@ function CSharpPlugin()
 	let self = LangPlugin()
 
 	let self.syntax = CSharpSyntax()
-	let self.indexer = g:ctags_indexer
+	let self.indexer = CTagsIndexer(self)
 	let self.createLocation = function('CSharpLocation')
 
-	let dotNet = CSharpFrameworkInfo()
-	call dotNet._addImports('System.Collections.Generic', [ 'IDictionary', 'IList' ]) " ...
-	call self.registerFramework(dotNet)
+	let dotNet = CTagsFrameworkInfo()
+	call dotNet.addImports('System.Collections.Generic', [ 'IDictionary', 'IList' ]) " ...
+	call self.indexer.registerFramework(dotNet)
 
-	function self.filterImportableTags(taglist)
-		return a:taglist
+	function self.filterImportableSymbols(symbols)
+		return a:symbols
 	endf
 
-	function self.getImportForTag(tag)
-		return a:tag['namespace']
+	function self.getImportForSymbol(symbol)
+		return join(a:symbol.getScope(), '.')
 	endf
 
 	function self.gotoLocalSymbol(symbol)

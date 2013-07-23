@@ -64,10 +64,10 @@ function CppNamespace(ns)
 			return deepcopy(self._ns)
 		endf
 
-		function s:CppNamespace.compareTags(t1, t2)
+		function s:CppNamespace.compareSymbols(s1, s2)
 			let ns = self.getRaw()
-			let ns1 = a:t1.getScope()
-			let ns2 = a:t2.getScope()
+			let ns1 = a:s1.getScope()
+			let ns2 = a:s2.getScope()
 			let res = (len(ns1) - GetCommonSublistLen(ns1, ns)) - (len(ns2) - GetCommonSublistLen(ns2, ns))
 			if res == 0
 				let res = GetCommonSublistLen(ns2, ns) - GetCommonSublistLen(ns1, ns)
@@ -79,11 +79,6 @@ function CppNamespace(ns)
 	let self = copy(s:CppNamespace)
 	let self._ns = a:ns
 	return self
-endf
-
-
-function CppFrameworkInfo()
-	return FrameworkInfoBase()
 endf
 
 
@@ -103,6 +98,10 @@ function CppLocationPath(rawPath)
 
 		function s:CppLocationPath.getNamespace()
 			return CppNamespace(map(filter(self.getRaw(), 'v:val["type"] == "namespace"'), 'v:val["name"]'))
+		endf
+
+		function s:CppLocationPath.getTagRegex()
+			return map(map(self.getRaw(), 'v:val["name"]'), '(strlen(v:val) > 0) ? v:val : "__anon\\d*"')
 		endf
 
 		function s:CppLocationPath.toString()
@@ -158,19 +157,6 @@ function CppLocation(rawLocation)
 			call setpos('.', save_cursor)
 			return CppLocationPath(res)
 		endf
-
-		function s:CppLocation.getTags(symbol)
-			let ctx = map(map(self.getLocationPath().getRaw(), 'v:val["name"]'), '(strlen(v:val) > 0) ? v:val : "__anon\\d*"')
-			let tags = []
-			while 1
-				let tags += taglist('^'.join(ctx + [a:symbol.'$'], '::'))
-				if len(ctx) == 0
-					break
-				end
-				call remove(ctx, -1)
-			endw
-			return map(tags, 'g:cpp_plugin.getSymbolInfo(v:val)')
-		endf
 	end
 
 	let self = copy(s:CppLocation)
@@ -203,40 +189,40 @@ function CppPlugin()
 	let self = LangPlugin()
 
 	let self.syntax = CppSyntax()
-	let self.indexer = g:ctags_indexer
+	let self.indexer = CTagsIndexer(self)
 	let self.createLocation = function('CppLocation')
 
-	let c_stdlib = CppFrameworkInfo()
-	call c_stdlib._addImports('stdio.h', [ 'fclose', 'fopen', 'freopen', 'fdopen', 'remove', 'rename', 'rewind', 'tmpfile', 'clearerr', 'feof', 'ferror', 'fflush', 'fgetpos', 'fgetc', 'fgets', 'fputc', 'fputs', 'ftell', 'fseek', 'fsetpos', 'fread', 'fwrite', 'getc', 'getchar', 'gets', 'printf', 'vprintf', 'fprintf', 'vfprintf', 'sprintf', 'snprintf', 'vsprintf', 'perror', 'putc', 'putchar', 'fputchar', 'scanf', 'vscanf', 'fscanf', 'vfscanf', 'sscanf', 'vsscanf', 'setbuf', 'setvbuf', 'tmpnam', 'ungetc', 'puts' ])
-	call c_stdlib._addImports('string.h', [ 'memcpy', 'memmove', 'memchr', 'memcmp', 'memset', 'strcat', 'strncat', 'strchr', 'strrchr', 'strcmp', 'strncmp', 'strcoll', 'strcpy', 'strncpy', 'strerror', 'strlen', 'strspn', 'strcspn', 'strpbrk', 'strstr', 'strtok', 'strxfrm' ])
-	call self.registerFramework(c_stdlib)
+	let c_stdlib = CTagsFrameworkInfo()
+	call c_stdlib.addImports('stdio.h', [ 'fclose', 'fopen', 'freopen', 'fdopen', 'remove', 'rename', 'rewind', 'tmpfile', 'clearerr', 'feof', 'ferror', 'fflush', 'fgetpos', 'fgetc', 'fgets', 'fputc', 'fputs', 'ftell', 'fseek', 'fsetpos', 'fread', 'fwrite', 'getc', 'getchar', 'gets', 'printf', 'vprintf', 'fprintf', 'vfprintf', 'sprintf', 'snprintf', 'vsprintf', 'perror', 'putc', 'putchar', 'fputchar', 'scanf', 'vscanf', 'fscanf', 'vfscanf', 'sscanf', 'vsscanf', 'setbuf', 'setvbuf', 'tmpnam', 'ungetc', 'puts' ])
+	call c_stdlib.addImports('string.h', [ 'memcpy', 'memmove', 'memchr', 'memcmp', 'memset', 'strcat', 'strncat', 'strchr', 'strrchr', 'strcmp', 'strncmp', 'strcoll', 'strcpy', 'strncpy', 'strerror', 'strlen', 'strspn', 'strcspn', 'strpbrk', 'strstr', 'strtok', 'strxfrm' ])
+	call self.indexer.registerFramework(c_stdlib)
 
-	let cpp_stdlib = CppFrameworkInfo()
-	call cpp_stdlib._addImports('vector', [ 'vector' ])
-	call cpp_stdlib._addImports('string', [ 'string', 'basic_string' ])
-	call cpp_stdlib._addImports('set', [ 'set' ])
-	call cpp_stdlib._addImports('map', [ 'map' ])
-	call cpp_stdlib._addImports('list', [ 'list' ])
-	call cpp_stdlib._addImports('deque', [ 'deque' ])
-	call cpp_stdlib._addImports('queue', [ 'queue' ])
-	call cpp_stdlib._addImports('memory', [ 'auto_ptr' ])
-	call cpp_stdlib._addImports('stdexcept', [ 'logic_error', 'domain_error', 'invalid_argument', 'length_error', 'out_of_range', 'runtime_error', 'range_error', 'overflow_error', 'underflow_error' ])
-	call cpp_stdlib._addImports('iostream', [ 'istream', 'ostream', 'basic_istream', 'basic_ostream', 'cin', 'cout', 'cerr', 'endl' ])
-	call cpp_stdlib._addImports('algorithm', [ 'for_each', 'find', 'find_if', 'find_end', 'find_first_of', 'adjacent_find', 'count', 'count_if', 'mismatch', 'equal', 'search', 'search_n', 'copy', 'copy_backward', 'swap', 'swap_ranges', 'iter_swap', 'transform', 'replace', 'replace_if', 'replace_copy', 'replace_copy_if', 'fill', 'fill_n', 'generate', 'generate_n', 'remove', 'remove_if', 'remove_copy', 'remove_copy_if', 'unique', 'unique_copy', 'reverse', 'reverse_copy', 'rotate', 'rotate_copy', 'random_shuffle', 'partition', 'stable_partition', 'sort', 'stable_sort', 'partial_sort', 'partial_sort_copy', 'nth_element', 'lower_bound', 'upper_bound', 'equal_range', 'binary_search', 'merge', 'inplace_merge', 'includes', 'set_union', 'set_intersection', 'set_difference', 'set_symmetric_difference', 'push_heap', 'pop_heap', 'make_heap', 'sort_heap', 'min', 'max', 'min_element', 'max_element', 'lexicographical_compare', 'next_permutation', 'prev_permutation' ])
-	call cpp_stdlib._addImports('functional', [ 'unary_function', 'binary_function', 'plus', 'minus', 'multiplies', 'divides', 'modulus', 'negate', 'equal_to', 'not_equal_to', 'greater', 'less', 'greater_equal', 'less_equal', 'logical_and', 'logical_or', 'logical_not', 'not1', 'not2', 'bind1st', 'bind2nd', 'ptr_fun', 'mem_fun', 'mem_fun_ref', 'unary_negate', 'binary_negate', 'binder1st', 'binder2nd', 'pointer_to_unary_function', 'pointer_to_binary_function', 'mem_fun_t', 'mem_fun1_t', 'const_mem_fun_t', 'const_mem_fun1_t', 'mem_fun_ref_t', 'mem_fun1_ref_t', 'const_mem_fun_ref_t', 'const_mem_fun1_ref_t' ])
-	call cpp_stdlib._addImports('streambuf', [ 'streambuf' ])
-	call cpp_stdlib._addImports('utility', [ 'pair' ])
-	call cpp_stdlib._addImports('sstream', [ 'stringstream', 'istringstream', 'ostringstream', 'basic_stringstream', 'basic_istringstream', 'basic_ostringstream' ])
-	call cpp_stdlib._addImports('fstream', [ 'fstream', 'ifstream', 'ofstream', 'basic_fstream', 'basic_ifstream', 'basic_ofstream' ])
-	call cpp_stdlib._addImports('typeinfo', [ 'type_info', 'bad_cast', 'bad_typeid', 'typeid' ])
-	call self.registerFramework(cpp_stdlib)
+	let cpp_stdlib = CTagsFrameworkInfo()
+	call cpp_stdlib.addImports('vector', [ 'vector' ])
+	call cpp_stdlib.addImports('string', [ 'string', 'basic_string' ])
+	call cpp_stdlib.addImports('set', [ 'set' ])
+	call cpp_stdlib.addImports('map', [ 'map' ])
+	call cpp_stdlib.addImports('list', [ 'list' ])
+	call cpp_stdlib.addImports('deque', [ 'deque' ])
+	call cpp_stdlib.addImports('queue', [ 'queue' ])
+	call cpp_stdlib.addImports('memory', [ 'auto_ptr' ])
+	call cpp_stdlib.addImports('stdexcept', [ 'logic_error', 'domain_error', 'invalid_argument', 'length_error', 'out_of_range', 'runtime_error', 'range_error', 'overflow_error', 'underflow_error' ])
+	call cpp_stdlib.addImports('iostream', [ 'istream', 'ostream', 'basic_istream', 'basic_ostream', 'cin', 'cout', 'cerr', 'endl' ])
+	call cpp_stdlib.addImports('algorithm', [ 'for_each', 'find', 'find_if', 'find_end', 'find_first_of', 'adjacent_find', 'count', 'count_if', 'mismatch', 'equal', 'search', 'search_n', 'copy', 'copy_backward', 'swap', 'swap_ranges', 'iter_swap', 'transform', 'replace', 'replace_if', 'replace_copy', 'replace_copy_if', 'fill', 'fill_n', 'generate', 'generate_n', 'remove', 'remove_if', 'remove_copy', 'remove_copy_if', 'unique', 'unique_copy', 'reverse', 'reverse_copy', 'rotate', 'rotate_copy', 'random_shuffle', 'partition', 'stable_partition', 'sort', 'stable_sort', 'partial_sort', 'partial_sort_copy', 'nth_element', 'lower_bound', 'upper_bound', 'equal_range', 'binary_search', 'merge', 'inplace_merge', 'includes', 'set_union', 'set_intersection', 'set_difference', 'set_symmetric_difference', 'push_heap', 'pop_heap', 'make_heap', 'sort_heap', 'min', 'max', 'min_element', 'max_element', 'lexicographical_compare', 'next_permutation', 'prev_permutation' ])
+	call cpp_stdlib.addImports('functional', [ 'unary_function', 'binary_function', 'plus', 'minus', 'multiplies', 'divides', 'modulus', 'negate', 'equal_to', 'not_equal_to', 'greater', 'less', 'greater_equal', 'less_equal', 'logical_and', 'logical_or', 'logical_not', 'not1', 'not2', 'bind1st', 'bind2nd', 'ptr_fun', 'mem_fun', 'mem_fun_ref', 'unary_negate', 'binary_negate', 'binder1st', 'binder2nd', 'pointer_to_unary_function', 'pointer_to_binary_function', 'mem_fun_t', 'mem_fun1_t', 'const_mem_fun_t', 'const_mem_fun1_t', 'mem_fun_ref_t', 'mem_fun1_ref_t', 'const_mem_fun_ref_t', 'const_mem_fun1_ref_t' ])
+	call cpp_stdlib.addImports('streambuf', [ 'streambuf' ])
+	call cpp_stdlib.addImports('utility', [ 'pair' ])
+	call cpp_stdlib.addImports('sstream', [ 'stringstream', 'istringstream', 'ostringstream', 'basic_stringstream', 'basic_istringstream', 'basic_ostringstream' ])
+	call cpp_stdlib.addImports('fstream', [ 'fstream', 'ifstream', 'ofstream', 'basic_fstream', 'basic_ifstream', 'basic_ofstream' ])
+	call cpp_stdlib.addImports('typeinfo', [ 'type_info', 'bad_cast', 'bad_typeid', 'typeid' ])
+	call self.indexer.registerFramework(cpp_stdlib)
 
-	function self.filterImportableTags(taglist)
-		return filter(a:taglist, 'v:val["filename"] =~ "\\.\\(h\\|hpp\\)$"') " Headers only
+	function self.filterImportableSymbols(symbols)
+		return filter(a:symbols, 'v:val.getFilename() =~ "\\.\\(h\\|hpp\\)$"') " Headers only
 	endf
 
-	function self.getImportForTag(tag)
-		return self.getImportForPath(Relpath(a:tag['filename']))
+	function self.getImportForSymbol(symbol)
+		return self.getImportForPath(Relpath(a:symbol.getFilename()))
 	endf
 
 	function self.getImportForPath(filename)
