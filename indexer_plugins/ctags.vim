@@ -79,7 +79,6 @@ function CTagsIndexer(langPlugin)
 		endf
 
 		function s:CTagsIndexer.getSymbolInfoAtLocation(symbol, location)
-			let ctx = map(map(a:location.getLocationPath().getRaw(), 'v:val["name"]'), '(strlen(v:val) > 0) ? v:val : "__anon\\d*"')
 			let ctx = a:location.getLocationPath().getTagRegex()
 			let tags = []
 			while 1
