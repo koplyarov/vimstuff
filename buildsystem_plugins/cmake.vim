@@ -60,14 +60,14 @@ function CMakeBuildSystem()
 			end
 			if has_key(entry, 'bufnr') && entry['bufnr'] != 0
 				let filename = bufname(entry['bufnr'])
-				if !file_readable(filename)
+				if !filereadable(filename)
 					let dirs = (has_key(self, '_buildDir') ? [ self._buildDir ] : []) + self._subdirectories
 					if has_key(subdirs_hint, filename)
 						call insert(dirs, subdirs_hint[filename])
 					end
 					for dir in dirs
 						let fn = build_dir_from_makeprg.dir.'/'.filename
-						if file_readable(fn)
+						if filereadable(fn)
 							let entry['bufnr']=bufnr(fn, 1)
 							break
 						end
