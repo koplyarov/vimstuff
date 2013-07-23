@@ -64,53 +64,6 @@ if !exists("g:vimstuff_sourced")
 
 	command! -nargs=1 -complete=tag Search call DoSearch('<args>')
 
-	function GetBuildDir()
-		let ml = matchlist(&makeprg, '-C \(\S*\)')
-		if len(ml) > 1
-			return ml[1].'/'
-		else
-			return ''
-		end
-	endf
-
-	function FixQuickFix()
-		let build_dir = GetBuildDir()
-
-		let has_entries = 0
-
-		let qflist = getqflist()
-		for entry in qflist
-			if has_key(entry, 'bufnr') && entry['bufnr'] != 0
-				let has_entries = 1
-			end
-			if exists('*CustomQuickFixPatcher')
-				if CustomQuickFixPatcher(entry)
-					continue
-				end
-			end
-			if has_key(entry, 'bufnr') && entry['bufnr'] != 0
-				let has_entries = 1
-				let filename = bufname(entry['bufnr'])
-				if !file_readable(filename) && exists('g:subdirectories')
-					for dir in g:subdirectories
-						if file_readable(dir.'/'.filename)
-							let entry['bufnr']=bufnr(dir.'/'.filename, 1)
-							break
-						end
-						if file_readable(build_dir.dir.'/'.filename)
-							let entry['bufnr']=bufnr(build_dir.dir.'/'.filename, 1)
-							break
-						end
-					endfor
-				end
-			end
-		endfor
-		call setqflist(qflist, 'r')
-		return has_entries
-	endf
-
-
-	au QuickfixCmdPost make nested if FixQuickFix() | silent! cn | cw | else | ccl | end
 	au BufRead,BufNewFile *.git call InitGitHotKeys()
 	au BufRead,BufNewFile *.qml set filetype=qml
 	au BufRead,BufNewFile *.decl set filetype=qml

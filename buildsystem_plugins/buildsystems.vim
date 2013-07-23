@@ -2,20 +2,24 @@ runtime buildsystem_plugins/cmake.vim
 
 function DetectBuildSystem()
 	if filereadable('CMakeLists.txt')
-		let b:buildsystem = g:cmake_buildsystem
+		let g:buildsystem = g:cmake_buildsystem
 	end
 
-	if !exists('b:buildsystem')
+	if !exists('g:buildsystem')
 		return
 	end
 	
-	if has_key(b:buildsystem, 'buildFile')
-		nmap <silent> <buffer> <C-F7> :call b:buildsystem.buildFile('<C-R>%')<CR>
+	if has_key(g:buildsystem, 'buildFile')
+		nmap <silent> <C-F7> :call g:buildsystem.buildFile('<C-R>%')<CR>
 	end
 
-	if has_key(b:buildsystem, 'buildAll')
-		nmap <silent> <buffer> <S-F5> :call b:buildsystem.buildAll()<CR>
+	if has_key(g:buildsystem, 'buildAll')
+		nmap <silent> <S-F5> :call g:buildsystem.buildAll()<CR>
+	end
+
+	if has_key(g:buildsystem, 'patchQuickFix')
+		au QuickfixCmdPost make nested if g:buildsystem.patchQuickFix() | silent! cn | cw | else | ccl | end
 	end
 endf
 
-au BufRead,BufNewFile *.* call DetectBuildSystem()
+call DetectBuildSystem()
