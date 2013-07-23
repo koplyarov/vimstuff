@@ -136,6 +136,35 @@ function CTagsIndexer(langPlugin)
 			endf
 			return input('Multiple tags found, make your choice: ', s:choices[0], 'customlist,ImportsComplete')
 		endf
+
+		function s:CTagsIndexer.canUpdate()
+			call system('which ctags')
+			return v:shell_error == 0 && filewritable('tags') == 1
+		endf
+
+		function s:CTagsIndexer._invokeCtags(flags, path)
+			let excludes = '--exclude=*CMakeFiles* --exclude=*doxygen*'
+			call system('ctags '.a:flags.' --fields=+ail '.excludes.' --extra=+q '.a:path)
+		endf
+
+		function s:CTagsIndexer.rebuildIfNecessary()
+			if !self.canUpdate() || filereadable('tags')
+				return 0
+			end
+
+			call self._invokeCtags('-R', './')
+			return 1
+		endf
+
+		function s:CTagsIndexer.updateForFile(filename)
+			if self.rebuildIfNecessary()
+				return
+			end
+
+			call system('sed -i ''/^\S*\s\(\.\/\)\?'.escape(a:filename, '.*/\$^[]&').'/d'' tags')
+			call self._invokeCtags('-a', Relpath(a:filename))
+			redraw!
+		endf
 	end
 
 	let self = copy(s:CTagsIndexer)

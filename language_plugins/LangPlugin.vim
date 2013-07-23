@@ -109,8 +109,16 @@ function ActivateLangPlugin(plugin)
 	if has_key(b:lang_plugin, 'getAlternativeFile')
 		nmap <silent> <buffer> <F4> :call b:lang_plugin.openAlternativeFile('<C-R>%')<CR>
 	end
-	map <silent> <buffer> <C-K> "wyiw:call b:lang_plugin.addImport(b:lang_plugin.indexer.getImport(@w), g:include_priorities)<CR>
-	map <silent> <buffer> t<C-]> "wyiw:call b:lang_plugin.gotoSymbol(@w)<CR>
-	nmap <silent> <buffer> <C-RightMouse> <LeftMouse>t<C-]>
+
 	nmap <silent> <buffer> <C-P> :echo b:lang_plugin.createLocation(getpos('.')).getLocationPath().toString()<CR>
+
+	if has_key(b:lang_plugin, 'indexer')
+		map <silent> <buffer> <C-K> "wyiw:call b:lang_plugin.addImport(b:lang_plugin.indexer.getImport(@w), g:include_priorities)<CR>
+		map <silent> <buffer> t<C-]> "wyiw:call b:lang_plugin.gotoSymbol(@w)<CR>
+		nmap <silent> <buffer> <C-RightMouse> <LeftMouse>t<C-]>
+
+		if has_key(b:lang_plugin.indexer, 'canUpdate') && b:lang_plugin.indexer.canUpdate()
+			"au BufWritePost <buffer> call b:lang_plugin.indexer.updateForFile(@%)
+		end
+	end
 endf
