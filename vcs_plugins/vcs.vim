@@ -3,15 +3,15 @@ runtime vcs_plugins/git.vim
 
 function DetectVcs()
 	if isdirectory('.git')
-		let b:vcs = g:git_vcs
+		let g:vcs = g:git_vcs
 	end
 
-	if !exists('b:vcs')
+	if !exists('g:vcs')
 		return
 	end
 
-	command! -nargs=0 VcsBlame call b:vcs.showBlameMsg()
-	command! -nargs=0 VcsShow call b:vcs.blame().show()
+	command -nargs=0 VcsBlame call g:vcs.showBlameMsg()
+	command -nargs=0 VcsShow call g:vcs.blame().show()
 endf
 
-au BufRead,BufNewFile *.* call DetectVcs()
+call DetectVcs()
