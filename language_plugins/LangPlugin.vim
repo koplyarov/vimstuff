@@ -85,9 +85,9 @@ function LangPlugin()
 		endf
 
 		function s:LangPlugin.gotoSymbol(symbol)
-			let symbols = self.indexer.getSymbolInfoAtLocation(a:symbol, self.createLocation(getpos('.')))
-			if len(symbols) > 0
-				call symbols[0].goto()
+			let symbol = self.indexer.getSymbolInfoAtLocation(a:symbol, self.createLocation(getpos('.')))
+			if !empty(symbol)
+				call symbol.goto()
 			else
 				call self.gotoLocalSymbol(a:symbol)
 			end

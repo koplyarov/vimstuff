@@ -28,9 +28,21 @@ function CTagsFrameworkInfo()
 endf
 
 
-function CTagsSymbolInfo(rawTag, symbolDelimiter)
+function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 	if !exists('s:CTagsSymbolInfo')
 		let s:CTagsSymbolInfo = {}
+
+		function s:CTagsSymbolInfo.getParent()
+			let scope = self.getScope()
+			if empty(scope)
+				return {}
+			end
+			let symbols = self._indexer.matchSymbols('^'.join(scope, self._symbolDelimiter).'$')
+			if len(symbols) != 1
+				return {}
+			end
+			return symbols[0]
+		endf
 
 		function s:CTagsSymbolInfo.getScope()
 			for key in ['namespace', 'struct', 'class']
@@ -56,6 +68,7 @@ function CTagsSymbolInfo(rawTag, symbolDelimiter)
 	end
 
 	let self = copy(s:CTagsSymbolInfo)
+	let self._indexer = a:indexer
 	let self._rawTag = a:rawTag
 	let self._symbolDelimiter = a:symbolDelimiter
 	return self
@@ -75,7 +88,7 @@ function CTagsIndexer(langPlugin)
 		endf
 
 		function s:CTagsIndexer._createSymbolInfo(tag)
-			return CTagsSymbolInfo(a:tag, self._syntax.symbolDelimiter)
+			return CTagsSymbolInfo(self, a:tag, self._syntax.symbolDelimiter)
 		endf
 
 		function s:CTagsIndexer.getSymbolInfoAtLocation(symbol, location)
@@ -89,7 +102,10 @@ function CTagsIndexer(langPlugin)
 				end
 				call remove(ctx, -1)
 			endw
-			return map(tags, 'self._createSymbolInfo(v:val)')
+			if !empty(tags)
+				return self._createSymbolInfo(tags[0])
+			end
+			return {}
 		endf
 
 		function s:CTagsIndexer.matchSymbols(str)
