@@ -262,4 +262,4 @@ endf
 
 let g:cpp_plugin = CppPlugin()
 
-au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp call ActivateLangPlugin(g:cpp_plugin)
+au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp,*.cxx call ActivateLangPlugin(g:cpp_plugin)
