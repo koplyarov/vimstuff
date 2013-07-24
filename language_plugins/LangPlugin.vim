@@ -93,6 +93,20 @@ function LangPlugin()
 			end
 		endf
 
+		function s:LangPlugin.searchDerived(symbol)
+			let symbol_info = self.indexer.getSymbolInfoAtLocation(a:symbol, self.createLocation(getpos('.')))
+			let derived = symbol_info.getDerived()
+			if empty(derived)
+				echo "Derived classes not found"
+				return
+			end
+			cexpr ""
+			for d in derived
+				call d.addToQuickFix()
+			endfor
+			cw
+		endf
+
 		function s:LangPlugin.openAlternativeFile(filename)
 			silent execute 'e '.self.getAlternativeFile(a:filename)
 		endf
@@ -121,16 +135,6 @@ function ActivateLangPlugin(plugin)
 			au BufWritePost <buffer> call b:lang_plugin.indexer.updateForFile(@%)
 		end
 
-		if has_key(b:lang_plugin.indexer, 'getDerived')
-			function! QWE(symbol)
-				let symbol_info = b:lang_plugin.indexer.getSymbolInfoAtLocation(a:symbol, b:lang_plugin.createLocation(getpos('.')))
-				let derived = symbol_info.getDerived()
-				cexpr ""
-				for d in derived
-					call d.addToQuickFix()
-				endfor
-				cw
-			endf
-		end
+		nmap <buffer> <C-F5> "zyiw:call b:lang_plugin.searchDerived('<C-R>z')<CR>
 	end
 endf

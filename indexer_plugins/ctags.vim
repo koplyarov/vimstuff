@@ -45,7 +45,9 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 		endf
 
 		function s:CTagsSymbolInfo.getDerived()
-			let grep_result = split(system('grep ''\<inherits:\S*'.self._rawTag['name'].'\>'' tags | sed -n ''s/^\(\S*\)\s.*$/\1/p'''), '\n')
+			let scope = split(self._rawTag['name'], self._symbolDelimiter) " TODO check other fields if len = 1
+			let name = remove(scope, -1)
+			let grep_result = split(system('grep ''\<inherits:\S*'.name.'\>'' tags | sed -n ''s/^\(\S*\)\s.*$/\1/p'''), '\n')
 			let suitable_kinds = [ 'c', 's' ]
 			let tags = map(copy(grep_result), 'filter(self._indexer.matchSymbols("^".v:val."$"), "index(suitable_kinds, v:val._rawTag[''kind'']) != -1")[0]')
 			" Removing duplicates
@@ -58,12 +60,17 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 				let dict[key] = t
 			endfor
 			let tags = values(dict)
+			call filter(tags, 'v:val.getScope() == scope[0 : len(v:val.getScope()) - 1]')
 			return tags
 		endf
 
 		function s:CTagsSymbolInfo.addToQuickFix()
-			"let cmd = self._rawTag['cmd']
-			"exec 'vimgrepadd '.cmd.' '.self._rawTag['filename']
+			let cmd = self._rawTag['cmd']
+			if cmd[0] != '/'
+				throw CTagsPluginException('unexpected ctags cmd syntax: '.cmd)
+			end
+			let cmd = '/\M'.cmd[1:]
+			exec 'silent vimgrepadd '.cmd.' '.self._rawTag['filename']
 		endf
 
 		function s:CTagsSymbolInfo.getScope()
@@ -72,7 +79,10 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 					return split(self._rawTag[key], escape(self._symbolDelimiter, '&*./\'))
 				end
 			endfor
-			throw CTagsPluginException('unknown tag type!')
+			if self._rawTag['static']
+				return []
+			end
+			throw CTagsPluginException('unknown tag type: '.string(self._rawTag).'!')
 		endf
 
 		function s:CTagsSymbolInfo.goto()
