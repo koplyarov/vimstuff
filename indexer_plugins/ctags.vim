@@ -62,14 +62,25 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 			let tags = values(dict)
 			let result = []
 			for t in tags
-				let t_scope = t.getScope()
-				while len(t_scope) > 0
-					if scope[0 : len(t_scope) - 1] == t_scope
-						call add(result, t)
+				let inherits = split(t._rawTag['inherits'], ',')
+				for i in inherits
+					let i_scope = split(i, self._symbolDelimiter)
+					call remove(i_scope, -1)
+					let got_match = 0
+					let t_scope = t.getScope()
+					while len(t_scope) > len(i_scope)
+						let scope_to_check = t_scope + i_scope
+						if scope[0 : len(scope_to_check) - 1] == scope_to_check
+							call add(result, t)
+							let got_match = 1
+							break
+						end
+						call remove(t_scope, -1)
+					endw
+					if got_match
 						break
 					end
-					call remove(t_scope, -1)
-				endw
+				endfor
 			endfor
 			return result
 		endf
