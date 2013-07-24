@@ -79,6 +79,7 @@ function CTagsIndexer(langPlugin)
 		endf
 
 		function s:CTagsIndexer.getSymbolInfoAtLocation(symbol, location)
+			call self.rebuildIfNecessary()
 			let ctx = a:location.getLocationPath().getTagRegex()
 			let tags = []
 			while 1
@@ -92,10 +93,13 @@ function CTagsIndexer(langPlugin)
 		endf
 
 		function s:CTagsIndexer.matchSymbols(str)
+			call self.rebuildIfNecessary()
 			return map(taglist(a:str), 'self._createSymbolInfo(v:val)')
 		endf
 
 		function s:CTagsIndexer.getImport(symbol)
+			call self.rebuildIfNecessary()
+
 			for fw in self.getFrameworks()
 				if fw.hasSymbol(a:symbol)
 					return fw.getImport(a:symbol)
@@ -139,12 +143,32 @@ function CTagsIndexer(langPlugin)
 
 		function s:CTagsIndexer.canUpdate()
 			call system('which ctags')
-			return v:shell_error == 0 && filewritable('tags') == 1
+			return v:shell_error == 0 && (!filereadable('tags') || filewritable('tags') == 1)
+		endf
+
+		function s:CTagsIndexer.exclude(pathsList)
+			let self._excludes += a:pathsList
+		endf
+
+		function s:CTagsIndexer.addCustomLanguage(language, extension)
+			if has_key(self._customLanguages, a:language)
+				throw CTagsPluginException('language '.a:language.' already registered!')
+			end
+			let self._customLanguages[a:language] = a:extension
+		endf
+
+		function s:CTagsIndexer.addCustomRegex(language, regex)
+			if !has_key(self._customRegexes, a:language)
+				let self._customRegexes[a:language] = []
+			end
+			call add(self._customRegexes[a:language], a:regex)
 		endf
 
 		function s:CTagsIndexer._invokeCtags(flags, path)
-			let excludes = '--exclude=*CMakeFiles* --exclude=*doxygen*'
-			call system('ctags '.a:flags.' --fields=+ail '.excludes.' --extra=+q '.a:path)
+			let excludes_str = join(map(copy(self._excludes), '"--exclude=".v:val'), ' ')
+			let langs_str = join(values(map(copy(self._customLanguages), '"--langdef=".v:key." --langmap=".v:key.":".self._customLanguages[v:key]')), ' ')
+			let regexes_str = join(values(map(copy(self._customRegexes), 'join(map(copy(self._customRegexes[v:key]), "\"--regex-".v:key."=''\".v:val.\"''\""), " ")')), ' ')
+			call system('ctags '.a:flags.' --fields=+ail '.excludes_str.' --extra=+q '.a:path)
 		endf
 
 		function s:CTagsIndexer.rebuildIfNecessary()
@@ -165,6 +189,10 @@ function CTagsIndexer(langPlugin)
 			call self._invokeCtags('-a', Relpath(a:filename))
 			redraw!
 		endf
+
+		let s:CTagsIndexer._excludes = [ '*CMakeFiles*', '*doxygen*', '*.git*', '*.svn*' ]
+		let s:CTagsIndexer._customLanguages = {}
+		let s:CTagsIndexer._customRegexes = {}
 	end
 
 	let self = copy(s:CTagsIndexer)

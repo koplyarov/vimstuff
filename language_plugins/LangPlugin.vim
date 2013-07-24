@@ -118,7 +118,7 @@ function ActivateLangPlugin(plugin)
 		nmap <silent> <buffer> <C-RightMouse> <LeftMouse>t<C-]>
 
 		if has_key(b:lang_plugin.indexer, 'canUpdate') && b:lang_plugin.indexer.canUpdate()
-			"au BufWritePost <buffer> call b:lang_plugin.indexer.updateForFile(@%)
+			au BufWritePost <buffer> call b:lang_plugin.indexer.updateForFile(@%)
 		end
 	end
 endf
