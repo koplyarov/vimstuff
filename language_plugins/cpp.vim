@@ -41,9 +41,6 @@ let g:cpp_std_includes = 'vector\|string\|set\|map\|list\|deque\|queue\|memory\|
 let g:platform_includes = 'windows\.h\|wintypes\.h'
 
 
-nmap <C-F5> "zyiw:Search \(virtual\s\s*\)\?\(public\\<Bar>protected\\<Bar>private\)\s\s*\(virtual\)\?\s\s*\<<C-R>z\><CR><CR>:cw<CR>
-
-
 function CppPluginException(msg)
 	return "CppPluginException: ".a:msg
 endf
