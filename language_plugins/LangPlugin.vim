@@ -120,5 +120,17 @@ function ActivateLangPlugin(plugin)
 		if has_key(b:lang_plugin.indexer, 'canUpdate') && b:lang_plugin.indexer.canUpdate()
 			au BufWritePost <buffer> call b:lang_plugin.indexer.updateForFile(@%)
 		end
+
+		if has_key(b:lang_plugin.indexer, 'getDerived')
+			function! QWE(symbol)
+				let symbol_info = b:lang_plugin.indexer.getSymbolInfoAtLocation(a:symbol, b:lang_plugin.createLocation(getpos('.')))
+				let derived = symbol_info.getDerived()
+				cexpr ""
+				for d in derived
+					call d.addToQuickFix()
+				endfor
+				cw
+			endf
+		end
 	end
 endf

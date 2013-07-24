@@ -61,6 +61,11 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 			return tags
 		endf
 
+		function s:CTagsSymbolInfo.addToQuickFix()
+			"let cmd = self._rawTag['cmd']
+			"exec 'vimgrepadd '.cmd.' '.self._rawTag['filename']
+		endf
+
 		function s:CTagsSymbolInfo.getScope()
 			for key in ['namespace', 'struct', 'class']
 				if has_key(self._rawTag, key)
