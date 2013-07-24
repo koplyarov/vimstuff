@@ -60,8 +60,18 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 				let dict[key] = t
 			endfor
 			let tags = values(dict)
-			call filter(tags, 'v:val.getScope() == scope[0 : len(v:val.getScope()) - 1]')
-			return tags
+			let result = []
+			for t in tags
+				let t_scope = t.getScope()
+				while len(t_scope) > 0
+					if scope[0 : len(t_scope) - 1] == t_scope
+						call add(result, t)
+						break
+					end
+					call remove(t_scope, -1)
+				endw
+			endfor
+			return result
 		endf
 
 		function s:CTagsSymbolInfo.addToQuickFix()
