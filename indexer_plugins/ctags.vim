@@ -44,6 +44,23 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 			return symbols[0]
 		endf
 
+		function s:CTagsSymbolInfo.getDerived()
+			let grep_result = split(system('grep ''\<inherits:\S*'.self._rawTag['name'].'\>'' tags | sed -n ''s/^\(\S*\)\s.*$/\1/p'''), '\n')
+			let suitable_kinds = [ 'c', 's' ]
+			let tags = map(copy(grep_result), 'filter(self._indexer.matchSymbols("^".v:val."$"), "index(suitable_kinds, v:val._rawTag[''kind'']) != -1")[0]')
+			" Removing duplicates
+			let dict = {}
+			for t in tags
+				let key = t._rawTag['filename'].':'.t._rawTag['cmd']
+				if has_key(dict, key) && strlen(dict[key]._rawTag['name']) > strlen(t._rawTag['name'])
+					continue
+				end
+				let dict[key] = t
+			endfor
+			let tags = values(dict)
+			return tags
+		endf
+
 		function s:CTagsSymbolInfo.getScope()
 			for key in ['namespace', 'struct', 'class']
 				if has_key(self._rawTag, key)
