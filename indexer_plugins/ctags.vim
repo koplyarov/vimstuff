@@ -185,7 +185,7 @@ function CTagsIndexer(langPlugin)
 				return
 			end
 
-			call system('sed -i ''/^\S*\s\(\.\/\)\?'.escape(a:filename, '.*/\$^[]&').'/d'' tags')
+			call system('grep -v ''^\S*\s\(\.\/\)\?'.escape(a:filename, '.*/\$^[]&').''' tags > tags.new && mv tags.new tags')
 			call self._invokeCtags('-a', Relpath(a:filename))
 			redraw!
 		endf
