@@ -53,13 +53,15 @@ function CMakeBuildSystem()
 				let has_entries = 1
 			end
 			if exists('*CustomQuickFixPatcher')
-				if CustomQuickFixPatcher(entry)
+				if CustomQuickFixPatcher(self._getBuildDirFromMakePrg(), entry)
 					continue
 				end
 			end
 			if has_key(entry, 'text') && entry['text'] =~ 'Building \S\+ object'
-				let m = matchlist(entry['text'], 'Building \S\+ object \%(\(.*\)\/\)CMakeFiles\/.*\.dir\/\(.\+\)\.o$')
-				let subdirs_hint[m[2]] = m[1]
+				let m = matchlist(entry['text'], 'Building \S\+ object \%(\(.*\)\/\)\?CMakeFiles\/.*\.dir\/\(.\+\)\.o$')
+				if len(m) == 3
+					let subdirs_hint[m[2]] = m[1]
+				end
 			end
 			if has_key(entry, 'bufnr') && entry['bufnr'] != 0
 				let filename = bufname(entry['bufnr'])
