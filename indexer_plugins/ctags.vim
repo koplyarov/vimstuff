@@ -44,6 +44,36 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 			return symbols[0]
 		endf
 
+		function s:CTagsSymbolInfo.getBase()
+			let base = []
+			if has_key(self._rawTag, 'inherits')
+				let base = split(self._rawTag['inherits'], ',')
+			end
+			let result = []
+			for b in base
+				let scope = self.getScope()
+				while 1
+					let tag_to_search = join(scope, self._symbolDelimiter)
+					let tag_to_search .= (empty(tag_to_search) ? '' : self._symbolDelimiter).b
+					let symbols = self._indexer.matchSymbols('^'.tag_to_search.'$')
+					let got_match = 0
+					for s in symbols
+						let s_scope = s.getScope()
+						if s_scope == scope + split(b, self._symbolDelimiter)[:-2]
+							let got_match = 1
+							call add(result, s)
+							break
+						end
+					endfor
+					if got_match || len(scope) == 0
+						break
+					end
+					call remove(scope, -1)
+				endw
+			endfor
+			return result
+		endf
+
 		function s:CTagsSymbolInfo.getDerived()
 			let scope = self.getScope()
 			let name = split(self._rawTag['name'], self._symbolDelimiter)[-1]
