@@ -8,7 +8,10 @@ function CMakeBuildSystem()
 		let dir = self._getSubdirectory(a:filename)
 		let file = substitute(Relpath(a:filename), '^'.escape(dir, '&*./\^[]$').(strlen(dir) == 0 ? '' : '\/'), '', '')
 		let self._buildDir = dir
-		exec 'make -C '.dir.' '.file.'.o'
+		if !empty(dir)
+			let dir = '-C '.dir
+		end
+		exec 'make '.dir.' '.file.'.o'
 		unlet self._buildDir
 	endf
 
