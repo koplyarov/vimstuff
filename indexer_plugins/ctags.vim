@@ -68,11 +68,14 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 					call remove(i_scope, -1)
 					let got_match = 0
 					let t_scope = t.getScope()
-					while len(t_scope) > len(i_scope)
+					while 1
 						let scope_to_check = t_scope + i_scope
 						if scope[0 : len(scope_to_check) - 1] == scope_to_check
 							call add(result, t)
 							let got_match = 1
+							break
+						end
+						if len(t_scope) <= len(i_scope)
 							break
 						end
 						call remove(t_scope, -1)
