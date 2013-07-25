@@ -245,6 +245,7 @@ function CTagsIndexer(langPlugin)
 				return 0
 			end
 
+			echo 'Rebuilding tags...'
 			call self._invokeCtags('-R', './')
 			return 1
 		endf
