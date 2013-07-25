@@ -100,10 +100,7 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 					return split(self._rawTag[key], escape(self._symbolDelimiter, '&*./\'))
 				end
 			endfor
-			if self._rawTag['static']
-				return []
-			end
-			throw CTagsPluginException('unknown tag type: '.string(self._rawTag).'!')
+			return []
 		endf
 
 		function s:CTagsSymbolInfo.goto()
