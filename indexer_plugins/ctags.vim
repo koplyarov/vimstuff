@@ -240,14 +240,21 @@ function CTagsIndexer(langPlugin)
 			call system('ctags '.a:flags.' --fields=+ail '.excludes_str.' --extra=+q '.a:path)
 		endf
 
-		function s:CTagsIndexer.rebuildIfNecessary()
-			if !self.canUpdate() || filereadable('tags')
+		function s:CTagsIndexer.rebuildIndex()
+			if !self.canUpdate()
 				return 0
 			end
 
 			echo 'Rebuilding tags...'
 			call self._invokeCtags('-R', './')
+			redraw!
 			return 1
+		endf
+
+		function s:CTagsIndexer.rebuildIfNecessary()
+			if self.canUpdate() && !filereadable('tags')
+				return self.rebuildIndex()
+			end
 		endf
 
 		function s:CTagsIndexer.updateForFile(filename)

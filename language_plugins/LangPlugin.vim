@@ -138,3 +138,5 @@ function ActivateLangPlugin(plugin)
 		nmap <buffer> <C-F5> "zyiw:call b:lang_plugin.searchDerived('<C-R>z')<CR>
 	end
 endf
+
+command! -nargs=0 RebuildIndex call b:lang_plugin.indexer.rebuildIndex()
