@@ -1,3 +1,47 @@
+function Timer()
+	if !exists('s:Timer')
+		let s:Timer = {}
+
+		function s:Timer._tick()
+			for k in keys(self._handlers)
+				let handler = self._handlers[k]
+				call call(handler.func, handler.args, handler.dict)
+			endfor
+			call feedkeys("f\e")
+		endf
+
+		function s:Timer.addHandler(func, dict, ...)
+			let started_at_key = self._keyGenerator
+			while has_key(self._handlers, self._keyGenerator)
+				let self._keyGenerator += 1
+				if self._keyGenerator == started_at_key
+					throw 'TimerException: too much handlers!'
+				end
+			endw
+
+			let self._handlers[self._keyGenerator] = { 'func': a:func, 'dict': a:dict, 'args': a:000 }
+
+			return self._keyGenerator
+		endf
+
+		function s:Timer.removeHandler(id)
+			if has_key(self._handlers, id)
+				unlet self._handlers[id]
+			end
+		endf
+	end
+
+	let self = copy(s:Timer)
+	let self._handlers = {}
+	let self._keyGenerator = 0
+	return self
+endf
+
+let g:timer = Timer()
+
+autocmd CursorHold * call g:timer._tick()
+
+
 function SortBuf(begin, end)
 	if a:begin >= a:end
 		return
