@@ -131,12 +131,12 @@ function ActivateLangPlugin(plugin)
 		map <silent> <buffer> t<C-]> "wyiw:call b:lang_plugin.gotoSymbol(@w)<CR>
 		nmap <silent> <buffer> <C-RightMouse> <LeftMouse>t<C-]>
 
-		if has_key(b:lang_plugin.indexer, 'canUpdate') && b:lang_plugin.indexer.canUpdate()
-			au BufWritePost <buffer> call b:lang_plugin.indexer.updateForFile(@%)
+		if has_key(b:lang_plugin.indexer, 'builder') && has_key(b:lang_plugin.indexer.builder, 'canUpdate') && b:lang_plugin.indexer.builder.canUpdate()
+			au BufWritePost <buffer> call b:lang_plugin.indexer.builder.updateForFile(@%)
 		end
 
 		nmap <buffer> <C-F5> "zyiw:call b:lang_plugin.searchDerived('<C-R>z')<CR>
 	end
 endf
 
-command! -nargs=0 RebuildIndex call b:lang_plugin.indexer.rebuildIndex()
+command! -nargs=0 RebuildIndex call b:lang_plugin.indexer.builder.rebuildIndex()
