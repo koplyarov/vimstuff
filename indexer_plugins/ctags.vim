@@ -186,11 +186,11 @@ function CTagsIndexBuilder()
 			call add(self._customRegexes[a:language], a:regex)
 		endf
 
-		function s:CTagsIndexBuilder._getInvokeCtagsCmd(flags, path)
+		function s:CTagsIndexBuilder._getInvokeCtagsCmd(flags, path, tagsFile)
 			let excludes_str = join(map(copy(self._excludes), '"--exclude=".v:val'), ' ')
 			let langs_str = join(values(map(copy(self._customLanguages), '"--langdef=".v:key." --langmap=".v:key.":".self._customLanguages[v:key]')), ' ')
 			let regexes_str = join(values(map(copy(self._customRegexes), 'join(map(copy(self._customRegexes[v:key]), "\"--regex-".v:key."=''\".v:val.\"''\""), " ")')), ' ')
-			return 'ctags '.a:flags.' --fields=+ail '.excludes_str.' --extra=+q '.shellescape(a:path)
+			return 'ctags '.a:flags.' --fields=+ail '.excludes_str.' --extra=+q -f '.a:tagsFile.' '.shellescape(a:path)
 		endf
 
 		function s:CTagsIndexBuilder.rebuildIndex()
@@ -199,7 +199,7 @@ function CTagsIndexBuilder()
 			end
 
 			echo 'Rebuilding tags...'
-			call system(self._getInvokeCtagsCmd('-R', './'))
+			call system(self._getInvokeCtagsCmd('-R', './', 'tags'))
 			redraw!
 			return 1
 		endf
@@ -215,8 +215,43 @@ function CTagsIndexBuilder()
 				return
 			end
 
-			call system('grep -v ''^\S*\s\(\.\/\)\?'.escape(a:filename, '.*/\$^[]&').''' tags > tags.new && mv tags.new tags && '.self._getInvokeCtagsCmd('-a', Relpath(a:filename)))
+			while !empty(self._asyncUpdates)
+				let update = self._asyncUpdates[0]
+				if empty(update.process) || !update.process.isTerminated()
+					if update.name != a:filename
+						break
+					end
+					call update.process.terminate()
+				end
+				call remove(self._asyncUpdates, 0)
+			endw
+
+			let process = {}
+			let cmd = 'grep -v ''^\S*\s\(\.\/\)\?'.escape(a:filename, '.*/\$^[]&').''' tags > tags.new && '.self._getInvokeCtagsCmd('-a', Relpath(a:filename), 'tags.new').' && mv tags.new tags'
+
+			if empty(self._asyncUpdates)
+				let process = AsyncShell(cmd)
+				let cmd = ''
+			end
+
+			let asyncUpdate = { 'name': a:filename, 'process': process, 'cmd': cmd }
+			call add(self._asyncUpdates, asyncUpdate)
 			redraw!
+		endf
+
+		function s:CTagsIndexBuilder._onTimerTick()
+			while !empty(self._asyncUpdates)
+				let update = self._asyncUpdates[0]
+				if empty(update.process)
+					let update.process = AsyncShell(update.cmd)
+					let update.cmd = ''
+					break
+				end
+				if !update.process.isTerminated()
+					break
+				end
+				call remove(self._asyncUpdates, 0)
+			endw
 		endf
 	end
 
@@ -224,6 +259,8 @@ function CTagsIndexBuilder()
 	let self._excludes = [ '*CMakeFiles*', '*doxygen*', '*.git*', '*.svn*' ]
 	let self._customLanguages = {}
 	let self._customRegexes = {}
+	let self._asyncUpdates = []
+	let self._timerHandlerId = g:timer.addHandler(self._onTimerTick, self)
 	return self
 endf
 
