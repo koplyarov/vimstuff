@@ -236,7 +236,6 @@ function CTagsIndexBuilder()
 
 			let asyncUpdate = { 'name': a:filename, 'process': process, 'cmd': cmd }
 			call add(self._asyncUpdates, asyncUpdate)
-			redraw!
 		endf
 
 		function s:CTagsIndexBuilder._onTimerTick()
