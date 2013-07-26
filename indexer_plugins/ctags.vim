@@ -215,8 +215,7 @@ function CTagsIndexBuilder()
 				return
 			end
 
-			call system('grep -v ''^\S*\s\(\.\/\)\?'.escape(a:filename, '.*/\$^[]&').''' tags > tags.new && mv tags.new tags')
-			call self._getInvokeCtagsCmd('-a', Relpath(a:filename))
+			call system('grep -v ''^\S*\s\(\.\/\)\?'.escape(a:filename, '.*/\$^[]&').''' tags > tags.new && mv tags.new tags && '.self._getInvokeCtagsCmd('-a', Relpath(a:filename)))
 			redraw!
 		endf
 	end
