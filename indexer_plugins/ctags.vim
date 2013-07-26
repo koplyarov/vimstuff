@@ -59,7 +59,7 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 					let got_match = 0
 					for s in symbols
 						let s_scope = s.getScope()
-						if s_scope == scope + split(b, self._symbolDelimiter)[:-2]
+						if s_scope == scope + split(b, self._escSymbolDelimiter)[:-2]
 							let got_match = 1
 							call add(result, s)
 							break
@@ -76,7 +76,7 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 
 		function s:CTagsSymbolInfo.getDerived()
 			let scope = self.getScope()
-			let name = split(self._rawTag['name'], self._symbolDelimiter)[-1]
+			let name = split(self._rawTag['name'], self._escSymbolDelimiter)[-1]
 			let grep_result = split(system('grep ''\<inherits:\S*\<'.name.'\>'' tags | sed -n ''s/^\(\S*\)\s.*$/\1/p'''), '\n')
 			let suitable_kinds = [ 'c', 's' ]
 			let tags = map(copy(grep_result), 'filter(self._indexer.matchSymbols("^".v:val."$"), "index(suitable_kinds, v:val._rawTag[''kind'']) != -1")[0]')
@@ -94,7 +94,7 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 			for t in tags
 				let inherits = split(t._rawTag['inherits'], ',')
 				for i in inherits
-					let i_scope = split(i, self._symbolDelimiter)
+					let i_scope = split(i, self._escSymbolDelimiter)
 					call remove(i_scope, -1)
 					let got_match = 0
 					let t_scope = t.getScope()
@@ -130,7 +130,7 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 		function s:CTagsSymbolInfo.getScope()
 			for key in ['namespace', 'struct', 'class']
 				if has_key(self._rawTag, key)
-					return split(self._rawTag[key], escape(self._symbolDelimiter, '&*./\'))
+					return split(self._rawTag[key], self._escSymbolDelimiter)
 				end
 			endfor
 			return []
@@ -154,6 +154,7 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 	let self._indexer = a:indexer
 	let self._rawTag = a:rawTag
 	let self._symbolDelimiter = a:symbolDelimiter
+	let self._escSymbolDelimiter = escape(self._symbolDelimiter, '&*./\')
 	return self
 endf
 
