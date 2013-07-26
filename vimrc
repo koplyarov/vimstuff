@@ -141,6 +141,7 @@ if !exists("g:vimstuff_sourced")
 	"set foldmethod=expr
 
 	runtime my_scripts/toolkit.vim
+	runtime my_scripts/system.vim
 	runtime buildsystem_plugins/buildsystems.vim
 	runtime vcs_plugins/vcs.vim
 	runtime indexer_plugins/ctags.vim
