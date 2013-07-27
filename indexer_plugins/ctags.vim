@@ -193,21 +193,45 @@ function CTagsIndexBuilder()
 			return 'ctags '.a:flags.' --fields=+ail '.excludes_str.' --extra=+q -f '.a:tagsFile.' '.shellescape(a:path)
 		endf
 
+		function s:CTagsIndexBuilder.rebuildIfNecessary()
+			if self.canUpdate() && !filereadable('tags')
+				for update in self._asyncUpdates
+					let update = self._asyncUpdates[0]
+					if empty(update.name)
+						return " Already rebuilding
+					end
+				endfor
+
+				return self.rebuildIndex()
+			end
+		endf
+
+		function s:CTagsIndexBuilder.syncRebuildIfNecessary()
+			call self.rebuildIfNecessary()
+			call self.waitForLastRebuildToComplete()
+		endf
+
 		function s:CTagsIndexBuilder.rebuildIndex()
 			if !self.canUpdate()
 				return 0
 			end
 
-			echo 'Rebuilding tags...'
-			call system(self._getInvokeCtagsCmd('-R', './', 'tags'))
-			redraw!
+			call self._update('')
 			return 1
 		endf
 
-		function s:CTagsIndexBuilder.rebuildIfNecessary()
-			if self.canUpdate() && !filereadable('tags')
-				return self.rebuildIndex()
-			end
+		function s:CTagsIndexBuilder.waitForLastRebuildToComplete()
+			for update in self._asyncUpdates
+				let update = self._asyncUpdates[0]
+				if empty(update.name)
+					echo 'Rebuilding ctags...'
+					while empty(update.process) || !update.process.isTerminated()
+						sleep 100m
+					endw
+					redraw!
+					return
+				end
+			endfor
 		endf
 
 		function s:CTagsIndexBuilder.updateForFile(filename)
@@ -215,10 +239,14 @@ function CTagsIndexBuilder()
 				return
 			end
 
+			call self._update(a:filename)
+		endf
+
+		function s:CTagsIndexBuilder._update(filename)
 			while !empty(self._asyncUpdates)
 				let update = self._asyncUpdates[0]
 				if empty(update.process) || !update.process.isTerminated()
-					if update.name != a:filename
+					if !empty(a:filename) && update.name != a:filename
 						break
 					end
 					call update.process.terminate()
@@ -227,7 +255,11 @@ function CTagsIndexBuilder()
 			endw
 
 			let process = {}
-			let cmd = 'grep -v ''^\S*\s\(\.\/\)\?'.escape(a:filename, '.*/\$^[]&').''' tags > tags.new && '.self._getInvokeCtagsCmd('-a', Relpath(a:filename), 'tags.new').' && mv tags.new tags'
+			if empty(a:filename)
+				let cmd = self._getInvokeCtagsCmd('-R', './', 'tags')
+			else
+				let cmd = 'grep -v ''^\S*\s\(\.\/\)\?'.escape(a:filename, '.*/\$^[]&').''' tags > tags.new && '.self._getInvokeCtagsCmd('-a', Relpath(a:filename), 'tags.new').' && mv tags.new tags'
+			end
 
 			if empty(self._asyncUpdates)
 				let process = AsyncShell(cmd)
@@ -239,6 +271,7 @@ function CTagsIndexBuilder()
 		endf
 
 		function s:CTagsIndexBuilder._onTimerTick()
+			call self.rebuildIfNecessary()
 			while !empty(self._asyncUpdates)
 				let update = self._asyncUpdates[0]
 				if empty(update.process)
@@ -281,7 +314,7 @@ function CTagsIndexer(langPlugin)
 		endf
 
 		function s:CTagsIndexer.getSymbolInfoAtLocation(symbol, location)
-			call self.builder.rebuildIfNecessary()
+			call self.builder.syncRebuildIfNecessary()
 			let ctx = a:location.getLocationPath().getTagRegex()
 			let tags = []
 			while 1
@@ -298,12 +331,12 @@ function CTagsIndexer(langPlugin)
 		endf
 
 		function s:CTagsIndexer.matchSymbols(str)
-			call self.builder.rebuildIfNecessary()
+			call self.builder.syncRebuildIfNecessary()
 			return map(taglist(a:str), 'self._createSymbolInfo(v:val)')
 		endf
 
 		function s:CTagsIndexer.getImport(symbol)
-			call self.builder.rebuildIfNecessary()
+			call self.builder.syncRebuildIfNecessary()
 
 			for fw in self.getFrameworks()
 				if fw.hasSymbol(a:symbol)
