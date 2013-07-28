@@ -122,6 +122,11 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 			return result
 		endf
 
+		function s:CTagsSymbolInfo.getNested()
+			let full_name = join(self.getScope() + [ self.getSymbolName() ], self._symbolDelimiter)
+			return self._indexer.matchSymbols('^'.escape(full_name.self._symbolDelimiter, '*&./\').'\%(\%('.self._escSymbolDelimiter.'\)\@!.\)*$')
+		endf
+
 		function s:CTagsSymbolInfo.addToQuickFix()
 			let cmd = self._rawTag['cmd']
 			if cmd[0] != '/'
