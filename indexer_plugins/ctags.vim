@@ -74,9 +74,13 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 			return result
 		endf
 
+		function s:CTagsSymbolInfo.getSymbolName()
+			return split(self._rawTag['name'], self._escSymbolDelimiter)[-1]
+		endf
+
 		function s:CTagsSymbolInfo.getDerived()
 			let scope = self.getScope()
-			let name = split(self._rawTag['name'], self._escSymbolDelimiter)[-1]
+			let name = self.getSymbolName()
 			let grep_result = split(system('grep ''\<inherits:\S*\<'.name.'\>'' tags | sed -n ''s/^\(\S*\)\s.*$/\1/p'''), '\n')
 			let suitable_kinds = [ 'c', 's' ]
 			let tags = map(copy(grep_result), 'filter(self._indexer.matchSymbols("^".v:val."$"), "index(suitable_kinds, v:val._rawTag[''kind'']) != -1")[0]')
