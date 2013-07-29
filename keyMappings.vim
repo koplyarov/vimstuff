@@ -6,12 +6,7 @@ function SetKeysMapping(name, keys)
 	let s:keyMapping[a:name] = a:keys
 	if has_key(s:mappedKeys, a:name)
 		let mk = s:mappedKeys[a:name]
-		for key in mk.keys
-			for mapCmd in mk.mapCmds
-				let unmapCmd = substitute(mapCmd, '\(nore\)\?map', 'unmap', '')
-				exec unmapCmd.' '.key
-			endfor
-		endfor
+		call UnmapKeys(a:name)
 		call MapKeys(a:name, mk.mapCmds, mk.cmd)
 	end
 endf
@@ -26,6 +21,19 @@ function MapKeys(name, mapCmds, cmd)
 				exec mapCmd.' '.key.' '.a:cmd
 			endfor
 		endfor
+	end
+endf
+
+function UnmapKeys(name)
+	if has_key(s:mappedKeys, a:name)
+		let mk = s:mappedKeys[a:name]
+		for key in mk.keys
+			for mapCmd in mk.mapCmds
+				let unmapCmd = substitute(mapCmd, '\(nore\)\?map', 'unmap', '')
+				exec unmapCmd.' '.key
+			endfor
+		endfor
+		unlet s:mappedKeys[a:name]
 	end
 endf
 
