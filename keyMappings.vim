@@ -1,23 +1,53 @@
-let g:keyMapping = {}
+let s:keyMapping = {}
 
-let g:keyMapping['general.search']						= '<F5>'
-let g:keyMapping['general.findFile']					= '<F3>'
-let g:keyMapping['general.prevError']					= '<F7>'
-let g:keyMapping['general.nextError']					= '<F8>'
+let s:mappedKeys = {}
 
-let g:keyMapping['langPlugin.addImport']				= '<C-K>'
-let g:keyMapping['langPlugin.gotoSymbol']				= 't<C-]>'
-let g:keyMapping['langPlugin.openAlternativeFile']		= '<F4>'
-let g:keyMapping['langPlugin.printScope']				= '<C-P>'
-let g:keyMapping['langPlugin.searchDerived']			= '<C-F5>'
-let g:keyMapping['langPlugin.toggleComment']			= '<F2>'
-let g:keyMapping['langPlugin.openSymbolInNewTab']		= '<F6>'
-let g:keyMapping['langPlugin.openSymbolPreview']		= '<C-\>'
-let g:keyMapping['langPlugin.openDocumentation']		= 'K'
+function SetKeysMapping(name, keys)
+	let s:keyMapping[a:name] = a:keys
+	if has_key(s:mappedKeys, a:name)
+		let mk = s:mappedKeys[a:name]
+		for key in mk.keys
+			for mapCmd in mk.mapCmds
+				let unmapCmd = substitute(mapCmd, '\(nore\)\?map', 'unmap', '')
+				exec unmapCmd.' '.key
+			endfor
+		endfor
+		call MapKeys(a:name, mk.mapCmds, mk.cmd)
+	end
+endf
 
-let g:keyMapping['buildsystem.buildFile']				= '<C-F7>'
-let g:keyMapping['buildsystem.buildAll']				= '<S-F5>'
+function MapKeys(name, mapCmds, cmd)
+	if has_key(s:keyMapping, a:name)
+		let mapCmds = type(a:mapCmds) != type([]) ? [a:mapCmds] : a:mapCmds
+		let keys = type(s:keyMapping[a:name]) != type([]) ? [s:keyMapping[a:name]] : s:keyMapping[a:name]
+		let s:mappedKeys[a:name] = { 'mapCmds': mapCmds, 'keys': keys, 'cmd': a:cmd }
+		for key in keys
+			for mapCmd in mapCmds
+				exec mapCmd.' '.key.' '.a:cmd
+			endfor
+		endfor
+	end
+endf
 
-let g:keyMapping['plugins.vimCommander.toggle']			= [ '<C-F><C-F>', '<C-F>f' ]
-let g:keyMapping['plugins.nerdTree.toggle']				= [ '<C-N><C-N>', '<C-N>n' ]
-let g:keyMapping['plugins.nerdTree.findCurrentFile']	= [ '<C-N><C-F>', '<C-N>f' ]
+
+call SetKeysMapping('general.search',					'<F5>')
+call SetKeysMapping('general.findFile',					'<F3>')
+call SetKeysMapping('general.prevError',				'<F7>')
+call SetKeysMapping('general.nextError',				'<F8>')
+
+call SetKeysMapping('langPlugin.addImport',				'<C-K>')
+call SetKeysMapping('langPlugin.gotoSymbol',			't<C->')
+call SetKeysMapping('langPlugin.openAlternativeFile',	'<F4>')
+call SetKeysMapping('langPlugin.printScope',			'<C-P>')
+call SetKeysMapping('langPlugin.searchDerived',			'<C-F5>')
+call SetKeysMapping('langPlugin.toggleComment',			'<F2>')
+call SetKeysMapping('langPlugin.openSymbolInNewTab',	'<F6>')
+call SetKeysMapping('langPlugin.openSymbolPreview',		'<C-\>')
+call SetKeysMapping('langPlugin.openDocumentation',		'K')
+
+call SetKeysMapping('buildsystem.buildFile',			'<C-F7>')
+call SetKeysMapping('buildsystem.buildAll',				'<S-F5>')
+
+call SetKeysMapping('plugins.vimCommander.toggle',		[ '<C-F><C-F>', '<C-F>f' ])
+call SetKeysMapping('plugins.nerdTree.toggle',			[ '<C-N><C-N>', '<C-N>n' ])
+call SetKeysMapping('plugins.nerdTree.findCurrentFile',	[ '<C-N><C-F>', '<C-N>f' ])

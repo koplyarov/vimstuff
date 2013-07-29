@@ -24,6 +24,16 @@ if !exists("g:vimstuff_sourced")
 
 	autocmd VimLeavePre * colorscheme default
 
+	runtime keyMappings.vim
+	runtime my_scripts/toolkit.vim
+	runtime my_scripts/system.vim
+	runtime buildsystem_plugins/buildsystems.vim
+	runtime vcs_plugins/vcs.vim
+	runtime indexer_plugins/ctags.vim
+	runtime language_plugins/LangPlugin.vim
+	runtime language_plugins/cpp.vim
+	runtime language_plugins/csharp.vim
+
 	let g:clang_jumpto_declaration_key = "c<C-]>"
 	let g:clang_jumpto_back_key = "c<C-O>"
 
@@ -84,16 +94,14 @@ if !exists("g:vimstuff_sourced")
 	let g:TagHighlightSettings['DoNotGenerateTags'] = 'True'
 
 	"nmap <F1> yyjp>>^dW:s/([^)]*)//g<CR>iprintf("TRACE: <ESC>A<BSlash>n");<ESC>:noh<CR>
-	nmap <F2> <BSlash>c<Space>
-	vmap <F2> <BSlash>c<Space>
 	nmap ZZ :echo "Save and exit prevented! =)"<CR>
-	map <F3> :FufCoverageFile<CR>
-	nmap <F8> :cn<CR>
-	nmap <F7> :cN<CR>
-	nmap <F5> "zyiw:Search \<<C-R>z\><CR><CR>:cw<CR>
-	nmap <F6> "zyiw:tabnew<CR>:tag <C-R>z<CR>
-	nmap <C-\> "zyiw:ptag <C-R>z<CR>
-	nmap g<C-\> "zyiw:ptj <C-R>z<CR>
+	call MapKeys('langPlugin.toggleComment', ['nmap', 'vmap'], '<BSlash>c<Space>')
+	call MapKeys('general.findFile', 'nmap', ':FufCoverageFile<CR>')
+	call MapKeys('general.nextError', 'nmap', ':cn<CR>')
+	call MapKeys('general.prevError', 'nmap', ':cN<CR>')
+	call MapKeys('general.search', 'nmap', '"zyiw:Search \<<C-R>z\><CR><CR>:cw<CR>')
+	call MapKeys('langPlugin.openSymbolInNewTab', 'nmap', '"zyiw:tabnew<CR>:tag <C-R>z<CR>')
+	call MapKeys('langPlugin.openSymbolPreview', 'nmap', '"zyiw:ptj <C-R>z<CR>')
 	map gd "qyiw:call searchdecl("<C-R>q", 0, 1)<CR>:let @/='\<'.@q.'\>'<CR>:set hlsearch<CR>:echo @q<CR>
 	inoremap <Nul> <Space> <BS><BS><C-X><C-O>
 	noremap <M-Up> [{zz
@@ -113,13 +121,9 @@ if !exists("g:vimstuff_sourced")
 		end
 	endf
 
-	nmap <C-F><C-F> :call VimCommanderToggle() <CR>
-	nmap <C-F>f :call VimCommanderToggle() <CR>
-	nmap <C-N><C-N> :call MirrorOrToggleNERDTree() <CR>
-	nmap <C-N>n :call MirrorOrToggleNERDTree() <CR>
-	nmap <C-N><C-F> :let @q = bufname("%") <Bar> NERDTreeMirror <Bar> execute bufwinnr(@q).'wincmd w' <Bar> NERDTreeFind<CR>
-	nmap <C-N>f :let @q = bufname("%") <Bar> NERDTreeMirror <Bar> execute bufwinnr(@q).'wincmd w' <Bar> NERDTreeFind<CR>
-
+	call MapKeys('plugins.vimCommander.toggle', 'nmap', ':call VimCommanderToggle()<CR>')
+	call MapKeys('plugins.nerdTree.toggle', 'nmap', ':call MirrorOrToggleNERDTree()<CR>')
+	call MapKeys('plugins.nerdTree.findCurrentFile', 'nmap', ':let @q = bufname("%") <Bar> NERDTreeMirror <Bar> execute bufwinnr(@q)."wincmd w" <Bar> NERDTreeFind<CR>')
 
 	"//<editor-fold defaultstate="collapsed" desc="global references">
 	"//</editor-fold>
@@ -139,15 +143,6 @@ if !exists("g:vimstuff_sourced")
 	endf
 	"set foldexpr=NetBeansFoldExpr(v:lnum) " SLOW!
 	"set foldmethod=expr
-
-	runtime my_scripts/toolkit.vim
-	runtime my_scripts/system.vim
-	runtime buildsystem_plugins/buildsystems.vim
-	runtime vcs_plugins/vcs.vim
-	runtime indexer_plugins/ctags.vim
-	runtime language_plugins/LangPlugin.vim
-	runtime language_plugins/cpp.vim
-	runtime language_plugins/csharp.vim
 
 	function! GetManSections(str)
 		return split(system("man -f ".a:str." 2>&1 | sed -n 's/[^(]*(\\([^)]*\\)).*$/\\1/p'"), '\n')

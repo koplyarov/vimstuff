@@ -10,11 +10,11 @@ function DetectBuildSystem()
 	end
 	
 	if has_key(g:buildsystem, 'buildFile')
-		nmap <silent> <C-F7> :call g:buildsystem.buildFile('<C-R>%')<CR>
+		call MapKeys('buildsystem.buildFile', 'nmap <silent>', ":call g:buildsystem.buildFile('<C-R>%')<CR>")
 	end
 
 	if has_key(g:buildsystem, 'buildAll')
-		nmap <silent> <S-F5> :call g:buildsystem.buildAll()<CR>
+		call MapKeys('buildsystem.buildAll', 'nmap <silent>', ':call g:buildsystem.buildAll()<CR>')
 	end
 
 	if has_key(g:buildsystem, 'patchQuickFix')

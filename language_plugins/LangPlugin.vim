@@ -121,21 +121,21 @@ function ActivateLangPlugin(plugin)
 	let b:lang_plugin = a:plugin
 
 	if has_key(b:lang_plugin, 'getAlternativeFile')
-		nmap <silent> <buffer> <F4> :call b:lang_plugin.openAlternativeFile('<C-R>%')<CR>
+		call MapKeys('langPlugin.openAlternativeFile', 'nmap <silent> <buffer>', ":call b:lang_plugin.openAlternativeFile('<C-R>%')<CR>")
 	end
 
-	nmap <silent> <buffer> <C-P> :echo b:lang_plugin.createLocation(getpos('.')).getLocationPath().toString()<CR>
+	call MapKeys('langPlugin.printScope', 'nmap <silent> <buffer>', ":echo b:lang_plugin.createLocation(getpos('.')).getLocationPath().toString()<CR>")
 
 	if has_key(b:lang_plugin, 'indexer')
-		map <silent> <buffer> <C-K> "wyiw:call b:lang_plugin.addImport(b:lang_plugin.indexer.getImport(@w), g:include_priorities)<CR>
-		map <silent> <buffer> t<C-]> "wyiw:call b:lang_plugin.gotoSymbol(@w)<CR>
+		call MapKeys('langPlugin.addImport', 'nmap <silent> <buffer>', '"wyiw:call b:lang_plugin.addImport(b:lang_plugin.indexer.getImport(@w), g:include_priorities)<CR>')
+		call MapKeys('langPlugin.gotoSymbol', 'map <silent> <buffer>', '"wyiw:call b:lang_plugin.gotoSymbol(@w)<CR>')
 		nmap <silent> <buffer> <C-RightMouse> <LeftMouse>t<C-]>
 
 		if has_key(b:lang_plugin.indexer, 'builder') && has_key(b:lang_plugin.indexer.builder, 'canUpdate') && b:lang_plugin.indexer.builder.canUpdate()
 			au BufWritePost <buffer> call b:lang_plugin.indexer.builder.updateForFile(@%)
 		end
 
-		nmap <buffer> <C-F5> "zyiw:call b:lang_plugin.searchDerived('<C-R>z')<CR>
+		call MapKeys('langPlugin.searchDerived', 'nmap <buffer>', '"zyiw:call b:lang_plugin.searchDerived(@z)<CR>')
 	end
 endf
 
