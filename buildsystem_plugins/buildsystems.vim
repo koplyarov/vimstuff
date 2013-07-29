@@ -2,7 +2,7 @@ runtime buildsystem_plugins/cmake.vim
 
 function DetectBuildSystem()
 	if filereadable('CMakeLists.txt')
-		let g:buildsystem = g:cmake_buildsystem
+		let g:buildsystem = CMakeBuildSystem()
 	end
 
 	if !exists('g:buildsystem')

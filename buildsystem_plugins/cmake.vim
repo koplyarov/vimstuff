@@ -87,5 +87,3 @@ function CMakeBuildSystem()
 	let self._subdirectories = filter(map(split(glob('**/CMakeLists.txt'), '\n'), 'substitute(v:val, "\\/\\?CMakeLists\\.txt$", "", "")'), 'strlen(v:val) > 0')
 	return self
 endf
-
-let g:cmake_buildsystem = CMakeBuildSystem()
