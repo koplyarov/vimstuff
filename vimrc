@@ -95,19 +95,22 @@ if !exists("g:vimstuff_sourced")
 
 	"nmap <F1> yyjp>>^dW:s/([^)]*)//g<CR>iprintf("TRACE: <ESC>A<BSlash>n");<ESC>:noh<CR>
 	nmap ZZ :echo "Save and exit prevented! =)"<CR>
-	call MapKeys('langPlugin.toggleComment', ['nmap', 'vmap'], '<BSlash>c<Space>')
-	call MapKeys('general.findFile', 'nmap', ':FufCoverageFile<CR>')
-	call MapKeys('general.nextError', 'nmap', ':cn<CR>')
-	call MapKeys('general.prevError', 'nmap', ':cN<CR>')
-	call MapKeys('general.search', 'nmap', '"zyiw:Search \<<C-R>z\><CR><CR>:cw<CR>')
-	call MapKeys('langPlugin.openSymbolInNewTab', 'nmap', '"zyiw:tabnew<CR>:tag <C-R>z<CR>')
-	call MapKeys('langPlugin.openSymbolPreview', 'nmap', '"zyiw:ptj <C-R>z<CR>')
+	call MapKeys('langPlugin.toggleComment',		['nmap', 'vmap'],			'<BSlash>c<Space>')
+	call MapKeys('general.findFile',				'nmap',						':FufCoverageFile<CR>')
+	call MapKeys('general.nextError',				'nmap',						':cn<CR>')
+	call MapKeys('general.prevError',				'nmap',						':cN<CR>')
+	call MapKeys('general.search',					'nmap',						'"zyiw:Search \<<C-R>z\><CR><CR>:cw<CR>')
+	call MapKeys('langPlugin.openSymbolInNewTab',	'nmap',						'"zyiw:tabnew<CR>:tag <C-R>z<CR>')
+	call MapKeys('langPlugin.openSymbolPreview',	'nmap',						'"zyiw:ptj <C-R>z<CR>')
+	call MapKeys('general.prevTab',					['nmap', 'vmap', 'imap'],	'<Esc>gT')
+	call MapKeys('general.nextTab',					['nmap', 'vmap', 'imap'],	'<Esc>gt')
+
 	map gd "qyiw:call searchdecl("<C-R>q", 0, 1)<CR>:let @/='\<'.@q.'\>'<CR>:set hlsearch<CR>:echo @q<CR>
 	inoremap <Nul> <Space> <BS><BS><C-X><C-O>
 	noremap <M-Up> [{zz
 	noremap <M-Down> ]}zz
-	noremap <M-Left> [(
-	noremap <M-Right> ])
+	"noremap <M-Left> [(
+	"noremap <M-Right> ])
 
 	function! MirrorOrToggleNERDTree()
 		if HasNERDTrees()
@@ -121,9 +124,32 @@ if !exists("g:vimstuff_sourced")
 		end
 	endf
 
-	call MapKeys('plugins.vimCommander.toggle', 'nmap', ':call VimCommanderToggle()<CR>')
-	call MapKeys('plugins.nerdTree.toggle', 'nmap', ':call MirrorOrToggleNERDTree()<CR>')
-	call MapKeys('plugins.nerdTree.findCurrentFile', 'nmap', ':let @q = bufname("%") <Bar> NERDTreeMirror <Bar> execute bufwinnr(@q)."wincmd w" <Bar> NERDTreeFind<CR>')
+	call MapKeys('plugins.vimCommander.toggle',			'nmap',	':call VimCommanderToggle()<CR>')
+	call MapKeys('plugins.nerdTree.toggle',				'nmap',	':call MirrorOrToggleNERDTree()<CR>')
+	call MapKeys('plugins.nerdTree.findCurrentFile',	'nmap',	':let @q = bufname("%") <Bar> NERDTreeMirror <Bar> execute bufwinnr(@q)."wincmd w" <Bar> NERDTreeFind<CR>')
+
+	function JumpToNextBuf(back)
+		let jumplimit = 100
+		let orig_buf = bufnr('%')
+
+		let i = 0
+		while bufnr('%') == orig_buf && i < jumplimit
+			execute 'normal!' (a:back ? "\<C-O>" : "1\<C-I>")
+			let i += 1
+		endw
+
+		let end_buf = bufnr('%')
+
+		if a:back && i == jumplimit && end_buf == orig_buf
+			buffer #
+			echohl WarningMsg
+			echomsg 'Jump list limit exceeded; switching to alternate buffer'
+			echohl None
+		endif
+	endfunction
+
+	call MapKeys('general.prevBuf', ['nmap', 'vmap', 'imap'], '<Esc>:call JumpToNextBuf(1)<CR>')
+	call MapKeys('general.nextBuf', ['nmap', 'vmap', 'imap'], '<Esc>:call JumpToNextBuf(0)<CR>')
 
 	"//<editor-fold defaultstate="collapsed" desc="global references">
 	"//</editor-fold>

@@ -12,6 +12,9 @@ function DetectVcs()
 
 	command -nargs=0 VcsBlame call g:vcs.showBlameMsg()
 	command -nargs=0 VcsShow call g:vcs.blame().show()
+
+	call MapKeys('vcs.showCommit',	'nmap', ':VcsShow<CR>')
+	call MapKeys('vcs.blame',		'nmap', ':VcsBlame<CR>')
 endf
 
 call DetectVcs()
