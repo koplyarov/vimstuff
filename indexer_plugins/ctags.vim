@@ -196,7 +196,7 @@ function CTagsIndexBuilder()
 		endf
 
 		function s:CTagsIndexBuilder._getInvokeCtagsCmd(flags, path, tagsFile)
-			let excludes_str = join(map(copy(self._excludes), '"--exclude=".v:val'), ' ')
+			let excludes_str = join(map(copy(self._excludes), '"--exclude=''".v:val."''"'), ' ')
 			let langs_str = join(values(map(copy(self._customLanguages), '"--langdef=".v:key." --langmap=".v:key.":".self._customLanguages[v:key]')), ' ')
 			let regexes_str = join(values(map(copy(self._customRegexes), 'join(map(copy(self._customRegexes[v:key]), "\"--regex-".v:key."=''\".v:val.\"''\""), " ")')), ' ')
 			return 'ctags '.a:flags.' --fields=+ail '.excludes_str.' --extra=+q -f '.a:tagsFile.' '.shellescape(a:path)
