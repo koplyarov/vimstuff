@@ -207,7 +207,8 @@ function CTagsIndexBuilder()
 				for update in self._asyncUpdates
 					let update = self._asyncUpdates[0]
 					if empty(update.name)
-						return " Already rebuilding
+						" Already rebuilding
+						return
 					end
 				endfor
 
