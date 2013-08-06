@@ -48,7 +48,7 @@ call SetKeysMapping('general.prevBuf',					'<M-Left>')
 call SetKeysMapping('general.nextBuf',					'<M-Right>')
 
 call SetKeysMapping('langPlugin.addImport',				'<C-K>')
-call SetKeysMapping('langPlugin.gotoSymbol',			't<C->')
+call SetKeysMapping('langPlugin.gotoSymbol',			't<C-]>')
 call SetKeysMapping('langPlugin.openAlternativeFile',	'<F4>')
 call SetKeysMapping('langPlugin.printScope',			'<C-P>')
 call SetKeysMapping('langPlugin.searchDerived',			'<C-F5>')
