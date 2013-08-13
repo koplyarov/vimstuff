@@ -10,9 +10,9 @@ index fe9e6eb..9c43758 100644
 +  call system('which find')
 +  if v:shell_error == 0
 +    if strlen(&wildignore) == 0
-+      return split(system('find .'), "\n")
++      return split(system('find -L .'), "\n")
 +	else
-+      return split(system('find . \( '.join(map(split(&wildignore,','), '"-name \"".substitute(v:val, "/\\*\\|\\*/", "", "g")."\""'), ' -o ').' \) -prune -o -print'), "\n")
++      return split(system('find -L . \( '.join(map(split(&wildignore,','), '"-name \"".substitute(v:val, "/\\*\\|\\*/", "", "g")."\""'), ' -o ').' \) -prune -o -print'), "\n")
 +	end
 +  else
 +    return split(glob(substitute(a:expr, '\', '/', 'g')), "\n")
