@@ -253,6 +253,10 @@ function CTagsIndexBuilder()
 		endf
 
 		function s:CTagsIndexBuilder._update(filename)
+			if !self.autoBuild
+				return
+			endif
+
 			while !empty(self._asyncUpdates)
 				let update = self._asyncUpdates[0]
 				if empty(update.process) || !update.process.isTerminated()
@@ -281,6 +285,10 @@ function CTagsIndexBuilder()
 		endf
 
 		function s:CTagsIndexBuilder._onTimerTick()
+			if !self.autoBuild
+				return
+			endif
+
 			call self.rebuildIfNecessary()
 			while !empty(self._asyncUpdates)
 				let update = self._asyncUpdates[0]
@@ -303,6 +311,7 @@ function CTagsIndexBuilder()
 	let self._customRegexes = {}
 	let self._asyncUpdates = []
 	let self._timerHandlerId = g:timer.addHandler(self._onTimerTick, self)
+	let self.autoBuild = 0
 	return self
 endf
 
