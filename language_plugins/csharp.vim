@@ -136,6 +136,7 @@ let g:include_priorities = []
 function CSharpPlugin()
 	let self = LangPlugin()
 
+	let self.fileExtensions = [ 'cs' ]
 	let self.syntax = CSharpSyntax()
 	let self.indexer = CTagsIndexer(self)
 	let self.createLocation = function('CSharpLocation')

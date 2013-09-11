@@ -185,6 +185,7 @@ let g:include_priorities = []
 function CppPlugin()
 	let self = LangPlugin()
 
+	let self.fileExtensions = [ 'h', 'c', 'hpp', 'cpp' ]
 	let self.syntax = CppSyntax()
 	let self.indexer = CTagsIndexer(self)
 	let self.createLocation = function('CppLocation')

@@ -110,6 +110,15 @@ function LangPlugin()
 		function s:LangPlugin.openAlternativeFile(filename)
 			silent execute 'e '.self.getAlternativeFile(a:filename)
 		endf
+
+		function s:LangPlugin.searchUsages(symbolName)
+			" TODO: reimplement
+			let includes_list = map(copy(self.fileExtensions), '"*.".v:val')
+			let excludedirs_list = ["etc", "build", ".git", "CMakeFiles", ".svn"]
+			let excludes_string = '--exclude-dir="' . join(excludedirs_list, '" --exclude-dir="') . '"'
+			let includes_string = '--include="' . join(includes_list, '" --include="')  . '"'
+			execute 'grep '.includes_string.' '.excludes_string.' -rI ''\<'.a:symbolName.'\>'' ./'
+		endf
 	end
 
 	let self = copy(s:LangPlugin)
@@ -122,6 +131,10 @@ function ActivateLangPlugin(plugin)
 
 	if has_key(b:lang_plugin, 'getAlternativeFile')
 		call MapKeys('langPlugin.openAlternativeFile', 'nmap <silent> <buffer>', ":call b:lang_plugin.openAlternativeFile('<C-R>%')<CR>")
+	end
+
+	if has_key(b:lang_plugin, 'fileExtensions')
+		call MapKeys('langPlugin.searchUsages', 'nmap <silent> <buffer>', '"wyiw:call b:lang_plugin.searchUsages(@w)<CR>')
 	end
 
 	call MapKeys('langPlugin.printScope', 'nmap <silent> <buffer>', ":echo b:lang_plugin.createLocation(getpos('.')).getLocationPath().toString()<CR>")
