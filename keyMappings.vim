@@ -41,6 +41,7 @@ endf
 call SetKeysMapping('general.search',					'<F5>')
 call SetKeysMapping('general.findFile',					'<F3>')
 call SetKeysMapping('general.findSymbol',				'O1;5R') " <C-F3>
+call SetKeysMapping('general.findSymbolInBuffer',		'O1;6R') " <C-S-F3>
 call SetKeysMapping('general.prevError',				'<F7>')
 call SetKeysMapping('general.nextError',				'<F8>')
 call SetKeysMapping('general.prevTab',					'<M-PageUp>')
