@@ -120,6 +120,41 @@ function CppLocation(rawLocation)
 			return deepcopy(self._rawLocation)
 		endf
 
+		function s:CppLocation.getBufNum()
+			return self._rawLocation[0]
+		endf
+
+		function s:CppLocation.getLineNum()
+			return self._rawLocation[1]
+		endf
+
+		function s:CppLocation.getColumnNum()
+			return self._rawLocation[2]
+		endf
+
+		function s:CppLocation.endOfPrevLine()
+			return CppLocation([ self.getBufNum(), self.getLineNum() - 1, len(getline(self.getLineNum() - 1)) + 1, 0 ])
+		endf
+
+		function s:CppLocation.beginOfNextLine()
+			return CppLocation([ self.getBufNum(), self.getLineNum() + 1, 1, 0 ])
+		endf
+
+		function s:CppLocation.goto(...)
+			if a:0 == 1
+				call insert(a:1, CppLocation(getpos('.')))
+			end
+			call setpos('.', self.getRaw())
+		endf
+
+		function s:CppLocation.goBack(locationStack)
+			if empty(a:locationStack)
+				throw "CppLocation: location stack empty!"
+			end
+			let top = remove(a:locationStack, 0)
+			call top.goto()
+		endf
+
 		function s:CppLocation.getLocationPath()
 			let res = []
 			let save_cursor = getpos('.')
@@ -173,6 +208,70 @@ function CppSyntax()
 
 	function self.getImportRegex(regex)
 		return '#include <\('.a:regex.'\)'
+	endf
+
+	function self._getCurrentLine(location)
+		let s = getline(a:location.getLineNum())
+
+		let result = ''
+		let state = 'normal'
+		let i = 0
+		let parsePrevLine = 1
+		let parseNextLine = 1
+		while i < len(s)
+			if (s[i] == '"' || s[i] == "'") && s[i - 1] != '\'
+				if state != 'string'
+					let state = 'string'
+				else
+					let state = 'normal'
+				end
+			end
+			if (s[i] == ';' || s[i] == '{' || s[i] == '}') && state != 'string'
+				if i >= a:location.getColumnNum() - 1
+					let parseNextLine = 0
+					if s[i] == ';'
+						let result .= s[i]
+					end
+					break
+				else
+					let result = ''
+					let i += 1
+					let parsePrevLine = 0
+					continue
+				end
+			end
+			let result .= s[i]
+			let i += 1
+		endw
+
+		return { 'string': StripString(result), 'parsePrevLine': parsePrevLine, 'parseNextLine': parseNextLine }
+	endf
+
+	function self.getLine(location)
+		let location_stack = []
+
+		call a:location.goto(location_stack)
+
+		let loc = a:location
+		let cl = self._getCurrentLine(a:location)
+		let result = cl.string
+		while cl.parsePrevLine
+			let loc = loc.endOfPrevLine()
+			let cl = self._getCurrentLine(loc)
+			let result = cl.string . result
+		endw
+
+		let loc = a:location
+		let cl = self._getCurrentLine(a:location)
+		while cl.parseNextLine
+			let loc = loc.beginOfNextLine()
+			let cl = self._getCurrentLine(loc)
+			let result .= cl.string
+		endw
+
+		call a:location.goBack(location_stack)
+
+		return result
 	endf
 
 	return self
