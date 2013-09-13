@@ -14,6 +14,7 @@ if !exists("g:vimstuff_sourced")
 	set isfname-==
 	set wildmode=longest,list,full
 	set cinoptions=g0,:0,l1,t0
+	set cot+=longest
 	if has("foldcolumn")
 		set foldcolumn=1
 	end
@@ -99,6 +100,7 @@ if !exists("g:vimstuff_sourced")
 	call MapKeys('general.findFile',				'nmap',						':FufCoverageFile<CR>')
 	call MapKeys('general.findSymbol',				'nmap',						':FufTag!<CR>')
 	call MapKeys('general.findSymbolInBuffer',		'nmap',						':FufBufferTag<CR>')
+	call MapKeys('general.findLineInBuffer',		'nmap',						':FufLine!<CR>')
 	call MapKeys('general.nextError',				'nmap',						':cn<CR>')
 	call MapKeys('general.prevError',				'nmap',						':cN<CR>')
 	call MapKeys('general.search',					'nmap',						'"zyiw:Search \<<C-R>z\><CR><CR>:cw<CR>')
