@@ -11,6 +11,7 @@ function CMakeBuildSystem()
 		if !empty(dir)
 			let dir = '-C '.dir
 		end
+		silent exec 'make '.dir.' depend'
 		exec 'make '.dir.' '.file.'.o'
 		unlet self._buildDir
 	endf
