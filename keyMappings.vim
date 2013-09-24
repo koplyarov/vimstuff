@@ -43,6 +43,7 @@ call SetKeysMapping('general.findFile',					[ '<C-F><C-F>', '<F3>' ])
 call SetKeysMapping('general.findSymbol',				[ '<C-F><C-S>', 'O1;5R' ]) " <C-F3>
 call SetKeysMapping('general.findSymbolInBuffer',		[ '<C-F><C-B>', 'O1;6R' ]) " <C-S-F3>
 call SetKeysMapping('general.findLineInBuffer',			[ '<C-F><C-L>' ])
+call SetKeysMapping('general.findChangeListEntry',		[ '<C-F><C-C>' ])
 call SetKeysMapping('general.prevError',				'<F7>')
 call SetKeysMapping('general.nextError',				'<F8>')
 call SetKeysMapping('general.prevTab',					'<M-PageUp>')

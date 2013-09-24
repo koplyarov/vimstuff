@@ -96,11 +96,13 @@ if !exists("g:vimstuff_sourced")
 
 	"nmap <F1> yyjp>>^dW:s/([^)]*)//g<CR>iprintf("TRACE: <ESC>A<BSlash>n");<ESC>:noh<CR>
 	nmap ZZ :echo "Save and exit prevented! =)"<CR>
+	nmap <C-C> :echo "Type  :quit<Enter>  to exit Vim"<CR>
 	call MapKeys('langPlugin.toggleComment',		['nmap', 'vmap'],			'<BSlash>c<Space>')
 	call MapKeys('general.findFile',				'nmap',						':FufCoverageFile<CR>')
 	call MapKeys('general.findSymbol',				'nmap',						':FufTag!<CR>')
 	call MapKeys('general.findSymbolInBuffer',		'nmap',						':FufBufferTag<CR>')
 	call MapKeys('general.findLineInBuffer',		'nmap',						':FufLine!<CR>')
+	call MapKeys('general.findChangeListEntry',		'nmap',						':FufChangeList!<CR>')
 	call MapKeys('general.nextError',				'nmap',						':cn<CR>')
 	call MapKeys('general.prevError',				'nmap',						':cN<CR>')
 	call MapKeys('general.search',					'nmap',						'"zyiw:Search \<<C-R>z\><CR><CR>:cw<CR>')
