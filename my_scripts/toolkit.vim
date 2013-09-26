@@ -71,10 +71,7 @@ endf
 
 
 function! Relpath(filename)
-	let cwd = getcwd()
-	let s1 = substitute(a:filename, "^./" , "", "")
-	let s2 = substitute(s1, l:cwd . "/" , "", "")
-	return s2
+	return fnamemodify(a:filename, ':p:.')
 endf
 
 
