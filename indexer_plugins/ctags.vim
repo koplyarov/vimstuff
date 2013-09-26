@@ -195,11 +195,11 @@ function CTagsIndexBuilder()
 			call add(self._customRegexes[a:language], a:regex)
 		endf
 
-		function s:CTagsIndexBuilder._getInvokeCtagsCmd(flags, path, tagsFile)
+		function s:CTagsIndexBuilder.getCTagsCmd(flags, path, tagsFile)
 			let excludes_str = join(map(copy(self._excludes), '"--exclude=''".v:val."''"'), ' ')
 			let langs_str = join(values(map(copy(self._customLanguages), '"--langdef=".v:key." --langmap=".v:key.":".self._customLanguages[v:key]')), ' ')
 			let regexes_str = join(values(map(copy(self._customRegexes), 'join(map(copy(self._customRegexes[v:key]), "\"--regex-".v:key."=''\".v:val.\"''\""), " ")')), ' ')
-			return 'ctags '.a:flags.' --fields=+ail '.langs_str.' '.regexes_str.' '.excludes_str.' --extra=+q -f '.a:tagsFile.' '.shellescape(a:path)
+			return 'ctags '.a:flags.' --fields=+ail '.langs_str.' '.regexes_str.' '.excludes_str.' --extra=+q -f '.(empty(a:tagsFile) ? '-' : shellescape(a:tagsFile)).' '.shellescape(a:path)
 		endf
 
 		function s:CTagsIndexBuilder.rebuildIfNecessary()
@@ -270,9 +270,9 @@ function CTagsIndexBuilder()
 
 			let process = {}
 			if empty(a:filename)
-				let cmd = self._getInvokeCtagsCmd('-R', './', 'tags')
+				let cmd = self.getCTagsCmd('-R', './', 'tags')
 			else
-				let cmd = 'grep -v ''^\S*\s\(\.\/\)\?'.escape(a:filename, '.*/\$^[]&').''' tags > tags.new && '.self._getInvokeCtagsCmd('-a', Relpath(a:filename), 'tags.new').' && mv tags.new tags'
+				let cmd = 'grep -v ''^\S*\s\(\.\/\)\?'.escape(a:filename, '.*/\$^[]&').''' tags > tags.new && '.self.getCTagsCmd('-a', Relpath(a:filename), 'tags.new').' && mv tags.new tags'
 			end
 
 			if empty(self._asyncUpdates)
