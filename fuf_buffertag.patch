@@ -1,0 +1,15 @@
+diff --git a/fuzzyfinder/autoload/fuf/buffertag.vim b/fuzzyfinder/autoload/fuf/buffertag.vim
+index 392b996..dc586dc 100644
+--- a/fuzzyfinder/autoload/fuf/buffertag.vim
++++ b/fuzzyfinder/autoload/fuf/buffertag.vim
+@@ -140,6 +140,10 @@ endfunction
+ 
+ "
+ function s:makeCtagsCmd(bufNr)
++  let bufvars = getbufvar(a:bufNr, '')
++  if has_key(bufvars, 'lang_plugin') && has_key(bufvars.lang_plugin, 'indexer') && has_key(bufvars.lang_plugin.indexer, 'builder') && has_key(bufvars.lang_plugin.indexer.builder, 'getCTagsCmd')
++    return bufvars.lang_plugin.indexer.builder.getCTagsCmd('--sort=no --excmd=pattern --fields=nKs', fnamemodify(bufname(a:bufNr), ':p'), '')
++  endif
+   let ft = s:getFileType(a:bufNr)
+   if !exists('g:fuf_buffertag__{ft}')
+     return ''
