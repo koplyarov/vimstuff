@@ -5,8 +5,8 @@ endfunction
 
 autocmd User plugin-template-loaded call s:template_keywords()
 function s:template_keywords()
-	%s/<+FILENAME+>/\=toupper(substitute(expand('%'), '[-.\/\\\\:]', '_', 'g'))/ge
-	%s/<+FILENAME_MANGLED+>/\=toupper(substitute(expand('%'), '[-.\/\\\\:]', '_', 'g'))/ge
+	%s/<+FILENAME+>/\=toupper(substitute(fnamemodify(expand('%'), ':p:.'), '[-.\/\\\\:]', '_', 'g'))/ge
+	%s/<+FILENAME_MANGLED+>/\=toupper(substitute(fnamemodify(expand('%'), ':p:.'), '[-.\/\\\\:]', '_', 'g'))/ge
 	%s/<+DATE+>/\=strftime('%Y-%m-%d')/ge
 	let namespaces=GetCppNamespaceFromPath(split(Relpath(expand('%')), '/'))
 	if len(namespaces) == 0
