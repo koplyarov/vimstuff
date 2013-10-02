@@ -119,6 +119,10 @@ function LangPlugin()
 			let includes_string = '--include="' . join(includes_list, '" --include="')  . '"'
 			execute 'grep '.includes_string.' '.excludes_string.' -rIFw '''.a:symbolName.''' ./'
 		endf
+
+		function s:LangPlugin.removeTrailingWhitespaces()
+			call setline(1, map(getline(1,'$'), 'substitute(v:val,"\\s\\+$","","")'))
+		endf
 	end
 
 	let self = copy(s:LangPlugin)
@@ -149,6 +153,10 @@ function ActivateLangPlugin(plugin)
 		end
 
 		call MapKeys('langPlugin.searchDerived', 'nmap <buffer>', '"zyiw:call b:lang_plugin.searchDerived(@z)<CR>')
+	end
+
+	if has_key(b:lang_plugin, 'onActivated')
+		call b:lang_plugin.onActivated()
 	end
 endf
 

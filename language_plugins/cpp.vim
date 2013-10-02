@@ -353,6 +353,10 @@ function CppPlugin()
 		call searchdecl(a:symbol, 0, 1)
 	endf
 
+	function self.onActivated()
+		au BufWritePre <buffer> :call b:lang_plugin.removeTrailingWhitespaces()
+	endf
+
 	return self
 endf
 
