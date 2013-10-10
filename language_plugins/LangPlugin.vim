@@ -133,7 +133,7 @@ function LangPlugin()
 			execute "tag ".a:symbolName
 		endf
 
-		function s:LangPlugin.openSymbolInNewTab(symbolName)
+		function s:LangPlugin.openSymbolPreview(symbolName)
 			execute "ptj ".a:symbolName
 		endf
 	end
