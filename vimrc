@@ -69,8 +69,8 @@ if !exists("g:vimstuff_sourced")
 	endf
 
 	function! InitGitHotKeys()
-		map <2-LeftMouse> <LeftMouse> "zyiw:if match(@z, '\x\{40\}') != -1 <Bar> execute "!clear; git show --color ".@z." <Bar> less -RSX"<Bar> end<CR>
-		nmap <CR> "zyiw:if match(@z, '\x\{40\}') != -1 <Bar> execute "!clear; git show --color ".@z." <Bar> less -RSX"<Bar> end<CR>
+		map <2-LeftMouse> <LeftMouse> if match(expand('<cword>'), '\x\{40\}') != -1 <Bar> execute "!clear; git show --color ".expand('<cword>')." <Bar> less -RSX"<Bar> end<CR>
+		nmap <CR> if match(expand('<cword>'), '\x\{40\}') != -1 <Bar> execute "!clear; git show --color ".expand('<cword>')." <Bar> less -RSX"<Bar> end<CR>
 	endf
 
 	command! -nargs=1 -complete=tag Search call DoSearch('<args>')
@@ -105,9 +105,7 @@ if !exists("g:vimstuff_sourced")
 	call MapKeys('general.findChangeListEntry',		'nmap',						':FufChangeList!<CR>')
 	call MapKeys('general.nextError',				'nmap',						':cn<CR>')
 	call MapKeys('general.prevError',				'nmap',						':cN<CR>')
-	call MapKeys('general.search',					'nmap',						'"zyiw:Search \<<C-R>z\><CR><CR>:cw<CR>')
-	call MapKeys('langPlugin.openSymbolInNewTab',	'nmap',						'"zyiw:tabnew<CR>:tag <C-R>z<CR>')
-	call MapKeys('langPlugin.openSymbolPreview',	'nmap',						'"zyiw:ptj <C-R>z<CR>')
+	call MapKeys('general.search',					'nmap',						':call DoSearch("\\<".expand("<cword>")."\\>")<CR><CR>:cw<CR>')
 	call MapKeys('general.prevTab',					['nmap', 'vmap', 'imap'],	'<Esc>gT')
 	call MapKeys('general.nextTab',					['nmap', 'vmap', 'imap'],	'<Esc>gt')
 

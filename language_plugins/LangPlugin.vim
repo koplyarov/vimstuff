@@ -123,6 +123,19 @@ function LangPlugin()
 		function s:LangPlugin.removeTrailingWhitespaces()
 			call setline(1, map(getline(1,'$'), 'substitute(v:val,"\\s\\+$","","")'))
 		endf
+
+		function s:LangPlugin.getWordUnderCursor()
+			return expand('<cword>')
+		endf
+
+		function s:LangPlugin.openSymbolInNewTab(symbolName)
+			tabnew
+			execute "tag ".a:symbolName
+		endf
+
+		function s:LangPlugin.openSymbolInNewTab(symbolName)
+			execute "ptj ".a:symbolName
+		endf
 	end
 
 	let self = copy(s:LangPlugin)
@@ -138,21 +151,23 @@ function ActivateLangPlugin(plugin)
 	end
 
 	if has_key(b:lang_plugin, 'fileExtensions')
-		call MapKeys('langPlugin.searchUsages', 'nmap <silent> <buffer>', '"wyiw:call b:lang_plugin.searchUsages(@w)<CR>')
+		call MapKeys('langPlugin.searchUsages', 'nmap <silent> <buffer>', ':call b:lang_plugin.searchUsages(b:lang_plugin.getWordUnderCursor())<CR>')
 	end
 
-	call MapKeys('langPlugin.printScope', 'nmap <silent> <buffer>', ":echo b:lang_plugin.createLocation(getpos('.')).getLocationPath().toString()<CR>")
+	call MapKeys('langPlugin.printScope',			'nmap <silent> <buffer>',	":echo b:lang_plugin.createLocation(getpos('.')).getLocationPath().toString()<CR>")
+	call MapKeys('langPlugin.openSymbolInNewTab',	'nmap',						':call b:lang_plugin.openSymbolInNewTab(b:lang_plugin.getWordUnderCursor())<CR>')
+	call MapKeys('langPlugin.openSymbolPreview',	'nmap',						':call b:lang_plugin.openSymbolPreview(b:lang_plugin.getWordUnderCursor())<CR>')
 
 	if has_key(b:lang_plugin, 'indexer')
-		call MapKeys('langPlugin.addImport', 'nmap <silent> <buffer>', '"wyiw:call b:lang_plugin.addImport(b:lang_plugin.indexer.getImport(@w), g:include_priorities)<CR>')
-		call MapKeys('langPlugin.gotoSymbol', 'map <silent> <buffer>', '"wyiw:call b:lang_plugin.gotoSymbol(@w)<CR>')
+		call MapKeys('langPlugin.addImport', 'nmap <silent> <buffer>', ':call b:lang_plugin.addImport(b:lang_plugin.indexer.getImport(b:lang_plugin.getWordUnderCursor()), g:include_priorities)<CR>')
+		call MapKeys('langPlugin.gotoSymbol', 'map <silent> <buffer>', ':call b:lang_plugin.gotoSymbol(b:lang_plugin.getWordUnderCursor())<CR>')
 		nmap <silent> <buffer> <C-RightMouse> <LeftMouse>t<C-]>
 
 		if has_key(b:lang_plugin.indexer, 'builder') && has_key(b:lang_plugin.indexer.builder, 'canUpdate') && b:lang_plugin.indexer.builder.canUpdate()
 			au BufWritePost <buffer> call b:lang_plugin.indexer.builder.updateForFile(@%)
 		end
 
-		call MapKeys('langPlugin.searchDerived', 'nmap <buffer>', '"zyiw:call b:lang_plugin.searchDerived(@z)<CR>')
+		call MapKeys('langPlugin.searchDerived', 'nmap <buffer>', 'call b:lang_plugin.searchDerived(b:lang_plugin.getWordUnderCursor())<CR>')
 	end
 
 	if has_key(b:lang_plugin, 'onActivated')
