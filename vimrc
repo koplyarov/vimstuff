@@ -109,7 +109,7 @@ if !exists("g:vimstuff_sourced")
 	call MapKeys('general.prevTab',					['nmap', 'vmap', 'imap'],	'<Esc>gT')
 	call MapKeys('general.nextTab',					['nmap', 'vmap', 'imap'],	'<Esc>gt')
 
-	map gd "qyiw:call searchdecl("<C-R>q", 0, 1)<CR>:let @/='\<'.@q.'\>'<CR>:echo @q<CR>
+	noremap gd 1gd
 	inoremap <Nul> <Space> <BS><BS><C-X><C-O>
 	noremap <M-Up> [{zz
 	noremap <M-Down> ]}zz
