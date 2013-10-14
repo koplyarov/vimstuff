@@ -213,8 +213,8 @@ if !exists("g:vimstuff_sourced")
 			if tabs_to_insert == 0
 				let tabs_to_insert = 1
 			end
-			let line_start = cur_line[0:(pos[2] - 1)]
-			let line_end = cur_line[pos[2]:]
+			let line_start = cur_line[0:(pos[2] - 2)]
+			let line_end = cur_line[(pos[2] - 1):]
 			call setline('.', line_start.repeat('	', tabs_to_insert).line_end)
 			call setpos('.', [pos[0], pos[1], pos[2] + tabs_to_insert, pos[3]])
 		elseif a:op == 'remove'
