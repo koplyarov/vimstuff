@@ -1,3 +1,12 @@
+function VimStuffException(msg)
+	return 'VimStuff: '.a:msg
+endf
+
+function NotImplementedException()
+	return VimStuffException('Not implemented!')
+endf
+
+
 function Timer()
 	if !exists('s:Timer')
 		let s:Timer = {}
