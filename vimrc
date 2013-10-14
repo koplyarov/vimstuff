@@ -158,63 +158,46 @@ if !exists("g:vimstuff_sourced")
 	function SmartTab(op)
 		let pos = getpos('.')
 		let cur_line = getline(pos[1])
-		let prev_line = getline(pos[1] - 1)
-		let next_line = getline(pos[1] + 1)
+		let col_num = pos[2] - 1
+		let reference_lines = [ getline(pos[1] - 1), getline(pos[1] + 1) ]
 
 		let visible_column = 0
-		for i in range(0, pos[2] - 2)
+		for i in range(0, col_num - 1)
 			let visible_column += (cur_line[i] == '	') ? &tabstop : 1
 		endfor
 
-		let prev_ofs = -1
-		let visible_column_tmp = 0
-		for c in split(prev_line, '\zs')
-			let c_width= (c == '	') ? (&tabstop - (visible_column_tmp % &tabstop)) : 1
-			let visible_column_tmp += c_width
-			if visible_column_tmp <= visible_column
-				continue
-			endif
-			if !(c =~ '	')
-				if prev_ofs != -1
-					break
-				else
+		let offsets = []
+		for ref_line in reference_lines
+			let ofs = -1
+			let visible_column_tmp = 0
+			for c in split(ref_line, '\zs')
+				let c_width= (c == '	') ? (&tabstop - (visible_column_tmp % &tabstop)) : 1
+				let visible_column_tmp += c_width
+				if visible_column_tmp <= visible_column
 					continue
+				endif
+				if !(c =~ '	')
+					if ofs != -1
+						break
+					else
+						continue
+					end
 				end
+				let ofs = visible_column_tmp
+			endfor
+			if ofs != -1
+				call add(offsets, ofs)
 			end
-			let prev_ofs = visible_column_tmp
 		endfor
-
-		let next_ofs = -1
-		let visible_column_tmp = 0
-		for c in split(next_line, '\zs')
-			let c_width= (c == '	') ? (&tabstop - (visible_column_tmp % &tabstop)) : 1
-			let visible_column_tmp += c_width
-			if visible_column_tmp <= visible_column
-				continue
-			endif
-			if !(c =~ '	')
-				if next_ofs != -1
-					break
-				else
-					continue
-				end
-			end
-			let next_ofs = visible_column_tmp
-		endfor
-
 
 		if a:op == 'add'
-			let ofs = min([prev_ofs, next_ofs])
-			echo prev_ofs.' '.next_ofs.' '.ofs
-			if ofs == -1
-				let ofs = max([prev_ofs, next_ofs])
-			end
+			let ofs = empty(offsets) ? -1 : min(offsets)
 			let tabs_to_insert = (ofs != -1) ? ((ofs - visible_column) / &tabstop + ((ofs - visible_column) % &tabstop != 0)) : 1
 			if tabs_to_insert == 0
 				let tabs_to_insert = 1
 			end
-			let line_start = cur_line[0:(pos[2] - 2)]
-			let line_end = cur_line[(pos[2] - 1):]
+			let line_start = col_num > 0 ? cur_line[0:(col_num - 1)] : ''
+			let line_end = cur_line[(col_num):]
 			call setline('.', line_start.repeat('	', tabs_to_insert).line_end)
 			call setpos('.', [pos[0], pos[1], pos[2] + tabs_to_insert, pos[3]])
 		elseif a:op == 'remove'
