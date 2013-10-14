@@ -92,6 +92,7 @@ done
 AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 fuf.patch
 AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 fuf_buffertag.patch
 AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 nerdcommenter.patch
+AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 snipMate.patch
 
 AddAction VIMSTUFF_SETUP AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
 

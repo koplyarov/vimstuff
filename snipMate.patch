@@ -1,0 +1,17 @@
+diff --git a/snipmate/plugin/snipMate.vim b/snipmate/plugin/snipMate.vim
+index ef03b12..716a27d 100644
+--- a/snipmate/plugin/snipMate.vim
++++ b/snipmate/plugin/snipMate.vim
+@@ -181,6 +181,12 @@ fun! TriggerSnippet()
+ 		call feedkeys(SuperTabKey)
+ 		return ''
+ 	endif
++
++	if exists('*SmartTab')
++		call SmartTab('add')
++		return ''
++	endif
++
+ 	return "\<tab>"
+ endf
+ 
