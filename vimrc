@@ -204,12 +204,12 @@ if !exists("g:vimstuff_sourced")
 
 
 		if a:op == 'add'
-			let tabs_to_insert = 1
-			if prev_ofs != -1
-				let tabs_to_insert = (prev_ofs - visible_column) / &tabstop + ((prev_ofs - visible_column) % &tabstop != 0)
-			elseif next_ofs != -1
-				let tabs_to_insert = (next_ofs - visible_column) / &tabstop + ((next_ofs - visible_column) % &tabstop != 0)
+			let ofs = min([prev_ofs, next_ofs])
+			echo prev_ofs.' '.next_ofs.' '.ofs
+			if ofs == -1
+				let ofs = max([prev_ofs, next_ofs])
 			end
+			let tabs_to_insert = (ofs != -1) ? ((ofs - visible_column) / &tabstop + ((ofs - visible_column) % &tabstop != 0)) : 1
 			if tabs_to_insert == 0
 				let tabs_to_insert = 1
 			end
