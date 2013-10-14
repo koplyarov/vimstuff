@@ -155,6 +155,76 @@ if !exists("g:vimstuff_sourced")
 	call MapKeys('general.prevBuf', ['nmap', 'vmap', 'imap'], '<Esc>:call JumpToNextBuf(1)<CR>')
 	call MapKeys('general.nextBuf', ['nmap', 'vmap', 'imap'], '<Esc>:call JumpToNextBuf(0)<CR>')
 
+	function SmartTab(op)
+		let pos = getpos('.')
+		let cur_line = getline(pos[1])
+		let prev_line = getline(pos[1] - 1)
+		let next_line = getline(pos[1] + 1)
+
+		let visible_column = 0
+		for i in range(0, pos[2] - 2)
+			let visible_column += (cur_line[i] == '	') ? &tabstop : 1
+		endfor
+
+		let prev_ofs = -1
+		let visible_column_tmp = 0
+		for c in split(prev_line, '\zs')
+			let c_width= (c == '	') ? (&tabstop - (visible_column_tmp % &tabstop)) : 1
+			let visible_column_tmp += c_width
+			if visible_column_tmp <= visible_column
+				continue
+			endif
+			if !(c =~ '	')
+				if prev_ofs != -1
+					break
+				else
+					continue
+				end
+			end
+			let prev_ofs = visible_column_tmp
+		endfor
+
+		let next_ofs = -1
+		let visible_column_tmp = 0
+		for c in split(next_line, '\zs')
+			let c_width= (c == '	') ? (&tabstop - (visible_column_tmp % &tabstop)) : 1
+			let visible_column_tmp += c_width
+			if visible_column_tmp <= visible_column
+				continue
+			endif
+			if !(c =~ '	')
+				if next_ofs != -1
+					break
+				else
+					continue
+				end
+			end
+			let next_ofs = visible_column_tmp
+		endfor
+
+
+		if a:op == 'add'
+			let tabs_to_insert = 1
+			if prev_ofs != -1
+				let tabs_to_insert = (prev_ofs - visible_column) / &tabstop + ((prev_ofs - visible_column) % &tabstop != 0)
+			elseif next_ofs != -1
+				let tabs_to_insert = (next_ofs - visible_column) / &tabstop + ((next_ofs - visible_column) % &tabstop != 0)
+			end
+			if tabs_to_insert == 0
+				let tabs_to_insert = 1
+			end
+			let line_start = cur_line[0:(pos[2] - 1)]
+			let line_end = cur_line[pos[2]:]
+			call setline('.', line_start.repeat('	', tabs_to_insert).line_end)
+			call setpos('.', [pos[0], pos[1], pos[2] + tabs_to_insert, pos[3]])
+		elseif a:op == 'remove'
+			throw NotImplementedException()
+		else
+			throw VimStuffException('Unknown SmartTab operation: '.a:op)
+		endif
+	endf
+
+
 	"//<editor-fold defaultstate="collapsed" desc="global references">
 	"//</editor-fold>
 	function! NetBeansFoldText()
