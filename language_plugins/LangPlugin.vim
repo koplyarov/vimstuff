@@ -167,7 +167,7 @@ function ActivateLangPlugin(plugin)
 			au BufWritePost <buffer> call b:lang_plugin.indexer.builder.updateForFile(@%)
 		end
 
-		call MapKeys('langPlugin.searchDerived', 'nmap <buffer>', 'call b:lang_plugin.searchDerived(b:lang_plugin.getWordUnderCursor())<CR>')
+		call MapKeys('langPlugin.searchDerived', 'nmap <buffer>', ':call b:lang_plugin.searchDerived(b:lang_plugin.getWordUnderCursor())<CR>')
 	end
 
 	if has_key(b:lang_plugin, 'onActivated')
