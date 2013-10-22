@@ -1,3 +1,20 @@
+function Syntax()
+	if !exists("s:Syntax")
+		let s:Syntax = {}
+
+		function s:Syntax.isKeyword(word)
+			return index(self.keywords, a:word) != -1
+		endf
+	end
+
+	let self = deepcopy(s:Syntax)
+
+	let self.keywords = [ ]
+
+	return self
+endf
+
+
 function LangPlugin()
 	if !exists('s:LangPlugin')
 		let s:LangPlugin = {}
