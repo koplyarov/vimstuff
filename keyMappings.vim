@@ -39,11 +39,11 @@ endf
 
 
 call SetKeysMapping('general.search',					'<F5>')
-call SetKeysMapping('general.findFile',					[ '<C-F><C-F>', '<F3>' ])
-call SetKeysMapping('general.findSymbol',				[ '<C-F><C-S>', 'O1;5R' ]) " <C-F3>
-call SetKeysMapping('general.findSymbolInBuffer',		[ '<C-F><C-B>', 'O1;6R' ]) " <C-S-F3>
-call SetKeysMapping('general.findLineInBuffer',			[ '<C-F><C-L>' ])
-call SetKeysMapping('general.findChangeListEntry',		[ '<C-F><C-C>' ])
+call SetKeysMapping('general.findFile',					[ '<C-F><C-F>', '<C-F>f', '<F3>' ])
+call SetKeysMapping('general.findSymbol',				[ '<C-F><C-S>', '<C-F>s', 'O1;5R' ]) " <C-F3>
+call SetKeysMapping('general.findSymbolInBuffer',		[ '<C-F><C-B>', '<C-F>b', 'O1;6R' ]) " <C-S-F3>
+call SetKeysMapping('general.findLineInBuffer',			[ '<C-F><C-L>', '<C-F>l' ])
+call SetKeysMapping('general.findChangeListEntry',		[ '<C-F><C-C>', '<C-F>c' ])
 call SetKeysMapping('general.prevError',				'<F7>')
 call SetKeysMapping('general.nextError',				'<F8>')
 call SetKeysMapping('general.prevTab',					'<M-PageUp>')
@@ -66,7 +66,7 @@ call SetKeysMapping('vcs.showCommit',					[])
 call SetKeysMapping('vcs.blame',						[])
 
 call SetKeysMapping('buildsystem.buildFile',			'<C-F7>')
-call SetKeysMapping('buildsystem.buildAll',				'<S-F5>')
+call SetKeysMapping('buildsystem.buildAll',				'<C-B>')
 
 "call SetKeysMapping('plugins.vimCommander.toggle',		[ '<C-F><C-F>', '<C-F>f' ])
 call SetKeysMapping('plugins.nerdTree.toggle',			[ '<C-N><C-N>', '<C-N>n' ])
