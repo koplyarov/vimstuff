@@ -102,6 +102,10 @@ function LangPlugin()
 		endf
 
 		function s:LangPlugin.gotoSymbol(symbol)
+			if self.syntax.isKeyword(a:symbol)
+				echo a:symbol.' is a keyword'
+				return
+			end
 			let symbol = self.indexer.getSymbolInfoAtLocation(a:symbol, self.createLocation(getpos('.')))
 			if !empty(symbol)
 				call symbol.goto()
@@ -111,6 +115,10 @@ function LangPlugin()
 		endf
 
 		function s:LangPlugin.searchDerived(symbol)
+			if self.syntax.isKeyword(a:symbol)
+				echo a:symbol.' is a keyword'
+				return
+			end
 			let symbol_info = self.indexer.getSymbolInfoAtLocation(a:symbol, self.createLocation(getpos('.')))
 			let derived = symbol_info.getDerived()
 			if empty(derived)
@@ -129,6 +137,10 @@ function LangPlugin()
 		endf
 
 		function s:LangPlugin.searchUsages(symbolName)
+			if self.syntax.isKeyword(a:symbolName)
+				echo a:symbolName.' is a keyword'
+				return
+			end
 			" TODO: reimplement
 			let includes_list = map(copy(self.fileExtensions), '"*.".v:val')
 			let excludedirs_list = ["etc", "build", ".git", "CMakeFiles", ".svn"]
