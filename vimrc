@@ -198,8 +198,11 @@ if !exists("g:vimstuff_sourced")
 			end
 			let line_start = col_num > 0 ? cur_line[0:(col_num - 1)] : ''
 			let line_end = cur_line[(col_num):]
+			let tabs_in_the_line = len(matchstr(line_end, '^	*'))
+			let cursor_shift = tabs_to_insert
+			let tabs_to_insert = max([tabs_to_insert - tabs_in_the_line, 0])
 			call setline('.', line_start.repeat('	', tabs_to_insert).line_end)
-			call setpos('.', [pos[0], pos[1], pos[2] + tabs_to_insert, pos[3]])
+			call setpos('.', [pos[0], pos[1], pos[2] + cursor_shift, pos[3]])
 		elseif a:op == 'remove'
 			throw NotImplementedException()
 		else
