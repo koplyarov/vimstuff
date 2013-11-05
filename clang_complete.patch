@@ -1,0 +1,13 @@
+diff --git a/clang_complete/plugin/clang_complete.vim b/clang_complete/plugin/clang_complete.vim
+index 54f5463..42f1ee1 100644
+--- a/clang_complete/plugin/clang_complete.vim
++++ b/clang_complete/plugin/clang_complete.vim
+@@ -7,7 +7,7 @@
+ " Help: Use :help clang_complete
+ "
+ 
+-au FileType c,cpp,objc,objcpp call <SID>ClangCompleteInit()
++au FileType cpp.doxygen,c,cpp,objc,objcpp call <SID>ClangCompleteInit()
+ 
+ let b:clang_parameters = ''
+ let b:clang_user_options = ''
