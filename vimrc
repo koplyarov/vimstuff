@@ -34,6 +34,7 @@ if !exists("g:vimstuff_sourced")
 	runtime language_plugins/LangPlugin.vim
 	runtime language_plugins/cpp.vim
 	runtime language_plugins/csharp.vim
+	runtime language_plugins/python.vim
 
 	let g:clang_jumpto_declaration_key = "c<C-]>"
 	let g:clang_jumpto_back_key = "c<C-O>"
