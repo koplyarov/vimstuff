@@ -125,7 +125,7 @@ function LangPlugin()
 				echo "Derived classes not found"
 				return
 			end
-			cexpr ""
+			cgetexpr ""
 			for d in derived
 				call d.addToQuickFix()
 			endfor
@@ -147,6 +147,7 @@ function LangPlugin()
 			let excludes_string = '--exclude-dir="' . join(excludedirs_list, '" --exclude-dir="') . '"'
 			let includes_string = '--include="' . join(includes_list, '" --include="')  . '"'
 			execute 'grep '.includes_string.' '.excludes_string.' -rIFw '''.a:symbolName.''' ./'
+			cw
 		endf
 
 		function s:LangPlugin.removeTrailingWhitespaces()
