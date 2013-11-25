@@ -284,25 +284,6 @@ if !exists("g:vimstuff_sourced")
 
 	command! -nargs=+ -complete=shellcmd Man call OpenMan(<f-args>)
 
-	function! CountTweets()
-		normal gg
-		silent! /^\d\+\s\?\S\+ \(.*\) ‏@.*$
-		normal kdgg
-		normal GNjdG
-		silent! g/^\d\+\s\?\S\+ \(.*\) ‏@.*$/normal J
-		silent! g/^\(\s*Показать\s\)\|\(Развернуть\)/d
-		g/^\(\s*View\s\)\|\(Expand\)\|\(\s*from\s\)/d
-		silent! %s/^\d\+ \S\+ \(.*\) ‏@.*$/=== \1/g
-		silent! %s/^\sRetweeted by \(.*\)$/=== \1/g
-		silent! %s/^\s\(.\+\)$/=== \1/g
-		silent! v/^=== /d
-		silent 1,$sor
-		normal gg
-		normal "zdG
-		let @z = system('uniq -c | sort -rn', @z)
-		normal "zP
-	endf
-
 	if (filereadable(".vimrc") && (getcwd() != $HOME))
 		source .vimrc
 	endif
