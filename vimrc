@@ -39,6 +39,13 @@ if !exists("g:vimstuff_sourced")
 	let g:clang_jumpto_declaration_key = "c<C-]>"
 	let g:clang_jumpto_back_key = "c<C-O>"
 
+	for p in ['/usr/lib/', '/usr/lib/llvm-3.2/lib']
+		if filereadable(p.'/libclang.so')
+			let g:clang_library_path = p
+			break
+		end
+	endfor
+
 	" Resetting colors for ubuntu 12.10 vim =(
 	hi Pmenu			ctermfg=7 ctermbg=5 gui=bold guifg=White guibg=DarkGray
 	hi PmenuSel			ctermfg=7 ctermbg=0 guibg=DarkGrey
