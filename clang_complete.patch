@@ -11,3 +11,12 @@ index 54f5463..42f1ee1 100644
  
  let b:clang_parameters = ''
  let b:clang_user_options = ''
+@@ -120,7 +120,7 @@ function! s:ClangCompleteInit()
+     let b:clang_parameters = '-x objective-c'
+   endif
+ 
+-  if &filetype == 'cpp' || &filetype == 'objcpp'
++  if &filetype == 'cpp' || &filetype == 'objcpp' || &filetype == 'cpp.doxygen'
+     let b:clang_parameters .= '++'
+   endif
+ 
