@@ -77,7 +77,7 @@ if !exists("g:vimstuff_sourced")
 	command! -nargs=1 -complete=tag Search call DoSearch('<args>')
 
 	au BufRead,BufNewFile *.git call InitGitHotKeys()
-	au BufRead,BufNewFile *c,*.cpp,*.h,*.hpp set filetype=cpp.doxygen
+	au BufRead,BufNewFile *.c,*.cpp,*.h,*.hpp set filetype=cpp.doxygen
 	au BufRead,BufNewFile *.qml set filetype=qml
 	au BufRead,BufNewFile *.decl set filetype=qml
 	au BufRead,BufNewFile *.cmix set filetype=cmix
