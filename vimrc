@@ -34,6 +34,7 @@ if !exists("g:vimstuff_sourced")
 	runtime language_plugins/LangPlugin.vim
 	runtime language_plugins/cpp.vim
 	runtime language_plugins/csharp.vim
+	runtime language_plugins/glsl.vim
 	runtime language_plugins/python.vim
 
 	let g:clang_jumpto_declaration_key = "c<C-]>"
@@ -86,6 +87,7 @@ if !exists("g:vimstuff_sourced")
 	au BufRead,BufNewFile *.git call InitGitHotKeys()
 	au BufRead,BufNewFile *.c,*.cpp,*.h,*.hpp set filetype=cpp.doxygen
 	au BufRead,BufNewFile *.qml set filetype=qml
+	au BufRead,BufNewFile *.vsh,*.psh set filetype=glsl
 	au BufRead,BufNewFile *.decl set filetype=qml
 	au BufRead,BufNewFile *.cmix set filetype=cmix
 	au BufNewFile,BufRead *.pas,*.PAS set ft=pascal
