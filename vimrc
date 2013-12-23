@@ -71,7 +71,7 @@ if !exists("g:vimstuff_sourced")
 
 	function! DoSearch(expression)
 		let excludes_list = ["*map", "*tex", "*html", "*git*", "*doxygen*", "*svn*", "*entries", "*all-wcprops", "depend*", "*includecache", "tags", "valgrind*", "types_*.taghl", "types_*.vim"]
-		let excludedirs_list = ["etc", "build", ".git", "CMakeFiles", ".svn"]
+		let excludedirs_list = ["etc", "build", ".git", "CMakeFiles", ".svn", "doxygen"]
 		let excludes_string = "--exclude=\"" . join(excludes_list, "\" --exclude=\"") . "\" --exclude-dir=\"" . join(excludedirs_list, "\" --exclude-dir=\"") . "\""
 		execute "grep " . excludes_string . " -rI \"" . a:expression . "\" ./"
 	endf
