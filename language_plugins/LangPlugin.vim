@@ -145,6 +145,11 @@ function LangPlugin()
 			let includes_list = map(copy(self.fileExtensions), '"*.".v:val')
 			let excludedirs_list = ["etc", "build", ".git", "CMakeFiles", ".svn"]
 			let excludes_string = '--exclude-dir="' . join(excludedirs_list, '" --exclude-dir="') . '"'
+			if exists("g:exclude_from_search")
+				for e in g:exclude_from_search
+					let excludes_string .= ' --exclude='.e
+				endfor
+			end
 			let includes_string = '--include="' . join(includes_list, '" --include="')  . '"'
 			execute 'grep '.includes_string.' '.excludes_string.' -rIFw '''.a:symbolName.''' ./'
 			cw
