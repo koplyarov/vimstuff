@@ -39,6 +39,8 @@ if !exists("g:vimstuff_sourced")
 
 	let g:clang_jumpto_declaration_key = "c<C-]>"
 	let g:clang_jumpto_back_key = "c<C-O>"
+	let g:clang_complete_macros = 1
+	let g:clang_remove_duplicating = 1
 
 	for p in ['/usr/lib/', '/usr/lib/llvm-3.2/lib']
 		if filereadable(p.'/libclang.so')
