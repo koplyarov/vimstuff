@@ -1,0 +1,16 @@
+diff --git a/clang_complete/plugin/libclang.py b/clang_complete/plugin/libclang.py
+index a19e43f..db7d6c2 100644
+--- a/clang_complete/plugin/libclang.py
++++ b/clang_complete/plugin/libclang.py
+@@ -493,6 +493,11 @@ def getCurrentCompletions(base):
+ 
+   result = map(formatResult, results)
+ 
++  remove_duplicating = int(vim.eval("g:clang_remove_duplicating")) == 1
++  if remove_duplicating:
++    seen = set()
++    result = [x for x in result if x['abbr'] not in seen and not seen.add(x['abbr'])]
++
+   timer.registerEvent("Format")
+   return (str(result), timer)
+ 
