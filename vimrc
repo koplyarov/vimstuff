@@ -15,6 +15,7 @@ if !exists("g:vimstuff_sourced")
 	set wildmode=longest,list,full
 	set cinoptions=g0,:0,l1,t0
 	set cot+=longest
+	set cot-=preview
 	if has("foldcolumn")
 		set foldcolumn=1
 	end
