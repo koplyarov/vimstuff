@@ -1,5 +1,5 @@
 diff --git a/clang_complete/plugin/clang_complete.vim b/clang_complete/plugin/clang_complete.vim
-index 54f5463..42f1ee1 100644
+index 54f5463..d4dfb2a 100644
 --- a/clang_complete/plugin/clang_complete.vim
 +++ b/clang_complete/plugin/clang_complete.vim
 @@ -7,7 +7,7 @@
@@ -19,4 +19,31 @@ index 54f5463..42f1ee1 100644
 +  if &filetype == 'cpp' || &filetype == 'objcpp' || &filetype == 'cpp.doxygen'
      let b:clang_parameters .= '++'
    endif
+ 
+@@ -169,10 +169,26 @@ function! s:ClangCompleteInit()
+     augroup end
+   endif
+ 
++  augroup ClangComplete
++    au User CharTyped call StartIdentifierCompletion()
++  augroup end
++
+   setlocal completefunc=ClangComplete
+   setlocal omnifunc=ClangComplete
+ endfunction
+ 
++function StartIdentifierCompletion()
++	if g:clang_complete_auto == 0
++		return
++	end
++
++	let pos = getpos('.')
++	let line = getline('.')
++	if line[pos[2] - 2] =~ '[A-Za-z_]' && line[pos[2] - 3] !~ '[A-Za-z0-9_]'
++		call feedkeys("\<C-X>\<C-U>", 'n')
++	end
++endf
++
+ function! LoadUserOptions()
+   let b:clang_user_options = ''
  
