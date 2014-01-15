@@ -39,6 +39,7 @@ if !exists("g:vimstuff_sourced")
 
 	let g:clang_jumpto_declaration_key = "c<C-]>"
 	let g:clang_jumpto_back_key = "c<C-O>"
+	let g:clang_complete_auto = 1
 	let g:clang_complete_macros = 1
 	let g:clang_remove_duplicating = 1
 
@@ -87,8 +88,31 @@ if !exists("g:vimstuff_sourced")
 		nmap <CR> if match(expand('<cword>'), '\x\{40\}') != -1 <Bar> execute "!clear; git show --color ".expand('<cword>')." <Bar> less -RSX"<Bar> end<CR>
 	endf
 
+	let s:previous_num_chars_on_current_line = -1
+	let s:old_cursor_position = []
+	function s:OnCursorMovedInsertMode()
+		let current_position = getpos('.')
+		if current_position == s:old_cursor_position
+			return
+		end
+		let s:old_cursor_position = current_position
+
+		let moved_vertically_in_insert_mode = s:old_cursor_position != [] && current_position[ 1 ] != s:old_cursor_position[ 1 ]
+		if moved_vertically_in_insert_mode
+			let s:previous_num_chars_on_current_line = -1
+			return
+		end
+
+		let num_chars_in_current_cursor_line = strlen( getline('.') )
+		if num_chars_in_current_cursor_line != -1 && num_chars_in_current_cursor_line != s:previous_num_chars_on_current_line
+			doautocmd <nomodeline> User CharTyped
+		end
+		let s:previous_num_chars_on_current_line = num_chars_in_current_cursor_line
+	endf
+
 	command! -nargs=1 -complete=tag Search call DoSearch('<args>')
 
+	au CursorMovedI * call <SID>OnCursorMovedInsertMode()
 	au BufRead,BufNewFile *.git call InitGitHotKeys()
 	au BufRead,BufNewFile *.c,*.cpp,*.h,*.hpp set filetype=cpp.doxygen
 	au BufRead,BufNewFile *.qml set filetype=qml
