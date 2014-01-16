@@ -1,5 +1,5 @@
 diff --git a/clang_complete/plugin/clang_complete.vim b/clang_complete/plugin/clang_complete.vim
-index 54f5463..30b3d56 100644
+index 54f5463..49c2805 100644
 --- a/clang_complete/plugin/clang_complete.vim
 +++ b/clang_complete/plugin/clang_complete.vim
 @@ -7,7 +7,7 @@
@@ -20,67 +20,12 @@ index 54f5463..30b3d56 100644
      let b:clang_parameters .= '++'
    endif
  
-@@ -169,10 +169,24 @@ function! s:ClangCompleteInit()
-     augroup end
-   endif
- 
-+  exec 'au User CharTypedInBuf_'.bufnr('%').' call <SID>StartIdentifierCompletion()'
-+
-   setlocal completefunc=ClangComplete
-   setlocal omnifunc=ClangComplete
- endfunction
- 
-+function s:StartIdentifierCompletion()
-+	if g:clang_complete_auto == 0
-+		return
-+	end
-+
-+	let pos = getpos('.')
-+	let line = getline('.')
-+	if line[pos[2] - 2] =~ '[A-Za-z_]' && line[pos[2] - 3] !~ '[A-Za-z0-9_]'
-+		call feedkeys("\<C-X>\<C-U>", 'n')
-+	end
-+endf
-+
- function! LoadUserOptions()
-   let b:clang_user_options = ''
- 
-@@ -338,6 +352,7 @@ endfunction
- let b:col = 0
- 
- function! ClangComplete(findstart, base)
-+  let s:focused = 0
-   if a:findstart
-     let l:line = getline('.')
-     let l:start = col('.') - 1
-@@ -365,6 +380,10 @@ function! ClangComplete(findstart, base)
- 
-     inoremap <expr> <buffer> <C-Y> <SID>HandlePossibleSelectionCtrlY()
-     inoremap <expr> <buffer> <CR> <SID>HandlePossibleSelectionEnter()
-+    inoremap <expr> <buffer> <Down> <SID>HookCompleteFocusMove("\<Down>", 1)
-+    inoremap <expr> <buffer> <Up> <SID>HookCompleteFocusMove("\<Up>", -1)
-+    inoremap <expr> <buffer> <C-N> <SID>HookCompleteFocusMove("\<C-N>", 1)
-+    inoremap <expr> <buffer> <C-P> <SID>HookCompleteFocusMove("\<C-P>", -1)
-     augroup ClangComplete
-       au CursorMovedI <buffer> call <SID>TriggerSnippet()
-     augroup end
-@@ -379,10 +398,18 @@ function! ClangComplete(findstart, base)
-   endif
- endfunction
- 
-+let s:focused = 0
-+function! s:HookCompleteFocusMove(key, direction)
-+  if pumvisible()
-+    let s:focused += a:direction
-+  end
-+  return a:key
-+endf
-+
+@@ -382,7 +382,7 @@ endfunction
  function! s:HandlePossibleSelectionEnter()
    if pumvisible()
      let b:snippet_chosen = 1
 -    return "\<C-Y>"
-+    return s:focused == 0 ? "\<C-N>\<C-Y>" : "\<C-Y>"
++    return GetFocusedAutocompleteItem() == 0 ? "\<C-N>\<C-Y>" : "\<C-Y>"
    end
    return "\<CR>"
  endfunction

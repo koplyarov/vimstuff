@@ -123,6 +123,49 @@ if !exists("g:vimstuff_sourced")
 	au BufNewFile,BufRead *.pas,*.PAS set ft=pascal
 	au! Syntax qml source $HOME/.vim/syntax/qml.vim
 
+    inoremap <expr> <Down> <SID>HookCompleteFocusMove("\<Down>", 1)
+    inoremap <expr> <Up> <SID>HookCompleteFocusMove("\<Up>", -1)
+    inoremap <expr> <C-N> <SID>HookCompleteFocusMove("\<C-N>", 1)
+    inoremap <expr> <C-P> <SID>HookCompleteFocusMove("\<C-P>", -1)
+    inoremap <expr> <CR> <SID>HookEnterKey()
+
+	let s:focusedAutocompleteItem = 0
+	function s:HookCompleteFocusMove(key, direction)
+		if pumvisible()
+			let s:focusedAutocompleteItem += a:direction
+		end
+		return a:key
+	endf
+
+	function! s:HookEnterKey()
+		if pumvisible()
+			return GetFocusedAutocompleteItem() == 0 ? "\<C-N>\<C-Y>" : "\<C-Y>"
+		end
+		return "\<CR>"
+	endf
+
+	function s:ResetFocusedAutocompleteItem()
+		let s:focusedAutocompleteItem = 0
+	endf
+
+	function GetFocusedAutocompleteItem()
+		return s:focusedAutocompleteItem
+	endf
+
+	au CompleteDone * call <SID>ResetFocusedAutocompleteItem()
+
+	function s:StartIdentifierCompletion(completionKeys)
+		let pos = getpos('.')
+		let line = getline('.')
+		if !pumvisible() && line[pos[2] - 2] =~ '[A-Za-z_]' && line[pos[2] - 3] !~ '[A-Za-z0-9_]'
+			call feedkeys(a:completionKeys, 'n')
+		end
+	endf
+
+	function EnableAutocompleteAutoTriggering(bufnum, completionKeys)
+		exec 'au User CharTypedInBuf_'.a:bufnum.' call <SID>StartIdentifierCompletion("'.a:completionKeys.'")'
+	endf
+
 	"if exists('*pathogen#infect')
 		call pathogen#infect()
 	"end

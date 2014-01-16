@@ -10,6 +10,9 @@ endf
 function GlslPlugin()
 	let self = LangPlugin()
 
+	call self.autocompleteSettings.enableAutoInvoke(1)
+	call self.autocompleteSettings.setAutoInvokationKeys('\<C-N>')
+
 	let self.fileExtensions = [ 'vsh', 'psh' ]
 	let self.syntax = GlslSyntax()
 

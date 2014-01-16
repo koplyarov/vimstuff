@@ -137,6 +137,9 @@ endf
 function PythonPlugin()
 	let self = LangPlugin()
 
+	call self.autocompleteSettings.enableAutoInvoke(1)
+	call self.autocompleteSettings.setAutoInvokationKeys('\<C-N>')
+
 	let self.fileExtensions = [ 'py' ]
 	let self.syntax = PythonSyntax()
 	let self.indexer = CTagsIndexer(self)

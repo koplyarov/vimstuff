@@ -136,6 +136,9 @@ let g:include_priorities = []
 function CSharpPlugin()
 	let self = LangPlugin()
 
+	call self.autocompleteSettings.enableAutoInvoke(1)
+	call self.autocompleteSettings.setAutoInvokationKeys('\<C-N>')
+
 	let self.fileExtensions = [ 'cs' ]
 	let self.syntax = CSharpSyntax()
 	let self.indexer = CTagsIndexer(self)
