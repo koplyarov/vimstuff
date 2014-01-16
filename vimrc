@@ -105,7 +105,7 @@ if !exists("g:vimstuff_sourced")
 		end
 
 		let num_chars_in_current_cursor_line = strlen( getline('.') )
-		if num_chars_in_current_cursor_line != -1 && num_chars_in_current_cursor_line != s:previous_num_chars_on_current_line
+		if num_chars_in_current_cursor_line != -1 && num_chars_in_current_cursor_line > s:previous_num_chars_on_current_line
 			exec 'doautocmd User CharTypedInBuf_'.bufnr('%')
 		end
 		let s:previous_num_chars_on_current_line = num_chars_in_current_cursor_line
