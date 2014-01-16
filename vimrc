@@ -150,7 +150,6 @@ if !exists("g:vimstuff_sourced")
 	call MapKeys('general.prevTab',					['nmap', 'vmap', 'imap'],	'<Esc>gT')
 	call MapKeys('general.nextTab',					['nmap', 'vmap', 'imap'],	'<Esc>gt')
 
-	inoremap <expr> <Space>  pumvisible() ? "\<C-N>\<C-Y>" : "\<Space>"
 	noremap gd 1gd
 	inoremap <Nul> <Space> <BS><BS><C-X><C-O>
 	noremap <M-Up> [{zz
