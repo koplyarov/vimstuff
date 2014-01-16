@@ -152,7 +152,11 @@ if !exists("g:vimstuff_sourced")
 		return s:focusedAutocompleteItem
 	endf
 
-	au CompleteDone * call <SID>ResetFocusedAutocompleteItem()
+	if exists("#CompleteDone")
+		au CompleteDone * call <SID>ResetFocusedAutocompleteItem()
+	else
+		au CursorMovedI * if !pumvisible() | call <SID>ResetFocusedAutocompleteItem() | end
+	end
 
 	function s:StartIdentifierCompletion(completionKeys)
 		let pos = getpos('.')
