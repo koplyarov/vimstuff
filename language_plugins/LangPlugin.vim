@@ -38,7 +38,7 @@ function AutocompleteSettings()
 
 	let self = copy(s:AutocompleteSettings)
 	let self._autoInvokeEnabled = 0
-	let self._autoInvokationKeys = ''
+	let self._autoInvokationKeys = '\<C-N>'
 	return self
 endf
 
