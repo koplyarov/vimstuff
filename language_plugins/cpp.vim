@@ -285,6 +285,9 @@ let g:include_priorities = []
 function CppPlugin()
 	let self = LangPlugin()
 
+	call self.autocompleteSettings.enableAutoInvoke(1)
+	call self.autocompleteSettings.setAutoInvokationKeys('\<C-X>\<C-O>')
+
 	let self.fileExtensions = [ 'h', 'c', 'hpp', 'cpp' ]
 	let self.syntax = CppSyntax()
 	let self.indexer = CTagsIndexer(self)

@@ -15,6 +15,34 @@ function Syntax()
 endf
 
 
+function AutocompleteSettings()
+	if !exists('s:AutocompleteSettings')
+		let s:AutocompleteSettings = {}
+
+		function s:AutocompleteSettings.autoInvokeEnabled()
+			return self._autoInvokeEnabled
+		endf
+
+		function s:AutocompleteSettings.enableAutoInvoke(enable)
+			let self._autoInvokeEnabled = a:enable
+		endf
+
+		function s:AutocompleteSettings.getAutoInvokationKeys()
+			return self._autoInvokationKeys
+		endf
+
+		function s:AutocompleteSettings.setAutoInvokationKeys(keys)
+			let self._autoInvokationKeys = a:keys
+		endf
+	end
+
+	let self = copy(s:AutocompleteSettings)
+	let self._autoInvokeEnabled = 0
+	let self._autoInvokationKeys = ''
+	return self
+endf
+
+
 function LangPlugin()
 	if !exists('s:LangPlugin')
 		let s:LangPlugin = {}
@@ -174,6 +202,7 @@ function LangPlugin()
 	end
 
 	let self = copy(s:LangPlugin)
+	let self.autocompleteSettings = AutocompleteSettings()
 	return self
 endf
 
@@ -203,6 +232,12 @@ function ActivateLangPlugin(plugin)
 		end
 
 		call MapKeys('langPlugin.searchDerived', 'nmap <buffer>', ':call b:lang_plugin.searchDerived(b:lang_plugin.getWordUnderCursor())<CR>')
+	end
+
+	if has_key(b:lang_plugin, 'autocompleteSettings')
+		if b:lang_plugin.autocompleteSettings.autoInvokeEnabled()
+			call EnableAutocompleteAutoTriggering(bufnr('%'), b:lang_plugin.autocompleteSettings.getAutoInvokationKeys())
+		end
 	end
 
 	if has_key(b:lang_plugin, 'onActivated')
