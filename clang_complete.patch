@@ -1,5 +1,5 @@
 diff --git a/clang_complete/plugin/clang_complete.vim b/clang_complete/plugin/clang_complete.vim
-index 54f5463..ce76fe8 100644
+index 54f5463..7808914 100644
 --- a/clang_complete/plugin/clang_complete.vim
 +++ b/clang_complete/plugin/clang_complete.vim
 @@ -7,7 +7,7 @@
@@ -20,13 +20,11 @@ index 54f5463..ce76fe8 100644
      let b:clang_parameters .= '++'
    endif
  
-@@ -169,10 +169,26 @@ function! s:ClangCompleteInit()
+@@ -169,10 +169,24 @@ function! s:ClangCompleteInit()
      augroup end
    endif
  
-+  augroup ClangComplete
-+    exec 'au User CharTypedInBuf_'.bufnr('%').' call <SID>StartIdentifierCompletion()'
-+  augroup end
++  exec 'au User CharTypedInBuf_'.bufnr('%').' call <SID>StartIdentifierCompletion()'
 +
    setlocal completefunc=ClangComplete
    setlocal omnifunc=ClangComplete
