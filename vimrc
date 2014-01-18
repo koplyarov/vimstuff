@@ -35,6 +35,7 @@ if !exists("g:vimstuff_sourced")
 	runtime language_plugins/LangPlugin.vim
 	runtime language_plugins/cpp.vim
 	runtime language_plugins/csharp.vim
+	runtime language_plugins/java.vim
 	runtime language_plugins/glsl.vim
 	runtime language_plugins/python.vim
 
@@ -303,7 +304,7 @@ if !exists("g:vimstuff_sourced")
 	"//</editor-fold>
 	function! NetBeansFoldText()
 		let line = getline(v:foldstart)
-		let sub = substitute(line, "^\\s*//\\s*<editor-fold.*desc\\s*=\\s*\"\\([^\"]*\\).*$", " [ \\1 ] ", '') 
+		let sub = substitute(line, "^\\s*//\\s*<editor-fold.*desc\\s*=\\s*\"\\([^\"]*\\).*$", " [ \\1 ] ", '')
 		return sub
 	endf
 	"set foldtext=NetBeansFoldText()
@@ -365,6 +366,22 @@ if !exists("g:vimstuff_sourced")
 		set noma
 		set nomod
 	endf
+
+	if glob('AndroidManifest.xml') =~ ''
+		if filereadable('project.properties')
+			let s:androidSdkPath = '/home/koplyarov/sdk/android-sdk-linux'
+			" the following line uses external tools and is less portable
+			"let s:androidTargetPlatform = system('grep target= project.properties | cut -d \= -f 2')
+			vimgrep /target=/j project.properties
+			let s:androidTargetPlatform = split(getqflist()[0].text, '=')[1]
+			let s:targetAndroidJar = s:androidSdkPath . '/platforms/' . s:androidTargetPlatform . '/android.jar'
+			if !empty($CLASSPATH)
+				let $CLASSPATH = s:targetAndroidJar . ':' . $CLASSPATH
+			else
+				let $CLASSPATH = s:targetAndroidJar
+			endif
+		end
+	endif
 
 	nmap K :<C-U>call OpenMan(expand('<cword>'), v:count)<CR>
 
