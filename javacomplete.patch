@@ -1,0 +1,22 @@
+diff --git a/javacomplete/autoload/javacomplete.vim b/javacomplete/autoload/javacomplete.vim
+index ee55612..1fbabf2 100644
+--- a/javacomplete/autoload/javacomplete.vim
++++ b/javacomplete/autoload/javacomplete.vim
+@@ -311,7 +311,6 @@ fu! s:CompleteAfterWord(incomplete)
+ 
+   let pkgs += s:DoGetPackageInfoInDirs(a:incomplete, b:context_type == s:CONTEXT_PACKAGE_DECL, 1)
+ 
+-
+   " add accessible types which name beginning with the incomplete in source files
+   " TODO: remove the inaccessible
+   if b:context_type != s:CONTEXT_PACKAGE_DECL
+@@ -2754,7 +2753,8 @@ endfu
+ fu! s:DoGetFieldList(fields)
+   let s = ''
+   for field in a:fields
+-    let s .= "{'kind':'" . (s:IsStatic(field.m) ? "F" : "f") . "','word':'" . field.n . "','menu':'" . field.t . "','dup':1},"
++    let f = { 'm': has_key(field, 'm') ? field['m'] : '0', 'n': has_key(field, 'n') ? field['n'] : field['name'], 't': has_key(field, 't') ? field['t'] : '???' }
++    let s .= "{'kind':'" . (s:IsStatic(f.m) ? "F" : "f") . "','word':'" . f.n . "','menu':'" . f.t . "','dup':1},"
+   endfor
+   return s
+ endfu
