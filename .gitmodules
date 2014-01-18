@@ -34,3 +34,6 @@
 [submodule "pathogen_bundle/vim-template"]
 	path = pathogen_bundle/vim-template
 	url = https://github.com/thinca/vim-template.git
+[submodule "pathogen_bundle/javacomplete"]
+	path = pathogen_bundle/javacomplete
+	url = https://github.com/vim-scripts/javacomplete.git
