@@ -98,16 +98,17 @@ if !exists("g:vimstuff_sourced")
 			return
 		end
 
+		let num_chars_in_current_cursor_line = strlen( getline('.') )
+
 		let moved_vertically = (s:old_cursor_position == []) || (current_position[1] != s:old_cursor_position[1])
 		if moved_vertically
 			let s:old_cursor_position = current_position
-			let s:previous_num_chars_on_current_line = -1
+			let s:previous_num_chars_on_current_line = num_chars_in_current_cursor_line
 			return
 		end
 
 		let s:old_cursor_position = current_position
 
-		let num_chars_in_current_cursor_line = strlen( getline('.') )
 		if s:previous_num_chars_on_current_line != -1 && num_chars_in_current_cursor_line > s:previous_num_chars_on_current_line
 			exec 'doautocmd User CharTypedInBuf_'.bufnr('%')
 		end
