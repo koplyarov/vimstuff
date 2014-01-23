@@ -97,16 +97,18 @@ if !exists("g:vimstuff_sourced")
 		if current_position == s:old_cursor_position
 			return
 		end
-		let s:old_cursor_position = current_position
 
-		let moved_vertically_in_insert_mode = s:old_cursor_position != [] && current_position[ 1 ] != s:old_cursor_position[ 1 ]
-		if moved_vertically_in_insert_mode
+		let moved_vertically = (s:old_cursor_position == []) || (current_position[1] != s:old_cursor_position[1])
+		if moved_vertically
+			let s:old_cursor_position = current_position
 			let s:previous_num_chars_on_current_line = -1
 			return
 		end
 
+		let s:old_cursor_position = current_position
+
 		let num_chars_in_current_cursor_line = strlen( getline('.') )
-		if num_chars_in_current_cursor_line != -1 && num_chars_in_current_cursor_line > s:previous_num_chars_on_current_line
+		if s:previous_num_chars_on_current_line != -1 && num_chars_in_current_cursor_line > s:previous_num_chars_on_current_line
 			exec 'doautocmd User CharTypedInBuf_'.bufnr('%')
 		end
 		let s:previous_num_chars_on_current_line = num_chars_in_current_cursor_line
@@ -153,17 +155,36 @@ if !exists("g:vimstuff_sourced")
 		return s:focusedAutocompleteItem
 	endf
 
-	if exists("#CompleteDone")
-		au CompleteDone * call <SID>ResetFocusedAutocompleteItem()
-	else
-		au CursorMovedI * if !pumvisible() | call <SID>ResetFocusedAutocompleteItem() | end
-	end
+	let s:complete_done_hack_state = 0
+	function s:CompleteDoneHandler()
+		if s:complete_done_hack_state == 1
+			call s:ResetFocusedAutocompleteItem()
+			if s:has_longest == 1
+				set cot+=longest
+			end
+			let s:has_longest = -1
+			let s:complete_done_hack_state = 0
+		else
+			let s:complete_done_hack_state = 1
+		end
+	endf
 
+	"if exists("#CompleteDone")
+		"au CompleteDone * call <SID>CompleteDoneHandler()
+	"else
+		au CursorMovedI * if !pumvisible() | call <SID>CompleteDoneHandler() | end
+	"end
+
+	let s:has_longest = -1
 	function s:StartIdentifierCompletion(completionKeys)
 		let pos = getpos('.')
 		let line = getline('.')
 		if !pumvisible() && line[pos[2] - 2] =~ '[A-Za-z_]' && line[pos[2] - 3] !~ '[A-Za-z0-9_]'
+			let s:has_longest = (&cot =~ '\<longest\>')
+			set cot-=longest
 			call feedkeys(a:completionKeys, 'n')
+			call feedkeys("\<C-N>", 'n')
+			call feedkeys("\<C-P>", 'n')
 		end
 	endf
 
