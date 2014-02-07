@@ -289,6 +289,7 @@ function CppPlugin()
 	call self.autocompleteSettings.setAutoInvokationKeys('\<C-X>\<C-O>')
 
 	let self.fileExtensions = [ 'h', 'c', 'hpp', 'cpp' ]
+	let self.alternativeExtensionsMap = { 'hpp': 'cpp', 'h': 'c;cpp', 'cpp': 'h;hpp', 'c': 'h' }
 	let self.syntax = CppSyntax()
 	let self.indexer = CTagsIndexer(self)
 	let self.createLocation = function('CppLocation')
@@ -335,22 +336,6 @@ function CppPlugin()
 			endfor
 		end
 		return a:filename
-	endf
-
-	function self.getAlternativeFile(filename)
-		let substitute_ext = { 'hpp': 'cpp', 'h': 'c;cpp', 'cpp': 'h;hpp', 'c': 'h' }
-		for src in keys(substitute_ext)
-			let regex = '\.'.src.'$'
-			if a:filename =~ regex
-				for dst in split(substitute_ext[src], ';')
-					let alternative_filename = substitute(a:filename, regex, '.'.dst, '')
-					if filereadable(alternative_filename)
-						return alternative_filename
-					end
-				endfor
-				return alternative_filename
-			end
-		endfor
 	endf
 
 	function self.gotoLocalSymbol(symbol)
