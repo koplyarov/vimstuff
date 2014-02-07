@@ -160,8 +160,30 @@ function LangPlugin()
 			cw
 		endf
 
+		function s:LangPlugin.getAlternativeFile(filename)
+			if has_key(self, 'alternativeExtensionsMap')
+				let substitute_ext = self.alternativeExtensionsMap
+				for src in keys(substitute_ext)
+					let regex = '\.'.src.'$'
+					if a:filename =~ regex
+						for dst in split(substitute_ext[src], ';')
+							let alternative_filename = substitute(a:filename, regex, '.'.dst, '')
+							if filereadable(alternative_filename)
+								return alternative_filename
+							end
+						endfor
+						return alternative_filename
+					end
+				endfor
+			end
+			return ''
+		endf
+
 		function s:LangPlugin.openAlternativeFile(filename)
-			silent execute 'e '.self.getAlternativeFile(a:filename)
+			let alt_file = self.getAlternativeFile(a:filename)
+			if !empty(alt_file)
+				silent execute 'e '.alt_file
+			end
 		endf
 
 		function s:LangPlugin.searchUsages(symbolName)
