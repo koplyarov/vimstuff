@@ -38,6 +38,7 @@ if !exists("g:vimstuff_sourced")
 	runtime language_plugins/java.vim
 	runtime language_plugins/glsl.vim
 	runtime language_plugins/python.vim
+	runtime language_plugins/vim.vim
 
 	let g:clang_jumpto_declaration_key = "c<C-]>"
 	let g:clang_jumpto_back_key = "c<C-O>"
