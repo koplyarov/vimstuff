@@ -286,7 +286,11 @@ function CppPlugin()
 	let self = LangPlugin()
 
 	call self.autocompleteSettings.enableAutoInvoke(1)
-	call self.autocompleteSettings.setAutoInvokationKeys('\<C-X>\<C-O>')
+	if IsOnACPower()
+		call self.autocompleteSettings.setAutoInvokationKeys('\<C-X>\<C-O>')
+	else
+		call self.autocompleteSettings.setAutoInvokationKeys('\<C-N>')
+	end
 
 	let self.fileExtensions = [ 'h', 'c', 'hpp', 'cpp' ]
 	let self.alternativeExtensionsMap = { 'hpp': 'cpp', 'h': 'c;cpp', 'cpp': 'h;hpp', 'c': 'h' }
