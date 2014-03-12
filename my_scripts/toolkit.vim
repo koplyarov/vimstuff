@@ -6,6 +6,23 @@ function NotImplementedException()
 	return VimStuffException('Not implemented!')
 endf
 
+function IsOnACPower()
+	call system("on_ac_power")
+	if v:shell_error == 0
+		return 1
+	elseif v:shell_error == 1
+		return 0
+	else
+		if filereadable('/sys/class/power_supply/AC0/online')
+			let ac_online = readfile('/sys/class/power_supply/AC0/online')
+			if len(ac_online) == 1
+				return eval(ac_online[0]);
+			end
+		end
+		return 1
+	end
+endf
+
 
 function Timer()
 	if !exists('s:Timer')
