@@ -157,7 +157,9 @@ function LangPlugin()
 			for d in derived
 				call d.addToQuickFix()
 			endfor
+			let win_num = winnr()
 			cw
+			exe win_num."wincmd w"
 		endf
 
 		function s:LangPlugin.getAlternativeFile(filename)
@@ -202,7 +204,9 @@ function LangPlugin()
 			end
 			let includes_string = '--include="' . join(includes_list, '" --include="')  . '"'
 			execute 'grep '.includes_string.' '.excludes_string.' -rIFw '''.a:symbolName.''' ./'
+			let win_num = winnr()
 			cw
+			exe win_num."wincmd w"
 		endf
 
 		function s:LangPlugin.removeTrailingWhitespaces()
