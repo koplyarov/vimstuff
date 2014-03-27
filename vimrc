@@ -410,6 +410,17 @@ if !exists("g:vimstuff_sourced")
 
 	command! -nargs=+ -complete=shellcmd Man call OpenMan(<f-args>)
 
+	" Making ^M line endings less visible
+	for i in ['cterm', 'gui']
+		for j in ['fg', 'bg']
+			let c = synIDattr(hlID('Normal'), 'bg', i)
+			if (c != -1)
+				exec 'hi CarriageReturn ' . i . j . '=' . c
+			endif
+		endfor
+	endfor
+	match CarriageReturn /\r$/
+
 	if (filereadable(".vimrc") && (getcwd() != $HOME))
 		source .vimrc
 	endif
