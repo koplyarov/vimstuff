@@ -46,7 +46,7 @@ if !exists("g:vimstuff_sourced")
 	let g:clang_complete_macros = 1
 	let g:clang_remove_duplicating = 1
 
-	for p in ['/usr/lib/', '/usr/lib/llvm-3.2/lib']
+	for p in ['/usr/lib/'] + split(glob('/usr/lib/llvm-*/lib'), '\n')
 		if filereadable(p.'/libclang.so')
 			let g:clang_library_path = p
 			break
