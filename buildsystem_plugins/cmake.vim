@@ -11,6 +11,11 @@ endf
 function CMakeMakeBackend()
 	let self = {}
 
+	function self.getTargets()
+		let grep_result = split(system('grep "^[^ 	]\+:" '.self._makefile), "\n")
+		return map(grep_result, 'substitute(v:val, ":.*$", "", "")')
+	endf
+
 	function self.buildFile(buildSystem, subdirectory, filename)
 		let a:buildSystem._buildDir = a:subdirectory
 		let dir = empty(a:subdirectory) ? '' : '-C '.a:subdirectory
@@ -30,8 +35,10 @@ function CMakeMakeBackend()
 
 	function self.probe(buildConfig)
 		let bc = a:buildConfig
-		return filereadable((empty(bc.buildDir) ? '' : bc.buildDir.'/').'Makefile')
+		return filereadable((empty(bc.buildDir) ? '' : bc.buildDir.'/').self._makefile)
 	endf
+
+	let self._makefile = 'Makefile'
 
 	return self
 endf
@@ -40,9 +47,14 @@ endf
 function CMakeNinjaBackend()
 	let self = {}
 
+	function self.getTargets()
+		let  targets = split(system('ninja -t targets'), "\n")
+		return map(targets, 'substitute(v:val, ":.*$", "", "")')
+	endf
+
 	function self.buildFile(buildSystem, subdirectory, filename)
 		let dir = empty(a:subdirectory) ? '' : a:subdirectory.'/'
-		let project = a:buildSystem.getProjectName(a:subdirectory).'.dir'
+		let project = a:buildSystem._getProjectName(a:subdirectory).'.dir'
 		silent exec 'make '.dir.'CMakeFiles/'.project.'/'.a:filename.'.o'
 	endf
 
@@ -64,29 +76,23 @@ function CMakeNinjaBackend()
 endf
 
 
-function CMakeBuildSystem()
+function CMakeBuildSystem(buildSettings)
 	let self = {}
 
+	function self.getTargets()
+		return self._pickBackend().getTargets()
+	endf
+
 	function self.buildFile(filename)
-		if !filereadable(a:filename)
-			return
-		end
-
-		if self._config.getValue('saveBeforeBuild')
-			wa
-		end
-
 		let dir = self._getSubdirectory(a:filename)
 		let file = substitute(Relpath(a:filename), '^'.escape(dir, '&*./\^[]$').(strlen(dir) == 0 ? '' : '\/'), '', '')
 
-		let backend = self.getBackend()
-		let old_makeprg = self._setMakePrg(backend.getMakePrg(self.getBuildConfigObj()))
+		let backend = self._pickBackend()
+		let old_makeprg = SetMakePrg(backend.getMakePrg(self._getBuildConfigObj()))
 		try
 			call backend.buildFile(self, dir, file)
 		finally
 			let &makeprg = old_makeprg
-			redraw!
-			call Notify('CMakeBuildSystem', 'Build finished!')
 		endtry
 	endf
 
@@ -95,51 +101,20 @@ function CMakeBuildSystem()
 	endf
 
 	function self.build(target)
-		if self._config.getValue('saveBeforeBuild')
-			wa
-		end
-
-		let backend = self.getBackend()
-		let old_makeprg = self._setMakePrg(backend.getMakePrg(self.getBuildConfigObj()))
+		let backend = self._pickBackend()
+		let old_makeprg = SetMakePrg(backend.getMakePrg(self._getBuildConfigObj()))
 		try
 			call backend.build(a:target)
 		finally
 			let &makeprg = old_makeprg
-			redraw!
-			call Notify('CMakeBuildSystem', 'Build finished!')
 		endtry
 	endf
 
-	function self.getBuildConfigObj()
-		return copy(self._availableBuildConfigs[self._config.getValue('buildConfig')])
+	function self._getBuildConfigObj()
+		return copy(self._availableBuildConfigs[self._settings.getBuildConfig()])
 	endf
 
-	function self.setBuildConfig(buildConfig)
-		call self._config.setValue('buildConfig', a:buildConfig)
-	endf
-
-	function self.getBuildTarget()
-		return self._config.getValue('buildTarget')
-	endf
-
-	function self.setBuildTarget(buildTarget)
-		call self._config.setValue('buildTarget', a:buildTarget)
-	endf
-
-	function self.setSaveBeforeBuild(enable)
-		if (type(a:enable) != type(0))
-			throw CMakeException('Invalid argument type (must be integer)!')
-		end
-		call self._config.setValue('saveBeforeBuild', a:enable)
-	endf
-
-	function self._setMakePrg(newMakePrg)
-		let old_makeprg = &makeprg
-		let &makeprg = a:newMakePrg
-		return old_makeprg
-	endf
-
-	function self.getProjectName(subdirectory)
+	function self._getProjectName(subdirectory)
 		let cmake_file = (empty(a:subdirectory) ? '' : a:subdirectory.'/').'CMakeLists.txt'
 		let grep_result = system('grep "^\s*project(\s*[^)]\+\s*)\s*$" '.shellescape(cmake_file))
 		if v:shell_error != 0
@@ -149,8 +124,8 @@ function CMakeBuildSystem()
 		return substitute(grep_result, '^\s*project(\s*\([^) ]\+\)\s*)\s*$', '\1', '')
 	endf
 
-	function self.getBackend()
-		let suitable_backends = filter(self._getBackends(), 'v:val.probe(self.getBuildConfigObj())')
+	function self._pickBackend()
+		let suitable_backends = filter(self._getBackends(), 'v:val.probe(self._getBuildConfigObj())')
 
 		if empty(suitable_backends)
 			throw CMakeException('Cannot detect CMake backend!')
@@ -238,15 +213,15 @@ function CMakeBuildSystem()
 
 	function self.setAvailableBuildConfigs(configs)
 		let self._availableBuildConfigs = a:configs
-		if !has_key(a:configs, self._config.getValue('buildConfig')) && !empty(a:configs)
-			call self.setBuildConfig(keys(a:configs)[0])
+		if !has_key(a:configs, self._settings.getBuildConfig()) && !empty(a:configs)
+			call self._settings.setBuildConfig(keys(a:configs)[0])
 		end
 	endf
 
 	let self._subdirectories = filter(map(split(glob('**/CMakeLists.txt'), '\n'), 'substitute(v:val, "\\/\\?CMakeLists\\.txt$", "", "")'), 'strlen(v:val) > 0')
 	let self._backends = [ CMakeMakeBackend(), CMakeNinjaBackend() ]
 	let self._availableBuildConfigs = { 'default': CMakeBuildConfig(GetCPUsCount(), '') }
-	let self._config = Config('.buildsystemSetup', { 'buildConfig': 'default', 'buildTarget': '', 'saveBeforeBuild': 0 })
+	let self._settings = a:buildSettings
 
 	return self
 endf
