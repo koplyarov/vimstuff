@@ -15,12 +15,12 @@ function CMakeMakeBackend()
 		let a:buildSystem._buildDir = a:subdirectory
 		let dir = empty(a:subdirectory) ? '' : '-C '.a:subdirectory
 		silent exec 'make '.dir.' depend'
-		exec 'make '.dir.' '.a:filename.'.o'
+		silent exec 'make '.dir.' '.a:filename.'.o'
 		unlet a:buildSystem._buildDir
 	endf
 
 	function self.build(target)
-		exec 'make '.a:target
+		silent exec 'make '.a:target
 	endf
 
 	function self.getMakePrg(buildConfig)
@@ -43,11 +43,11 @@ function CMakeNinjaBackend()
 	function self.buildFile(buildSystem, subdirectory, filename)
 		let dir = empty(a:subdirectory) ? '' : a:subdirectory.'/'
 		let project = a:buildSystem.getProjectName(a:subdirectory).'.dir'
-		exec 'make '.dir.'CMakeFiles/'.project.'/'.a:filename.'.o'
+		silent exec 'make '.dir.'CMakeFiles/'.project.'/'.a:filename.'.o'
 	endf
 
 	function self.build(target)
-		exec 'make '.a:target
+		silent exec 'make '.a:target
 	endf
 
 	function self.getMakePrg(buildConfig)
@@ -81,6 +81,8 @@ function CMakeBuildSystem()
 			call backend.buildFile(self, dir, file)
 		finally
 			let &makeprg = old_makeprg
+			redraw!
+			call Notify('CMakeBuildSystem', 'Build finished!')
 		endtry
 	endf
 
@@ -95,6 +97,8 @@ function CMakeBuildSystem()
 			call backend.build(a:target)
 		finally
 			let &makeprg = old_makeprg
+			redraw!
+			call Notify('CMakeBuildSystem', 'Build finished!')
 		endtry
 	endf
 
