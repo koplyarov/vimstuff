@@ -69,7 +69,7 @@ autocmd CursorHold * call g:timer._tick()
 
 
 function StripString(s)
-    return substitute(a:s, '^\s*\(.\{-}\)\s*$', '\1', '')
+    return substitute(a:s, '^\%(\s\|\n\)*\(.\{-}\)\%(\s\|\n\)*$', '\1', '')
 endf
 
 
