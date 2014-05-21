@@ -1,3 +1,7 @@
+function BuildSystemException(msg)
+	return 'Build system exception: '.a:msg
+endf
+
 runtime buildsystem_plugins/cmake.vim
 
 function DetectBuildSystem()
@@ -8,7 +12,7 @@ function DetectBuildSystem()
 	if !exists('g:buildsystem')
 		return
 	end
-	
+
 	if has_key(g:buildsystem, 'buildFile')
 		call MapKeys('buildsystem.buildFile', 'nmap <silent>', ":call g:buildsystem.buildFile('<C-R>%')<CR>")
 	end
@@ -21,5 +25,19 @@ function DetectBuildSystem()
 		au QuickfixCmdPost make nested if g:buildsystem.patchQuickFix() | silent! cn | cw | else | ccl | end
 	end
 endf
+
+function s:GetBuildConfigNames(A, L, P)
+	return join(keys(g:buildsystem.getAvailableBuildConfigs()), "\n")
+endf
+
+function BuildPlatform(platform)
+	if !has_key(g:buildsystem.getAvailableBuildConfigs(), a:platform)
+		throw BuildSystemException('Platform '.a:platform.' not found!')
+	end
+	call g:buildsystem.setBuildConfig(a:platform)
+endf
+
+command! -nargs=1 -complete=custom,<SID>GetBuildConfigNames BuildPlatform call BuildPlatform('<args>')
+command! -nargs=? Build call g:buildsystem.build('<args>')
 
 call DetectBuildSystem()
