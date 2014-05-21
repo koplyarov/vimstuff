@@ -99,12 +99,19 @@ function CMakeBuildSystem()
 	endf
 
 	function self.getBuildConfigObj()
-		return copy(self._availableBuildConfigs[self._buildConfig])
+		return copy(self._availableBuildConfigs[self._config.getValue('buildConfig')])
 	endf
 
 	function self.setBuildConfig(buildConfig)
-		let self._buildConfig = a:buildConfig
-		call writefile(['buildConfig: '.self._buildConfig], '.buildsystemSetup')
+		call self._config.setValue('buildConfig', a:buildConfig)
+	endf
+
+	function self.getBuildTarget()
+		return self._config.getValue('buildTarget')
+	endf
+
+	function self.setBuildTarget(buildTarget)
+		call self._config.setValue('buildTarget', a:buildTarget)
 	endf
 
 	function self._setMakePrg(newMakePrg)
@@ -212,7 +219,7 @@ function CMakeBuildSystem()
 
 	function self.setAvailableBuildConfigs(configs)
 		let self._availableBuildConfigs = a:configs
-		if !has_key(a:configs, self._buildConfig) && !empty(a:configs)
+		if !has_key(a:configs, self._config.getValue('buildConfig')) && !empty(a:configs)
 			call self.setBuildConfig(keys(a:configs)[0])
 		end
 	endf
@@ -220,17 +227,7 @@ function CMakeBuildSystem()
 	let self._subdirectories = filter(map(split(glob('**/CMakeLists.txt'), '\n'), 'substitute(v:val, "\\/\\?CMakeLists\\.txt$", "", "")'), 'strlen(v:val) > 0')
 	let self._backends = [ CMakeMakeBackend(), CMakeNinjaBackend() ]
 	let self._availableBuildConfigs = { 'default': CMakeBuildConfig(GetCPUsCount(), '') }
-
-	let cfg = { 'buildConfig': 'default' }
-
-	if filereadable('.buildsystemSetup')
-		for l in readfile('.buildsystemSetup')
-			let m = matchlist(l, '^\s*\([^: ]\+\)\s*:\s*\(.*\)$')
-			let cfg[m[1]] = m[2]
-		endfor
-	end
-
-	let self._buildConfig = cfg['buildConfig']
+	let self._config = Config('.buildsystemSetup', { 'buildConfig': 'default', 'buildTarget': '' })
 
 	return self
 endf

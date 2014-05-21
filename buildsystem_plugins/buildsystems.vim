@@ -17,6 +17,10 @@ function DetectBuildSystem()
 		call MapKeys('buildsystem.buildFile', 'nmap <silent>', ":call g:buildsystem.buildFile('<C-R>%')<CR>")
 	end
 
+	if has_key(g:buildsystem, 'build')
+		call MapKeys('buildsystem.build', 'nmap <silent>', ':call g:buildsystem.build(g:buildsystem.getBuildTarget())<CR>')
+	end
+
 	if has_key(g:buildsystem, 'buildAll')
 		call MapKeys('buildsystem.buildAll', 'nmap <silent>', ':call g:buildsystem.buildAll()<CR>')
 	end
@@ -30,14 +34,19 @@ function s:GetBuildConfigNames(A, L, P)
 	return join(keys(g:buildsystem.getAvailableBuildConfigs()), "\n")
 endf
 
-function BuildPlatform(platform)
+function s:BuildPlatform(platform)
 	if !has_key(g:buildsystem.getAvailableBuildConfigs(), a:platform)
 		throw BuildSystemException('Platform '.a:platform.' not found!')
 	end
 	call g:buildsystem.setBuildConfig(a:platform)
 endf
 
-command! -nargs=1 -complete=custom,<SID>GetBuildConfigNames BuildPlatform call BuildPlatform('<args>')
+function s:BuildTarget(target)
+	call g:buildsystem.setBuildTarget(a:target)
+endf
+
+command! -nargs=1 -complete=custom,<SID>GetBuildConfigNames BuildPlatform call <SID>BuildPlatform('<args>')
+command! -nargs=? BuildTarget call <SID>BuildTarget('<args>')
 command! -nargs=? Build call g:buildsystem.build('<args>')
 
 call DetectBuildSystem()

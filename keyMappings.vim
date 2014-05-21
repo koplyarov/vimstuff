@@ -66,7 +66,8 @@ call SetKeysMapping('vcs.showCommit',					[])
 call SetKeysMapping('vcs.blame',						[])
 
 call SetKeysMapping('buildsystem.buildFile',			'<C-F7>')
-call SetKeysMapping('buildsystem.buildAll',				'<C-B>')
+"call SetKeysMapping('buildsystem.buildAll',				'<C-B>')
+call SetKeysMapping('buildsystem.build',				'<C-B>')
 
 "call SetKeysMapping('plugins.vimCommander.toggle',		[ '<C-F><C-F>', '<C-F>f' ])
 call SetKeysMapping('plugins.nerdTree.toggle',			[ '<C-N><C-N>', '<C-N>n' ])
