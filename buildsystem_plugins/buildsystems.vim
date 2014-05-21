@@ -48,5 +48,6 @@ endf
 command! -nargs=1 -complete=custom,<SID>GetBuildConfigNames BuildPlatform call <SID>BuildPlatform('<args>')
 command! -nargs=? BuildTarget call <SID>BuildTarget('<args>')
 command! -nargs=? Build call g:buildsystem.build('<args>')
+command! -nargs=1 BuildEnableSaveBeforeBuild call g:buildsystem.setSaveBeforeBuild(<args>)
 
 call DetectBuildSystem()

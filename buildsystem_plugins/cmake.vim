@@ -72,6 +72,10 @@ function CMakeBuildSystem()
 			return
 		end
 
+		if self._config.getValue('saveBeforeBuild')
+			wa
+		end
+
 		let dir = self._getSubdirectory(a:filename)
 		let file = substitute(Relpath(a:filename), '^'.escape(dir, '&*./\^[]$').(strlen(dir) == 0 ? '' : '\/'), '', '')
 
@@ -91,6 +95,10 @@ function CMakeBuildSystem()
 	endf
 
 	function self.build(target)
+		if self._config.getValue('saveBeforeBuild')
+			wa
+		end
+
 		let backend = self.getBackend()
 		let old_makeprg = self._setMakePrg(backend.getMakePrg(self.getBuildConfigObj()))
 		try
@@ -116,6 +124,13 @@ function CMakeBuildSystem()
 
 	function self.setBuildTarget(buildTarget)
 		call self._config.setValue('buildTarget', a:buildTarget)
+	endf
+
+	function self.setSaveBeforeBuild(enable)
+		if (type(a:enable) != type(0))
+			throw CMakeException('Invalid argument type (must be integer)!')
+		end
+		call self._config.setValue('saveBeforeBuild', a:enable)
 	endf
 
 	function self._setMakePrg(newMakePrg)
@@ -231,7 +246,7 @@ function CMakeBuildSystem()
 	let self._subdirectories = filter(map(split(glob('**/CMakeLists.txt'), '\n'), 'substitute(v:val, "\\/\\?CMakeLists\\.txt$", "", "")'), 'strlen(v:val) > 0')
 	let self._backends = [ CMakeMakeBackend(), CMakeNinjaBackend() ]
 	let self._availableBuildConfigs = { 'default': CMakeBuildConfig(GetCPUsCount(), '') }
-	let self._config = Config('.buildsystemSetup', { 'buildConfig': 'default', 'buildTarget': '' })
+	let self._config = Config('.buildsystemSetup', { 'buildConfig': 'default', 'buildTarget': '', 'saveBeforeBuild': 0 })
 
 	return self
 endf
