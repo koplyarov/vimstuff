@@ -31,6 +31,10 @@ function GetCPUsCount()
 	return eval(StripString(res))
 endf
 
+function Notify(title, msg)
+	call system('notify-send '.shellescape(a:title).' '.shellescape(a:msg))
+endf
+
 function Timer()
 	if !exists('s:Timer')
 		let s:Timer = {}
