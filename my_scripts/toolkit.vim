@@ -23,6 +23,13 @@ function IsOnACPower()
 	end
 endf
 
+function GetCPUsCount()
+	let res = system("nproc")
+	if v:shell_error != 0
+		return 1
+	end
+	return eval(StripString(res))
+endf
 
 function Timer()
 	if !exists('s:Timer')
