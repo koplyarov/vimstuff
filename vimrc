@@ -29,6 +29,7 @@ if !exists("g:vimstuff_sourced")
 	runtime keyMappings.vim
 	runtime my_scripts/toolkit.vim
 	runtime my_scripts/system.vim
+	runtime my_scripts/config.vim
 	runtime buildsystem_plugins/buildsystems.vim
 	runtime vcs_plugins/vcs.vim
 	runtime indexer_plugins/ctags.vim
