@@ -13,7 +13,7 @@ function CMakeMakeBackend()
 
 	function self.getTargets()
 		let grep_result = split(system('grep "^[^ 	]\+:" '.self._makefile), "\n")
-		return map(grep_result, 'substitute(v:val, ":.*$", "", "")')
+		return filter(map(grep_result, 'substitute(v:val, ":.*$", "", "")'), 'v:val !~ "\.[ios]$"')
 	endf
 
 	function self.buildFile(buildSystem, subdirectory, filename)
