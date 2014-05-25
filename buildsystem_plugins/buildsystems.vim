@@ -65,7 +65,7 @@ function BuildSystem(backend, buildSettings)
 			cw
 			exe win_num."wincmd w"
 			redraw!
-			call Notify('vimstuff.BuildSystem', 'Build finished!')
+			call Notify('vimstuff.BuildSystem', 'Build finished, '.(empty(filter(getqflist(), 'v:val.valid')) ? 'no' : 'there are some').' errors or warnings.')
 		endtry
 	endf
 
