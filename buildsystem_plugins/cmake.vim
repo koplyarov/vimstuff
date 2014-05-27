@@ -1,4 +1,4 @@
-function s:CMakeException(msg)
+function CMakeException(msg)
 	return 'CMake buildsystem error: '.a:msg
 endf
 
