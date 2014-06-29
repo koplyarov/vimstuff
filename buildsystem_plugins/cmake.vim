@@ -84,8 +84,9 @@ function CMakeBuildSystem(buildSettings)
 	endf
 
 	function self.buildFile(filename)
-		let dir = self._getSubdirectory(a:filename)
-		let file = substitute(Relpath(a:filename), '^'.escape(dir, '&*./\^[]$').(strlen(dir) == 0 ? '' : '\/'), '', '')
+		let filename = substitute(a:filename, '^\./', '', '')
+		let dir = self._getSubdirectory(filename)
+		let file = substitute(Relpath(filename), '^'.escape(dir, '&*./\^[]$').(strlen(dir) == 0 ? '' : '\/'), '', '')
 
 		let backend = self._pickBackend()
 		let old_makeprg = SetMakePrg(backend.getMakePrg(self._getBuildConfigObj()))
