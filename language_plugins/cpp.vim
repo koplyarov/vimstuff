@@ -354,6 +354,32 @@ function CppPlugin()
 endf
 
 
+function SetCppPaths()
+	if !exists("s:cpp_paths")
+		let s:cpp_paths = []
+		let lines = split(system("echo '' | g++ -v -x c++ -E -"), '\n')
+		let got_includes = 0
+		for l in lines
+			if !got_includes
+				if l =~ '#include <\.\.\.> search starts here:'
+					let got_includes = 1
+				end
+			else
+				if l =~ 'End of search list.'
+					break
+				end
+				call add(s:cpp_paths, StripString(l))
+			end
+		endfor
+	end
+
+	for p in s:cpp_paths
+		execute 'set path+='.p
+	endfor
+endf
+
+
 let g:cpp_plugin = CppPlugin()
 
+au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp,*.cxx call SetCppPaths()
 au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp,*.cxx call ActivateLangPlugin(g:cpp_plugin)
