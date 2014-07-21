@@ -123,6 +123,7 @@ if !exists("g:vimstuff_sourced")
 	au BufRead,BufNewFile *.git call InitGitHotKeys()
 	au BufRead,BufNewFile *.c,*.cpp,*.h,*.hpp set filetype=cpp.doxygen
 	au BufRead,BufNewFile *.qml set filetype=qml
+	au BufRead,BufNewFile *.i set filetype=swig
 	au BufRead,BufNewFile *.vsh,*.psh set filetype=glsl
 	au BufRead,BufNewFile *.decl set filetype=qml
 	au BufRead,BufNewFile *.cmix set filetype=cmix
