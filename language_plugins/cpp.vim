@@ -355,7 +355,7 @@ function CppPlugin()
 endf
 
 
-function SetCppPaths()
+function s:SetCppPaths()
 	if !exists("s:cpp_paths")
 		let s:cpp_paths = []
 		let lines = split(system("echo '' | g++ -v -x c++ -E -"), '\n')
@@ -382,5 +382,5 @@ endf
 
 let g:cpp_plugin = CppPlugin()
 
-au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp,*.cxx call SetCppPaths()
-au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp,*.cxx call ActivateLangPlugin(g:cpp_plugin)
+au FileType cpp.doxygen,c,cpp,objc,objcpp call <SID>SetCppPaths()
+au FileType cpp.doxygen,c,cpp,objc,objcpp call ActivateLangPlugin(g:cpp_plugin)
