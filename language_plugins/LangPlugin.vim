@@ -159,7 +159,6 @@ function LangPlugin()
 			endfor
 			let win_num = winnr()
 			cw
-			exe win_num."wincmd w"
 		endf
 
 		function s:LangPlugin.getAlternativeFile(filename)
