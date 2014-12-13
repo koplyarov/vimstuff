@@ -157,3 +157,23 @@ function GetCommonSublistLen(l1, l2)
 	return i + 1
 endf
 
+
+function PathComplete(paths, pathBegin, findstart, base)
+	let path_start = getline('.')[a:pathBegin - 1 : max([col('.') - 2, 0])]
+	let last_slash_pos = strridx(path_start, '/')
+
+	if a:findstart
+		return a:pathBegin + last_slash_pos
+	else
+		let path_dir = path_start[0 : last_slash_pos - 1]
+		let paths = filter(copy(a:paths), 'isdirectory(v:val."/".path_dir)')
+		let result = []
+		for po in paths
+			let glob_list = split(globpath(po.'/'.path_dir, a:base.'*'), '\n')
+			call map(glob_list, 'split(v:val, "/")[-1]')
+			let result += glob_list
+		endfor
+		return result
+	end
+endf
+
