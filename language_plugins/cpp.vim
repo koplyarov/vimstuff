@@ -335,7 +335,11 @@ function CppPlugin()
 
 		if line_start =~ self._includeStartRegex
 			let include_start_match = matchstr(line_start, self._includeStartRegex)
-			return PathComplete(split(&path, ','), len(include_start_match) + 1, a:findstart, a:base)
+			let paths_list = split(&path, ',')
+			if filereadable('.clang_complete')
+				let paths_list += map(filter(readfile('.clang_complete'), 'v:val =~ "^-I"'), 'substitute(v:val, "^-I\s*", "", "")')
+			end
+			return PathComplete(paths_list, len(include_start_match) + 1, a:findstart, a:base)
 		else
 			return self.codeComplete(a:findstart, a:base)
 		end
