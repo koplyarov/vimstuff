@@ -170,7 +170,7 @@ function PathComplete(paths, pathBegin, findstart, base)
 		let result = []
 		for po in paths
 			let glob_list = split(globpath(po.'/'.path_dir, a:base.'*'), '\n')
-			call map(glob_list, 'split(v:val, "/")[-1]')
+			call map(glob_list, '{ "word": split(v:val, "/")[-1], "menu": isdirectory(v:val) ? "dir" : "file" }')
 			let result += glob_list
 		endfor
 		return result
