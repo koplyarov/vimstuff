@@ -347,7 +347,7 @@ function CppPlugin()
 
 	function self.testInvokeAutocomplete()
 		let line_start = getline('.')[0 : max([col('.') - 2, 0])]
-		return line_start =~ self._includeStartRegex && getline('.')[col('.') - 2] =~ '[</]'
+		return line_start =~ self._includeStartRegex && getline('.')[col('.') - 2] =~ '[</"]'
 	endf
 
 	function self.filterImportableSymbols(symbols)
