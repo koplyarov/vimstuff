@@ -83,7 +83,9 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 			let name = self.getSymbolName()
 			let grep_result = split(system('grep ''\<inherits:\S*\<'.name.'\>'' tags | sed -n ''s/^\(\S*\)\s.*$/\1/p'''), '\n')
 			let suitable_kinds = [ 'c', 's' ]
-			let tags = map(copy(grep_result), 'filter(self._indexer.matchSymbols("^".v:val."$"), "index(suitable_kinds, v:val._rawTag[''kind'']) != -1")[0]')
+			let tags = map(copy(grep_result), 'filter(self._indexer.matchSymbols("^".v:val."$"), "index(suitable_kinds, v:val._rawTag[''kind'']) != -1")')
+			call filter(tags, '!empty(v:val)')
+			let tags = map(tags, 'v:val[0]')
 			" Removing duplicates
 			let dict = {}
 			for t in tags
