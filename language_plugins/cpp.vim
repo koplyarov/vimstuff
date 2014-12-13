@@ -324,6 +324,28 @@ function CppPlugin()
 	call cpp_stdlib.addImports('typeinfo', [ 'type_info', 'bad_cast', 'bad_typeid', 'typeid' ])
 	call self.indexer.registerFramework(cpp_stdlib)
 
+	function self.codeComplete(findstart, base)
+		return ClangComplete(a:findstart, a:base)
+	endf
+
+	let self._includeStartRegex = '^\s*#\s*include\s*["<]'
+
+	function self.autoComplete(findstart, base)
+		let line_start = getline('.')[0 : max([col('.') - 2, 0])]
+
+		if line_start =~ self._includeStartRegex
+			let include_start_match = matchstr(line_start, self._includeStartRegex)
+			return PathComplete(split(&path, ','), len(include_start_match) + 1, a:findstart, a:base)
+		else
+			return self.codeComplete(a:findstart, a:base)
+		end
+	endf
+
+	function self.testInvokeAutocomplete()
+		let line_start = getline('.')[0 : max([col('.') - 2, 0])]
+		return line_start =~ self._includeStartRegex && getline('.')[col('.') - 2] =~ '[</]'
+	endf
+
 	function self.filterImportableSymbols(symbols)
 		return filter(a:symbols, 'v:val.getFilename() =~ "\\.\\(h\\|hpp\\)$"') " Headers only
 	endf
@@ -349,6 +371,8 @@ function CppPlugin()
 
 	function self.onActivated()
 		au BufWritePre <buffer> :call b:lang_plugin.removeTrailingWhitespaces()
+		setlocal omnifunc=CppCompleteFunc
+		setlocal completefunc=CppCompleteFunc
 	endf
 
 	return self
@@ -377,6 +401,10 @@ function s:SetCppPaths()
 	for p in s:cpp_paths
 		execute 'set path+='.p
 	endfor
+endf
+
+function CppCompleteFunc(findstart, base)
+	return g:cpp_plugin.autoComplete(a:findstart, a:base)
 endf
 
 

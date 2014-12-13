@@ -183,12 +183,10 @@ if !exists("g:vimstuff_sourced")
 	function s:StartIdentifierCompletion(completionKeys)
 		let pos = getpos('.')
 		let line = getline('.')
-		if !pumvisible() && line[pos[2] - 2] =~ '[A-Za-z_]' && line[pos[2] - 3] !~ '[A-Za-z0-9_]'
+		if !pumvisible() && (line[pos[2] - 2] =~ '[A-Za-z_]' && line[pos[2] - 3] !~ '[A-Za-z0-9_]' || (has_key(b:lang_plugin, 'testInvokeAutocomplete') && b:lang_plugin.testInvokeAutocomplete()))
 			let s:has_longest = (&cot =~ '\<longest\>')
 			set cot-=longest
-			call feedkeys(a:completionKeys, 'n')
-			call feedkeys("\<C-N>", 'n')
-			call feedkeys("\<C-P>", 'n')
+			call feedkeys(a:completionKeys."\<C-P>", 'n')
 		end
 	endf
 

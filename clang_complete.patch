@@ -20,6 +20,17 @@ index 54f5463..49c2805 100644
      let b:clang_parameters .= '++'
    endif
  
+@@ -169,8 +169,8 @@ function! s:ClangCompleteInit()
+     augroup end
+   endif
+ 
+-  setlocal completefunc=ClangComplete
+-  setlocal omnifunc=ClangComplete
++  "setlocal completefunc=ClangComplete
++  "setlocal omnifunc=ClangComplete
+ endfunction
+ 
+ function! LoadUserOptions()
 @@ -382,7 +382,7 @@ endfunction
  function! s:HandlePossibleSelectionEnter()
    if pumvisible()
