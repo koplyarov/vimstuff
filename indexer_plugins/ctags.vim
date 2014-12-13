@@ -135,7 +135,7 @@ function CTagsSymbolInfo(indexer, rawTag, symbolDelimiter)
 				throw CTagsPluginException('unexpected ctags cmd syntax: '.cmd)
 			end
 			let cmd = '/\M'.cmd[1:]
-			exec 'silent vimgrepadd '.cmd.' '.self._rawTag['filename']
+			exec 'silent vimgrepadd '.cmd.'j '.self._rawTag['filename']
 		endf
 
 		function s:CTagsSymbolInfo.getScope()
