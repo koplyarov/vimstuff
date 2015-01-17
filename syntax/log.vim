@@ -16,7 +16,7 @@ highlight link logLevelTrace Comment
 highlight link logLevelDebug Comment
 highlight link logLevelInfo Special
 highlight link logLevelWarning StatusLine
-highlight link logLevelError SpellBad
+highlight link logLevelError Error
 highlight link logThread String
 highlight link logClass Function
 
