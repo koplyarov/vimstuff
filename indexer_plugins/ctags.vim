@@ -359,12 +359,6 @@ function CTagsIndexer(langPlugin)
 		function s:CTagsIndexer.getImport(symbol)
 			call self.builder.syncRebuildIfNecessary()
 
-			for fw in self.getFrameworks()
-				if fw.hasSymbol(a:symbol)
-					return fw.getImport(a:symbol)
-				end
-			endfor
-
 			let ns_obj = self._langPlugin.createLocation(getpos('.')).getLocationPath().getNamespace()
 			let tags = self._langPlugin.filterImportableSymbols(self.matchSymbols('\<'.a:symbol.'\>'))
 			call sort(tags, ns_obj.compareSymbols, ns_obj)
@@ -372,6 +366,12 @@ function CTagsIndexer(langPlugin)
 			let tags = filter(copy(tags), 'index(s:filenames, v:val.getFilename(), v:key + 1)==-1')
 
 			if len(tags) == 0
+				for fw in self.getFrameworks()
+					if fw.hasSymbol(a:symbol)
+						return fw.getImport(a:symbol)
+					end
+				endfor
+
 				echo "No tags found!"
 				return ''
 			end
