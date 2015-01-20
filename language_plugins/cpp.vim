@@ -5,8 +5,8 @@ endfunction
 
 autocmd User plugin-template-loaded call s:template_keywords()
 function s:template_keywords()
-	%s/<+FILENAME+>/\=toupper(substitute(fnamemodify(expand('%'), ':p:.'), '[-.\/\\\\:]', '_', 'g'))/ge
-	%s/<+FILENAME_MANGLED+>/\=toupper(substitute(fnamemodify(expand('%'), ':p:.'), '[-.\/\\\\:]', '_', 'g'))/ge
+	%s/<+FILENAME+>/\=toupper(substitute(s:GetRelativeIncludePath(expand('%')), '[-.\/\\\\:]', '_', 'g'))/ge
+	%s/<+FILENAME_MANGLED+>/\=toupper(substitute(s:GetRelativeIncludePath(expand('%')), '[-.\/\\\\:]', '_', 'g'))/ge
 	%s/<+DATE+>/\=strftime('%Y-%m-%d')/ge
 	let namespaces=GetCppNamespaceFromPath(split(Relpath(expand('%')), '/'))
 	if len(namespaces) == 0
@@ -31,6 +31,18 @@ function s:template_keywords()
 	" And more...
 endfunction
 
+
+function s:GetRelativeIncludePath(filename)
+	let filename = substitute(a:filename, '\(^\|/\)./', '\1', 'g')
+	if exists('g:include_directories')
+		for dir in g:include_directories
+			if filename[0 : len(dir) - 1] == dir
+				return filename[((filename[len(dir)] == '/') ? len(dir) + 1 : len(dir)):]
+			end
+		endfor
+	end
+	return filename
+endf
 
 let g:clang_complete_auto=0
 let g:clang_hl_errors=0
@@ -364,14 +376,7 @@ function CppPlugin()
 	endf
 
 	function self.getImportForPath(filename)
-		if exists('g:include_directories')
-			for dir in g:include_directories
-				if a:filename[0 : len(dir) - 1] == dir
-					return a:filename[((a:filename[len(dir)] == '/') ? len(dir) + 1 : len(dir)):]
-				end
-			endfor
-		end
-		return a:filename
+		return s:GetRelativeIncludePath(a:filename)
 	endf
 
 	function self.gotoLocalSymbol(symbol)
