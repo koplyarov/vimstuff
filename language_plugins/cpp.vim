@@ -371,6 +371,55 @@ function CppPlugin()
 		return filter(a:symbols, 'v:val.getFilename() =~ "\\.\\(h\\|hpp\\)$"') " Headers only
 	endf
 
+	function self.getImportPriorities(filename)
+		if a:filename[-4:] == '.cpp' || a:filename[-2:] == '.c'
+			let self_header = substitute(a:filename, '\.\(c\|cpp\)$', '.h', '')
+			if !filereadable(self_header)
+				let self_header = substitute(a:filename, '\.\(c\|cpp\)$', '.hpp', '')
+			end
+
+			if filereadable(self_header)
+				let self_include_regex = escape(s:GetRelativeIncludePath(self_header), '&*.\')
+				return [ self_include_regex ] + g:include_priorities
+			end
+		end
+		return g:include_priorities
+	endf
+
+	function self.getImportsBeginLine()
+		let filename = expand('%')
+		if filename[-4:] == '.hpp' || filename[-2:] == '.h'
+			for i in range(1, line('$'))
+				let line = getline(i)
+				if line =~ '^\s*$'
+					continue
+				elseif line =~ '^\s*#\s*pragma\s\+once\s*$'
+					return i + 1
+				else
+					let define_name = ''
+					let m = matchlist(line, '^\s*#\s*ifndef\s\+\(\i\+\)\s*$')
+					if !empty(m)
+						let define_name = m[1]
+					else
+						let m = matchlist(line, '^\s*#\s*if\s*!\s*defined\s*\%((\|\s\)\s*\(\i\+\)\s*)\?\s*$')
+						if !empty(m)
+							let define_name = m[1]
+						end
+					end
+					if !empty(define_name)
+						for j in range(i + 1, line('$'))
+							let line2 = getline(j)
+							if line2 =~ '^\s*#\s*define\s\+'.define_name.'\s*$'
+								return j + 1
+							end
+						endfor
+					end
+				end
+			endfor
+		end
+		return 1
+	endf
+
 	function self.getImportForSymbol(symbol)
 		return self.getImportForPath(Relpath(a:symbol.getFilename()))
 	endf

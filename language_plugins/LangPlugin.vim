@@ -43,6 +43,45 @@ function AutocompleteSettings()
 endf
 
 
+function s:ImportLine(line, import_regexes)
+	if !exists('s:ImportLinePrototype')
+		let s:ImportLinePrototype = {}
+
+		function s:ImportLinePrototype.s_getGroupPriority(line, import_regexes)
+			for i in range(0, len(a:import_regexes) - 1)
+				if match(a:line, a:import_regexes[i]) != -1
+					return i
+				end
+			endfor
+			return len(a:import_regexes)
+		endf
+	end
+
+	let self = deepcopy(s:ImportLinePrototype)
+	let self.line = a:line
+	let self.groupPriority = self.s_getGroupPriority(a:line, a:import_regexes)
+	return self
+endf
+
+
+function s:ImportsComparer()
+	if !exists('s:ImportsComparerPrototype')
+		let s:ImportsComparerPrototype = {}
+
+		function s:ImportsComparerPrototype.compare(l, r)
+			if a:l.groupPriority == a:r.groupPriority
+				return a:l.line == a:r.line ? 0 : a:l.line > a:r.line ? 1 : -1
+			else
+				return a:l.groupPriority > a:r.groupPriority ? 1 : -1
+			end
+		endf
+	end
+
+	let self = deepcopy(s:ImportsComparerPrototype)
+	return self
+endf
+
+
 function LangPlugin()
 	if !exists('s:LangPlugin')
 		let s:LangPlugin = {}
@@ -57,74 +96,70 @@ function LangPlugin()
 				return
 			end
 
-			let includes_group = -1
-			if len(a:import_priorities) > 0
-				for i in range(0, len(a:import_priorities) - 1)
-					if match(include_line, self.syntax.getImportRegex(a:import_priorities[i])) != -1
-						let includes_group = i
-						break
+			let imports_list = []
+			let import_regexes = map(copy(a:import_priorities), 'self.syntax.getImportRegex(v:val)')
+
+			let imports_search_begin = has_key(self, 'getImportsBeginLine') ? self.getImportsBeginLine() : 1
+
+			let whitespaces_count = 0
+			let generic_import_re = self.syntax.getImportRegex('.*')
+			for line_num in range(imports_search_begin, line('$'))
+				let line = getline(line_num)
+				if line =~ '^\s*$'
+					let whitespaces_count += 1
+					continue
+				end
+				if match(line, generic_import_re) != -1
+					call add(imports_list, s:ImportLine(line, import_regexes))
+					if exists('l:imports_begin')
+						let imports_end = line_num + 1
+					else
+						let imports_begin = line_num - whitespaces_count
+						let imports_end = line_num + 1
 					end
-				endfor
-			end
-
-			let save_cursor = getpos('.')
-
-			let l = 0
-			let insert_type = 0
-			if includes_group != -1
-				let l = search(self.syntax.getImportRegex(a:import_priorities[includes_group]), 'bW')
-				if l == 0
-					for i in range(includes_group + 1, len(a:import_priorities) - 1)
-						normal gg
-						let l = search(self.syntax.getImportRegex(a:import_priorities[i]), 'W')
-						if l != 0
-							let insert_type = 1
-							break
-						end
-					endfor
+				else
+					break
 				end
-				if l == 0
-					for i in range(0, includes_group - 1)
-						normal G
-						let l = search(self.syntax.getImportRegex(a:import_priorities[i]), 'bW')
-						if l != 0
-							let insert_type = -1
-							break
-						end
-					endfor
-				end
-			end
-
-			if l == 0
-				call setpos('.', save_cursor)
-				let l = search(self.syntax.getImportRegex('.*'), 'bW')
-			end
-			if l == 0
-				call setpos('.', [save_cursor[0], 1, 1, save_cursor[3]])
-				if strlen(getline(1)) != 0
-					let l = search('^$', 'Wc')
-				end
-				call append(l, ['', include_line, ''])
-				let lines_inserted = 3
-			else
-				if insert_type == 0
-					call append(l, include_line)
-					let lines_inserted = 1
-					let b = search('^$', 'Wbcn')
-					let e = search('^$', 'Wcn')
-					call SortBuf(b + 1, e - 1)
-				elseif insert_type == 1
-					call append(l - 1, [include_line, ''])
-					let lines_inserted = 2
-				elseif insert_type == -1
-					call append(l, ['', include_line])
-					let lines_inserted = 2
-				end
-			end
-			call setpos('.', [save_cursor[0], save_cursor[1] + lines_inserted, save_cursor[2], save_cursor[3]])
-			for i in range(lines_inserted)
-				normal! 
+				let whitespaces_count = 0
 			endfor
+
+			if !exists('l:imports_begin')
+				let imports_begin = imports_search_begin
+				let imports_end = imports_begin
+			end
+
+			let imports_end += whitespaces_count
+
+			call add(imports_list, s:ImportLine(include_line, import_regexes))
+
+			let cmp = s:ImportsComparer()
+			call sort(imports_list, cmp.compare, cmp)
+
+			let import_lines = []
+
+			let prev_group = -1
+			for import in imports_list
+				if prev_group != -1 && prev_group != import.groupPriority
+					call add(import_lines, '')
+				end
+				call add(import_lines, import.line)
+				let prev_group = import.groupPriority
+			endfor
+
+			let import_lines = (imports_begin != 1 ? repeat([''], self.whitespacesCountAroundImports) : []) + import_lines + repeat([''], self.whitespacesCountAroundImports)
+
+			let lines_delta = len(import_lines) - (imports_end - imports_begin)
+			let winview = winsaveview()
+			if imports_begin != imports_end
+				execute imports_begin.','.(imports_end - 1).'d _'
+			end
+			call append(imports_begin - 1, import_lines)
+			let winview.lnum += lines_delta
+			if winview.topline != 1
+				let winview.topline += lines_delta
+			end
+			call winrestview(winview)
+
 			redraw
 			echo include_line
 		endf
@@ -228,6 +263,7 @@ function LangPlugin()
 
 	let self = copy(s:LangPlugin)
 	let self.autocompleteSettings = AutocompleteSettings()
+	let self.whitespacesCountAroundImports = 2
 	return self
 endf
 
@@ -248,7 +284,7 @@ function ActivateLangPlugin(plugin)
 	call MapKeys('langPlugin.openSymbolPreview',	'nmap',						':call b:lang_plugin.openSymbolPreview(b:lang_plugin.getWordUnderCursor())<CR>')
 
 	if has_key(b:lang_plugin, 'indexer')
-		call MapKeys('langPlugin.addImport', 'nmap <silent> <buffer>', ':call b:lang_plugin.addImport(b:lang_plugin.indexer.getImport(b:lang_plugin.getWordUnderCursor()), g:include_priorities)<CR>')
+		call MapKeys('langPlugin.addImport', 'nmap <silent> <buffer>', ':call b:lang_plugin.addImport(b:lang_plugin.indexer.getImport(b:lang_plugin.getWordUnderCursor()), has_key(b:lang_plugin, "getImportPriorities") ? b:lang_plugin.getImportPriorities(expand("%")) : [])<CR>')
 		call MapKeys('langPlugin.gotoSymbol', 'map <silent> <buffer>', ':call b:lang_plugin.gotoSymbol(b:lang_plugin.getWordUnderCursor())<CR>')
 		nmap <silent> <buffer> <C-RightMouse> <LeftMouse>t<C-]>
 
