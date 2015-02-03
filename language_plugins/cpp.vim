@@ -48,9 +48,10 @@ let g:clang_complete_auto=0
 let g:clang_hl_errors=0
 let g:clang_user_options='|| exit 0'
 
-let g:c_std_includes = 'stdio\.h\|string\.h\|ctype.h\|cstdio\|cstring'
+let g:c_std_includes = 'assert\.h\|complex\.h\|ctype\.h\|errno\.h\|fenv\.h\|float\.h\|inttypes\.h\|iso646\.h\|limits\.h\|locale\.h\|math\.h\|search\.h\|setjmp\.h\|signal\.h\|stdalign\.h\|stdarg\.h\|stdatomic\.h\|stdbool\.h\|stddef\.h\|stdint\.h\|stdio\.h\|stdlib\.h\|stdnoreturn\.h\|string\.h\|tgmath\.h\|threads\.h\|time\.h\|uchar\.h\|wchar\.h\|wctype\.h'
+
 let g:cpp_std_includes = 'algorithm\|array\|atomic\|bitset\|cfenv\|chrono\|codecvt\|complex\|condition_variable\|deque\|exception\|forward_list\|fstream\|functional\|future\|initializer_list\|iomanip\|ios\|iosfwd\|iostream\|istream\|iterator\|limits\|list\|locale\|map\|memory\|mutex\|new\|numeric\|ostream\|queue\|random\|ratio\|regex\|scoped_allocator\|set\|shared_mutex\|sstream\|stack\|stdexcept\|streambuf\|string\|strstream\|system_error\|thread\|tuple\|type_traits\|typeindex\|typeinfo\|unordered_map\|unordered_set\|utility\|valarray\|vector'
-let g:platform_includes = 'windows\.h\|wintypes\.h'
+let g:platform_includes = 'aio\.h\|arpa/inet\.h\|cpio\.h\|dirent\.h\|dlfcn\.h\|fcntl\.h\|fmtmsg\.h\|fnmatch\.h\|ftw\.h\|glob\.h\|grp\.h\|iconv\.h\|langinfo\.h\|libgen\.h\|monetary\.h\|mqueue\.h\|ndbm\.h\|net/if\.h\|netdb\.h\|netinet/in\.h\|netinet/tcp\.h\|nl_types\.h\|poll\.h\|pthread\.h\|pwd\.h\|regex\.h\|sched\.h\|semaphore\.h\|signal\.h\|spawn\.h\|strings\.h\|stropts\.h\|sys/ipc\.h\|sys/mman\.h\|sys/msg\.h\|sys/resource\.h\|sys/select\.h\|sys/sem\.h\|sys/shm\.h\|sys/socket\.h\|sys/stat\.h\|sys/statvfs\.h\|sys/time\.h\|sys/times\.h\|sys/types\.h\|sys/uio\.h\|sys/un\.h\|sys/utsname\.h\|sys/wait\.h\|syslog\.h\|tar\.h\|termios\.h\|tgmath\.h\|trace\.h\|ulimit\.h\|unistd\.h\|utime\.h\|utmpx\.h\|wordexp\.h\|windows\.h\|wintypes\.h'
 
 
 function CppPluginException(msg)
