@@ -327,7 +327,7 @@ function CTagsIndexer(langPlugin)
 		endf
 
 		function s:CTagsIndexer.registerFramework(framework)
-			call add(self._frameworks, a:framework)
+			call insert(self._frameworks, a:framework)
 		endf
 
 		function s:CTagsIndexer._createSymbolInfo(tag)
