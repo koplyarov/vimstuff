@@ -99,7 +99,7 @@ function LangPlugin()
 			let imports_list = []
 			let import_regexes = map(copy(a:import_priorities), 'self.syntax.getImportRegex(v:val)')
 
-			let imports_search_begin = has_key(self, 'getImportsBeginLine') ? self.getImportsBeginLine() : 1
+			let imports_search_begin = has_key(self, 'getImportsBeginLine') ? max([self.getImportsBeginLine(), 1]) : 1
 
 			let whitespaces_count = 0
 			let generic_import_re = self.syntax.getImportRegex('.*')
