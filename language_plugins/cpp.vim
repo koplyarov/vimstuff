@@ -457,7 +457,7 @@ function s:SetCppPaths()
 				if l =~ 'End of search list.'
 					break
 				end
-				call add(s:cpp_paths, StripString(l))
+				call add(s:cpp_paths, substitute(StripString(l), '\s\+(framework directory)$'))
 			end
 		endfor
 	end
