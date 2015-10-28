@@ -450,7 +450,7 @@ function CppPlugin()
 	function self.onActivated()
 		au BufWritePre <buffer> :call b:lang_plugin.removeTrailingWhitespaces()
 		nnoremap <buffer> <C-]> :call b:lang_plugin._hookGoToTag("tag")<CR>
-		nnoremap <buffer> g<C-]> :call b:lang_plugin._hookGoToTag("tselect")<CR>
+		nnoremap <buffer> g<C-]> :call b:lang_plugin._hookGoToTag("tjump")<CR>
 		nmap <silent> <buffer> <C-LeftMouse> <LeftMouse>:call b:lang_plugin._hookGoToTag("tag")<CR>
 		"setlocal omnifunc=CppCompleteFunc
 		"setlocal completefunc=CppCompleteFunc
