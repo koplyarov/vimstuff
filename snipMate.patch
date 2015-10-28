@@ -7,7 +7,7 @@ index ef03b12..716a27d 100644
  		return ''
  	endif
 +
-+	if exists('*SmartTab')
++	if exists('*SmartTab') && &ft != 'python'
 +		call SmartTab('add')
 +		return ''
 +	endif
