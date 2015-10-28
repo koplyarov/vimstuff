@@ -64,6 +64,7 @@ AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR/autoload"
 AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR/syntax"
 AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR/doc"
 
+AddAction VIMSTUFF_SETUP GitSubmodulesInitUpdate "$SCRIPT_DIR/pathogen_bundle/YouCompleteMe"
 AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
 AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
 AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
@@ -96,7 +97,6 @@ AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 snipMate.patch
 #AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 clang_complete.patch
 #AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 libclang.py.patch
 AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 javacomplete.patch
-AddAction VIMSTUFF_SETUP GitSubmodulesInitUpdate "$VIM_DIR/bundle/YouCompleteMe"
 AddAction VIMSTUFF_SETUP YcmInstall "$VIM_DIR/bundle/YouCompleteMe"
 
 AddAction VIMSTUFF_SETUP AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
