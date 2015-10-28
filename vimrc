@@ -198,6 +198,22 @@ if !exists("g:vimstuff_sourced")
 		call pathogen#infect()
 	"end
 
+	hi default link DefinedName Macro
+
+	hi default link Namespace Type
+	hi default link Class Type
+	hi default link Union Type
+
+	hi default link Method Function
+
+	hi default link Variable Keyword
+	hi default link EnumerationValue Variable
+	hi default link EnumeratorName Variable
+	hi default link Constant Variable
+	hi default link GlobalVariable Variable
+	hi default link Property Variable
+	hi default link Member Variable
+
 	" Remove clang-complete stupid mappings
 	"au BufRead,BufNewFile *.h,*.hpp,*.c,*.cpp silent! execute 'iunmap <Tab>'
 
