@@ -435,8 +435,23 @@ function CppPlugin()
 		call searchdecl(a:symbol, 0, 1)
 	endf
 
+	function self._hookGoToTag(cmd)
+		redir => get_type_out
+		silent! YcmCompleter GetType
+		redir END
+		let type = StripString(get_type_out)
+		if type == 'int' || type == 'Unknown type' || type =~? "^internal error:"
+			exe a:cmd." ".expand("<cword>")
+		else
+			YcmCompleter GoTo
+		end
+	endf
+
 	function self.onActivated()
 		au BufWritePre <buffer> :call b:lang_plugin.removeTrailingWhitespaces()
+		nnoremap <buffer> <C-]> :call b:lang_plugin._hookGoToTag("tag")<CR>
+		nnoremap <buffer> g<C-]> :call b:lang_plugin._hookGoToTag("tselect")<CR>
+		nmap <silent> <buffer> <C-LeftMouse> <LeftMouse>:call b:lang_plugin._hookGoToTag("tag")<CR>
 		"setlocal omnifunc=CppCompleteFunc
 		"setlocal completefunc=CppCompleteFunc
 	endf
