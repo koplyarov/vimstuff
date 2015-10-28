@@ -47,6 +47,8 @@ if !exists("g:vimstuff_sourced")
 	let g:clang_complete_macros = 1
 	let g:clang_remove_duplicating = 1
 
+	let g:ycm_confirm_extra_conf = 0
+
 	for p in ['/usr/lib'] + split(glob('/usr/lib/llvm-*/lib'), '\n') + ['/Library/Developer/CommandLineTools/usr/lib']
 		if filereadable(p.'/libclang.so') || filereadable(p.'/libclang.dylib')
 			let g:clang_library_path = p
@@ -130,11 +132,20 @@ if !exists("g:vimstuff_sourced")
 	au BufNewFile,BufRead *.pas,*.PAS set ft=pascal
 	au! Syntax qml source $HOME/.vim/syntax/qml.vim
 
-    inoremap <expr> <Down> <SID>HookCompleteFocusMove("\<Down>", 1)
-    inoremap <expr> <Up> <SID>HookCompleteFocusMove("\<Up>", -1)
-    inoremap <expr> <C-N> <SID>HookCompleteFocusMove("\<C-N>", 1)
-    inoremap <expr> <C-P> <SID>HookCompleteFocusMove("\<C-P>", -1)
-    inoremap <expr> <CR> <SID>HookEnterKey()
+	au InsertEnter * call <SID>HookCompleteWindowKeys()
+
+	let s:complete_window_keys_hooked = 0
+	function s:HookCompleteWindowKeys()
+		if s:complete_window_keys_hooked
+			return
+		end
+		let s:complete_window_keys_hooked = 1
+		inoremap <expr> <Down> <SID>HookCompleteFocusMove("\<Down>", 1)
+		inoremap <expr> <Up> <SID>HookCompleteFocusMove("\<Up>", -1)
+		inoremap <expr> <C-N> <SID>HookCompleteFocusMove("\<C-N>", 1)
+		inoremap <expr> <C-P> <SID>HookCompleteFocusMove("\<C-P>", -1)
+		inoremap <expr> <CR> <SID>HookEnterKey()
+	endf
 
 	let s:focusedAutocompleteItem = 0
 	function s:HookCompleteFocusMove(key, direction)
@@ -146,7 +157,9 @@ if !exists("g:vimstuff_sourced")
 
 	function! s:HookEnterKey()
 		if pumvisible()
-			return GetFocusedAutocompleteItem() == 0 ? "\<C-N>\<C-Y>" : "\<C-Y>"
+			let focusedAutocompleteItem = GetFocusedAutocompleteItem()
+			let s:focusedAutocompleteItem = 0
+			return focusedAutocompleteItem == 0 ? "\<C-N>\<C-Y>" : "\<C-Y>"
 		end
 		return "\<CR>"
 	endf

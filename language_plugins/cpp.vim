@@ -298,7 +298,7 @@ let g:include_priorities = []
 function CppPlugin()
 	let self = LangPlugin()
 
-	call self.autocompleteSettings.enableAutoInvoke(1)
+	call self.autocompleteSettings.enableAutoInvoke(0)
 	if IsOnACPower()
 		call self.autocompleteSettings.setAutoInvokationKeys('\<C-X>\<C-O>')
 	else
@@ -437,8 +437,8 @@ function CppPlugin()
 
 	function self.onActivated()
 		au BufWritePre <buffer> :call b:lang_plugin.removeTrailingWhitespaces()
-		setlocal omnifunc=CppCompleteFunc
-		setlocal completefunc=CppCompleteFunc
+		"setlocal omnifunc=CppCompleteFunc
+		"setlocal completefunc=CppCompleteFunc
 	endf
 
 	return self

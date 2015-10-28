@@ -96,6 +96,8 @@ AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 snipMate.patch
 #AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 clang_complete.patch
 #AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 libclang.py.patch
 AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 javacomplete.patch
+AddAction VIMSTUFF_SETUP GitSubmodulesInitUpdate "$VIM_DIR/bundle/YouCompleteMe"
+AddAction VIMSTUFF_SETUP YcmInstall "$VIM_DIR/bundle/YouCompleteMe"
 
 AddAction VIMSTUFF_SETUP AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
 
