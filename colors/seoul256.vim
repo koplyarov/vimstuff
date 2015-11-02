@@ -171,7 +171,7 @@ call s:hi('Operator', [186, 131], ['', ''])
 call s:hi('Keyword', [168, 168], ['', ''])
 
 " raise
-call s:hi('Exception', [161, 161], ['', ''])
+call s:hi('Exception', [167, 161], ['', ''])
 "
 " hi StorageClass ctermfg=
 call s:hi('Structure', [116, 23], ['', ''])
