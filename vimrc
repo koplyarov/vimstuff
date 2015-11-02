@@ -219,7 +219,7 @@ if !exists("g:vimstuff_sourced")
 
 	hi default link Method Function
 
-	hi default link Variable Keyword
+	hi default link Variable Identifier
 	hi default link EnumerationValue Variable
 	hi default link EnumeratorName Variable
 	hi default link Constant Variable

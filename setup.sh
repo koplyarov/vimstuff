@@ -65,6 +65,7 @@ AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR/syntax"
 AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR/doc"
 
 AddAction VIMSTUFF_SETUP GitSubmodulesInitUpdate "$SCRIPT_DIR/pathogen_bundle/YouCompleteMe"
+AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/colors" "$VIM_DIR/colors"
 AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
 AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
 AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
