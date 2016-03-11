@@ -177,3 +177,32 @@ function PathComplete(paths, pathBegin, findstart, base)
 	end
 endf
 
+function HasSilverSearcher()
+	call system('which ag')
+	return v:shell_error == 0
+endf
+
+function PerlGrep(expression)
+	if HasSilverSearcher()
+		call setqflist([])
+		"let ag_res = systemlist("ag '".expression."'")
+		let old_grepprg=&grepprg
+		let old_grepformat=&grepformat
+		try
+			set grepprg=ag
+			set grepformat=%f:%l:%m
+			execute "grep! '".a:expression."'"
+		finally
+			let &grepprg=old_grepprg
+			let &grepformat=old_grepformat
+		endtry
+	else
+		let excludes_list = ["*map", "*tex", "*html", "*git*", "*doxygen*", "*svn*", "*entries", "*all-wcprops", "depend*", "*includecache", "tags", "valgrind*", "types_*.taghl", "types_*.vim"]
+		if exists("g:exclude_from_search")
+			let excludes_list += g:exclude_from_search
+		end
+		let excludedirs_list = ["etc", "build", ".git", "CMakeFiles", ".svn", "doxygen", "toolchains"]
+		let excludes_string = "--exclude=\"" . join(excludes_list, "\" --exclude=\"") . "\" --exclude-dir=\"" . join(excludedirs_list, "\" --exclude-dir=\"") . "\""
+		execute "grep! -P " . excludes_string . " -rI \"" . a:expression . "\" ./"
+	end
+endf

@@ -79,16 +79,6 @@ if !exists("g:vimstuff_sourced")
 		return 0
 	endf
 
-	function! DoSearch(expression)
-		let excludes_list = ["*map", "*tex", "*html", "*git*", "*doxygen*", "*svn*", "*entries", "*all-wcprops", "depend*", "*includecache", "tags", "valgrind*", "types_*.taghl", "types_*.vim"]
-		if exists("g:exclude_from_search")
-			let excludes_list += g:exclude_from_search
-		end
-		let excludedirs_list = ["etc", "build", ".git", "CMakeFiles", ".svn", "doxygen", "toolchains"]
-		let excludes_string = "--exclude=\"" . join(excludes_list, "\" --exclude=\"") . "\" --exclude-dir=\"" . join(excludedirs_list, "\" --exclude-dir=\"") . "\""
-		execute "grep " . excludes_string . " -rI \"" . a:expression . "\" ./"
-	endf
-
 	function! InitGitHotKeys()
 		map <2-LeftMouse> <LeftMouse> if match(expand('<cword>'), '\x\{40\}') != -1 <Bar> execute "!clear; git show --color ".expand('<cword>')." <Bar> less -RSX"<Bar> end<CR>
 		nmap <CR> if match(expand('<cword>'), '\x\{40\}') != -1 <Bar> execute "!clear; git show --color ".expand('<cword>')." <Bar> less -RSX"<Bar> end<CR>
@@ -119,7 +109,7 @@ if !exists("g:vimstuff_sourced")
 		let s:previous_num_chars_on_current_line = num_chars_in_current_cursor_line
 	endf
 
-	command! -nargs=1 -complete=tag Search call DoSearch('<args>')
+	command! -nargs=1 -complete=tag Search call PerlGrep('<args>')
 
 	au CursorMovedI * call <SID>OnCursorMovedInsertMode()
 	au BufRead,BufNewFile *.git call InitGitHotKeys()
@@ -246,7 +236,7 @@ if !exists("g:vimstuff_sourced")
 	call MapKeys('general.findChangeListEntry',		'nmap',						':FufChangeList!<CR>')
 	call MapKeys('general.nextError',				'nmap',						':cn<CR>')
 	call MapKeys('general.prevError',				'nmap',						':cN<CR>')
-	call MapKeys('general.search',					'nmap',						':call DoSearch("\\<".expand("<cword>")."\\>")<CR><CR>:cw<CR>')
+	call MapKeys('general.search',					'nmap',						':call PerlGrep("\\b".expand("<cword>")."\\b")<CR><CR>:cw<CR>')
 	call MapKeys('general.prevTab',					['nmap', 'vmap', 'imap'],	'<Esc>gT')
 	call MapKeys('general.nextTab',					['nmap', 'vmap', 'imap'],	'<Esc>gt')
 

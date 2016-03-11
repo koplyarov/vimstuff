@@ -237,7 +237,7 @@ function LangPlugin()
 				endfor
 			end
 			let includes_string = '--include="' . join(includes_list, '" --include="')  . '"'
-			execute 'grep '.includes_string.' '.excludes_string.' -rIFw '''.a:symbolName.''' ./'
+			execute 'grep! '.includes_string.' '.excludes_string.' -rIFw '''.a:symbolName.''' ./'
 			let win_num = winnr()
 			cw
 			exe win_num."wincmd w"
