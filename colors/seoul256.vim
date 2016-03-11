@@ -168,7 +168,7 @@ call s:hi('Type', [179, 94], ['', ''])
 call s:hi('Operator', [186, 131], ['', ''])
 
 " super yield
-call s:hi('Keyword', [168, 168], ['', ''])
+call s:hi('Keyword', [108, 30], ['', ''])
 
 " raise
 call s:hi('Exception', [167, 161], ['', ''])
