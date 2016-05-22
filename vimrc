@@ -1,5 +1,6 @@
 if !exists("g:vimstuff_sourced")
 	let g:vimstuff_sourced = 1
+	syntax on
 	set hidden
 	set tabstop=4
 	set shiftwidth=4

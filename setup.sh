@@ -10,7 +10,6 @@ flags:
 	--symlinks              use symlinks instead of copying all the stuff to .vim directory
 "
 
-VIM_DIR="$HOME/.vim"
 CWD=`pwd`
 SCRIPT_NAME=`basename $0`
 SCRIPT_DIR=`dirname $CWD/$0`
@@ -25,6 +24,18 @@ source "$SCRIPT_DIR/shstuff/libsetup.sh"
 source "$SCRIPT_DIR/shstuff/stdsetupactions.sh"
 source "$SCRIPT_DIR/actions.sh"
 
+if [ $(GetLinuxDistributorId) == "mingw" ]; then
+	Log "MINGW detected, using windows vim paths"
+	VIM_DIR="$HOME/vimfiles"
+	VIMRC="$HOME/_vimrc"
+	VIMSTUFF_VIMRC="$(cd $SCRIPT_DIR && pwd -W | sed 's#/#\\#g')\\vimrc"
+else
+	Log "MINGW not detected, using linux vim paths"
+	VIM_DIR="$HOME/.vim"
+	VIMRC="$HOME/.vimrc"
+	VIMSTUFF_VIMRC="$SCRIPT_DIR/vimrc"
+fi
+
 LOGGER_SCRIPTNAME="vimstuff setup"
 SCRIPT_DIR=`RemoveDots $SCRIPT_DIR`
 
@@ -32,6 +43,7 @@ SYNTAX_FILES=`ls -1 $SCRIPT_DIR/syntax`
 PATHOGEN_BUNDLES=`ls -1 $SCRIPT_DIR/pathogen_bundle`
 
 UpdateVimHelpTags() {
+	Log "Updating vim help tags"
 	if [ -z "`ls -1A $VIM_DIR/doc | grep -vxF 'tags'`" ]; then
 		Log "$VIM_DIR/doc is empty, removing vim help tags"
 		rm $VIM_DIR/doc/tags || Log Warning "Could not remove $VIM_DIR/doc/tags"
@@ -96,7 +108,7 @@ AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 nerdcommenter.patch
 AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 snipMate.patch
 AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 javacomplete.patch
 
-AddAction VIMSTUFF_SETUP AddVimCfgLine "$HOME/.vimrc" "source $SCRIPT_DIR/vimrc"
+AddAction VIMSTUFF_SETUP AddVimCfgLine "$VIMRC" "source $VIMSTUFF_VIMRC"
 
 
 case "x$ACTION" in
