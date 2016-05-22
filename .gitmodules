@@ -34,6 +34,3 @@
 [submodule "pathogen_bundle/javacomplete"]
 	path = pathogen_bundle/javacomplete
 	url = https://github.com/vim-scripts/javacomplete.git
-[submodule "pathogen_bundle/YouCompleteMe"]
-	path = pathogen_bundle/YouCompleteMe
-	url = https://github.com/Valloric/YouCompleteMe.git
