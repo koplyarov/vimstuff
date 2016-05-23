@@ -219,6 +219,10 @@ function CTagsIndexBuilder()
 		endf
 
 		function s:CTagsIndexBuilder.syncRebuildIfNecessary()
+			if !self.autoBuild
+				return
+			endif
+
 			call self.rebuildIfNecessary()
 			call self.waitForLastRebuildToComplete()
 		endf
@@ -247,6 +251,10 @@ function CTagsIndexBuilder()
 		endf
 
 		function s:CTagsIndexBuilder.updateForFile(filename)
+			if !self.autoBuild
+				return
+			endif
+
 			if self.rebuildIfNecessary()
 				return
 			end
@@ -255,10 +263,6 @@ function CTagsIndexBuilder()
 		endf
 
 		function s:CTagsIndexBuilder._update(filename)
-			if !self.autoBuild
-				return
-			endif
-
 			while !empty(self._asyncUpdates)
 				let update = self._asyncUpdates[0]
 				if empty(update.process) || !update.process.isTerminated()
