@@ -390,6 +390,32 @@ function CppPlugin()
 	endf
 
 	function self.getImportsBeginLine()
+		let b = self.getImportsBeginLineNoLicense()
+		let metComment = 0
+		for i in range(b, line('$'))
+			let line = getline(i)
+			echo string(i).": <".line.">"
+			if line =~ '^\s*$'
+				continue
+			end
+			if line =~ '^\s*//.*$'
+				let metComment = 1
+				continue
+			end
+			"let res = getline(i - 1) =~ '^\s*$' ? i - self.whitespacesCountAroundImports : i
+			if metComment
+				let res = i
+				echo "lll: ".string(res)
+				sleep 3
+				return res
+			end
+		endfor
+		echo "eee: ".string(b)
+		sleep 3
+		return b
+	endf
+
+	function self.getImportsBeginLineNoLicense()
 		let filename = expand('%')
 		if filename[-4:] == '.hpp' || filename[-2:] == '.h'
 			for i in range(1, line('$'))
