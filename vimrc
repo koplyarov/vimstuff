@@ -121,6 +121,7 @@ if !exists("g:vimstuff_sourced")
 	au BufRead,BufNewFile *.decl set filetype=qml
 	au BufRead,BufNewFile *.cmix set filetype=cmix
 	au BufNewFile,BufRead *.pas,*.PAS set ft=pascal
+	au FileType python setlocal expandtab tabstop=4 shiftwidth=4
 	au! Syntax qml source $HOME/.vim/syntax/qml.vim
 
 	au InsertEnter * call <SID>HookCompleteWindowKeys()
@@ -450,6 +451,8 @@ if !exists("g:vimstuff_sourced")
 	endfunction
 
 	command! -nargs=0 DeleteHiddenBuffers call DoDeleteHiddenBuffers()
+
+	set noexpandtab
 
 	if (filereadable(".vimrc") && (getcwd() != $HOME))
 		source .vimrc
