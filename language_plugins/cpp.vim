@@ -405,6 +405,8 @@ function CppPlugin()
 			if metComment
 				let res = i
 				return res
+			else
+				return b
 			end
 		endfor
 		return b
