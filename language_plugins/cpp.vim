@@ -221,7 +221,7 @@ function CppSyntax()
 	endf
 
 	function self.getImportRegex(regex)
-		return '#include <\('.a:regex.'\)'
+		return '#include [<"]\('.a:regex.'\)'
 	endf
 
 	function self._getCurrentLine(location)
@@ -318,6 +318,7 @@ function CppPlugin()
 	call self.indexer.registerFramework(c_stdlib)
 
 	let cpp_stdlib = CTagsFrameworkInfo()
+	call cpp_stdlib.addImports('atomic', [ 'atomic' ])
 	call cpp_stdlib.addImports('vector', [ 'vector' ])
 	call cpp_stdlib.addImports('string', [ 'string', 'basic_string' ])
 	call cpp_stdlib.addImports('set', [ 'set' ])
@@ -327,7 +328,7 @@ function CppPlugin()
 	call cpp_stdlib.addImports('list', [ 'list' ])
 	call cpp_stdlib.addImports('deque', [ 'deque' ])
 	call cpp_stdlib.addImports('queue', [ 'queue' ])
-	call cpp_stdlib.addImports('memory', [ 'auto_ptr' ])
+	call cpp_stdlib.addImports('memory', [ 'auto_ptr', 'unique_ptr', 'shared_ptr' ])
 	call cpp_stdlib.addImports('stdexcept', [ 'logic_error', 'domain_error', 'invalid_argument', 'length_error', 'out_of_range', 'runtime_error', 'range_error', 'overflow_error', 'underflow_error' ])
 	call cpp_stdlib.addImports('iostream', [ 'istream', 'ostream', 'basic_istream', 'basic_ostream', 'cin', 'cout', 'cerr', 'endl' ])
 	call cpp_stdlib.addImports('algorithm', [ 'for_each', 'find', 'find_if', 'find_end', 'find_first_of', 'adjacent_find', 'count', 'count_if', 'mismatch', 'equal', 'search', 'search_n', 'copy', 'copy_backward', 'swap', 'swap_ranges', 'iter_swap', 'transform', 'replace', 'replace_if', 'replace_copy', 'replace_copy_if', 'fill', 'fill_n', 'generate', 'generate_n', 'remove', 'remove_if', 'remove_copy', 'remove_copy_if', 'unique', 'unique_copy', 'reverse', 'reverse_copy', 'rotate', 'rotate_copy', 'random_shuffle', 'partition', 'stable_partition', 'sort', 'stable_sort', 'partial_sort', 'partial_sort_copy', 'nth_element', 'lower_bound', 'upper_bound', 'equal_range', 'binary_search', 'merge', 'inplace_merge', 'includes', 'set_union', 'set_intersection', 'set_difference', 'set_symmetric_difference', 'push_heap', 'pop_heap', 'make_heap', 'sort_heap', 'min', 'max', 'min_element', 'max_element', 'lexicographical_compare', 'next_permutation', 'prev_permutation' ])
@@ -338,7 +339,7 @@ function CppPlugin()
 	call cpp_stdlib.addImports('thread', [ 'thread' ])
 	call cpp_stdlib.addImports('future', [ 'future', 'promise' ])
 	call cpp_stdlib.addImports('mutex', [ 'mutex', 'recursive_mutex' ])
-	call cpp_stdlib.addImports('utility', [ 'pair' ])
+	call cpp_stdlib.addImports('utility', [ 'pair', 'make_pair', 'forward', 'move' ])
 	call cpp_stdlib.addImports('sstream', [ 'stringstream', 'istringstream', 'ostringstream', 'basic_stringstream', 'basic_istringstream', 'basic_ostringstream' ])
 	call cpp_stdlib.addImports('fstream', [ 'fstream', 'ifstream', 'ofstream', 'basic_fstream', 'basic_ifstream', 'basic_ofstream' ])
 	call cpp_stdlib.addImports('typeinfo', [ 'type_info', 'bad_cast', 'bad_typeid', 'typeid' ])
@@ -375,18 +376,30 @@ function CppPlugin()
 	endf
 
 	function self.getImportPriorities(filename)
+		let prepend = [ ]
 		if a:filename[-4:] == '.cpp' || a:filename[-2:] == '.c'
+			let filename_local = fnamemodify(a:filename, ':t')
+			let dir = fnamemodify(a:filename, ':h')
+
+			let self_header_local = substitute(filename_local, '\.\(c\|cpp\)$', '.h', '')
+			if !filereadable(dir.'/'.self_header_local)
+				let self_header_local = substitute(filename_local, '\.\(c\|cpp\)$', '.hpp', '')
+			end
+
 			let self_header = substitute(a:filename, '\.\(c\|cpp\)$', '.h', '')
 			if !filereadable(self_header)
 				let self_header = substitute(a:filename, '\.\(c\|cpp\)$', '.hpp', '')
 			end
 
+			if filereadable(dir.'/'.self_header_local)
+				call add(prepend, escape(s:GetRelativeIncludePath(self_header_local), '&*.\'))
+			end
+
 			if filereadable(self_header)
-				let self_include_regex = escape(s:GetRelativeIncludePath(self_header), '&*.\')
-				return [ self_include_regex ] + g:include_priorities
+				call add(prepend, escape(s:GetRelativeIncludePath(self_header), '&*.\'))
 			end
 		end
-		return g:include_priorities
+		return prepend + g:include_priorities
 	endf
 
 	function self.getImportsBeginLine()
