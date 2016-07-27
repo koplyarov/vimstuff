@@ -455,8 +455,13 @@ if !exists("g:vimstuff_sourced")
 	command! -nargs=0 DeleteHiddenBuffers call DoDeleteHiddenBuffers()
 
 	function UpdateCurrentWordHighlight()
-		silent! exe printf('match CurrentWord /\<%s\>/', expand('<cword>'))
-		hi CurrentWord term=underline cterm=underline gui=underline
+		let c = matchstr(getline('.'), '\%'.col('.').'c.')
+		if c =~ '\k'
+			silent! exe printf('2match CurrentWord /\<%s\>/', expand('<cword>'))
+			hi CurrentWord term=underline cterm=underline gui=underline
+		else
+			2match none
+		end
 	endf
 
 	autocmd CursorMoved,CursorMovedI,InsertEnter,InsertLeave *.py,*.h,*.hpp,*.c,*.cpp call UpdateCurrentWordHighlight()
