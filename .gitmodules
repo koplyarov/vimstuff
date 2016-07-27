@@ -34,3 +34,6 @@
 [submodule "pathogen_bundle/javacomplete"]
 	path = pathogen_bundle/javacomplete
 	url = https://github.com/vim-scripts/javacomplete.git
+[submodule "pathogen_bundle/RadicalGoodSpeed"]
+	path = pathogen_bundle/RadicalGoodSpeed
+	url = https://github.com/svjunic/RadicalGoodSpeed.vim.git
