@@ -123,6 +123,7 @@ if !exists("g:vimstuff_sourced")
 	au BufNewFile,BufRead *.pas,*.PAS set ft=pascal
 	au FileType python setlocal expandtab tabstop=4 shiftwidth=4
 	au FileType cpp,cpp.doxygen setlocal noexpandtab
+	au FileType idl setlocal noexpandtab
 	au! Syntax qml source $HOME/.vim/syntax/qml.vim
 
 	au InsertEnter * call <SID>HookCompleteWindowKeys()
@@ -452,6 +453,13 @@ if !exists("g:vimstuff_sourced")
 	endfunction
 
 	command! -nargs=0 DeleteHiddenBuffers call DoDeleteHiddenBuffers()
+
+	function UpdateCurrentWordHighlight()
+		silent! exe printf('match CurrentWord /\<%s\>/', expand('<cword>'))
+		hi CurrentWord term=underline cterm=underline gui=underline
+	endf
+
+	autocmd CursorMoved,CursorMovedI,InsertEnter,InsertLeave *.py,*.h,*.hpp,*.c,*.cpp call UpdateCurrentWordHighlight()
 
 	set noexpandtab
 
