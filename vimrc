@@ -6,6 +6,7 @@ if !exists("g:vimstuff_sourced")
 	set shiftwidth=4
 	set number
 	set hlsearch
+	set incsearch
 	if has("mouse")
 		set mouse=a
 	end
