@@ -430,7 +430,7 @@ if !exists("g:vimstuff_sourced")
 		end
 	endif
 
-	nmap K :<C-U>call OpenMan(expand('<cword>'), v:count)<CR>
+	"nmap K :<C-U>call OpenMan(expand('<cword>'), v:count)<CR>
 
 	command! -nargs=+ -complete=shellcmd Man call OpenMan(<f-args>)
 
