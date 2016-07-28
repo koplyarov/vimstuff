@@ -456,9 +456,16 @@ if !exists("g:vimstuff_sourced")
 	command! -nargs=0 DeleteHiddenBuffers call DoDeleteHiddenBuffers()
 
 	function UpdateCurrentWordHighlight()
-		let c = matchstr(getline('.'), '\%'.col('.').'c.')
+		let current_line = getline('.')
+		let c = matchstr(current_line, '\%'.col('.').'c.')
 		let cword = expand('<cword>')
-		if c =~ '\k' && (cword !~ @/ || !v:hlsearch)
+
+		let is_keyword = 0
+		if exists('b:lang_plugin') && has_key(b:lang_plugin, 'syntax') && has_key(b:lang_plugin.syntax, 'keywords')
+			let is_keyword = index(b:lang_plugin.syntax.keywords, cword) >= 0
+		end
+
+		if c =~ '\k' && (cword !~ @/ || !v:hlsearch) && !is_keyword
 			silent! exe printf('2match CurrentWord /\<%s\>/', cword)
 			hi CurrentWord term=underline cterm=underline gui=underline
 		else
@@ -466,7 +473,7 @@ if !exists("g:vimstuff_sourced")
 		end
 	endf
 
-	autocmd CursorMoved,CursorMovedI,InsertEnter,InsertLeave *.py,*.h,*.hpp,*.c,*.cpp call UpdateCurrentWordHighlight()
+	autocmd CursorMoved,CursorMovedI,CursorHold,CursorHoldI,InsertEnter,InsertLeave *.py,*.h,*.hpp,*.c,*.cpp call UpdateCurrentWordHighlight()
 
 	set noexpandtab
 
