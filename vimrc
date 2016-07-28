@@ -456,8 +456,9 @@ if !exists("g:vimstuff_sourced")
 
 	function UpdateCurrentWordHighlight()
 		let c = matchstr(getline('.'), '\%'.col('.').'c.')
-		if c =~ '\k'
-			silent! exe printf('2match CurrentWord /\<%s\>/', expand('<cword>'))
+		let cword = expand('<cword>')
+		if c =~ '\k' && (cword !~ @/ || !v:hlsearch)
+			silent! exe printf('2match CurrentWord /\<%s\>/', cword)
 			hi CurrentWord term=underline cterm=underline gui=underline
 		else
 			2match none
