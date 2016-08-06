@@ -465,7 +465,7 @@ if !exists("g:vimstuff_sourced")
 			let is_keyword = index(b:lang_plugin.syntax.keywords, cword) >= 0
 		end
 
-		if c =~ '\k' && (cword !~ @/ || !v:hlsearch) && !is_keyword
+		if c =~ '\k' && (cword !~ @/ || !exists('v:hlsearch') || !v:hlsearch) && !is_keyword
 			silent! exe printf('2match CurrentWord /\<%s\>/', cword)
 			hi CurrentWord term=underline cterm=underline gui=underline
 		else
