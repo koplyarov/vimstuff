@@ -37,3 +37,6 @@
 [submodule "pathogen_bundle/RadicalGoodSpeed"]
 	path = pathogen_bundle/RadicalGoodSpeed
 	url = https://github.com/svjunic/RadicalGoodSpeed.vim.git
+[submodule "pathogen_bundle/rust.vim"]
+	path = pathogen_bundle/rust.vim
+	url = https://github.com/rust-lang/rust.vim.git
