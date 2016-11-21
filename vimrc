@@ -24,6 +24,10 @@ if !exists("g:vimstuff_sourced")
 	set fillchars=vert:\|
 	filetype plugin on
 
+	" GNU Bison
+	set errorformat+=%f:%l.%c-%*[0-9]:\ %m
+	set errorformat+=%f:%l.%c:\ %m
+
 	colorscheme torte
 
 	autocmd VimLeavePre * colorscheme default
