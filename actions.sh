@@ -23,3 +23,7 @@ undo_GitSubmodulesInitUpdate() { ( cd "$1" && git submodule deinit . ) }
 msg_YcmInstall() { echo "Installing YouCompleteMe (this step downloads clang from somewhere, so it may take a while)"; }
 do_YcmInstall() { ( cd "$1" && ./install.py --clang-completer ) }
 undo_YcmInstall() { true; }
+
+msg_FzfInstall() { echo "Installing fzf"; }
+do_FzfInstall() { ( cd "$1" && ./install --all ) }
+undo_FzfInstall() { ( cd "$1" && ./uninstall --all ) }

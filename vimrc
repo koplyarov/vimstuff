@@ -239,9 +239,9 @@ if !exists("g:vimstuff_sourced")
 	nmap ZZ :echo "Save and exit prevented! =)"<CR>
 	nmap <C-C> :echo "Type  :quit<Enter>  to exit Vim"<CR>
 	call MapKeys('langPlugin.toggleComment',		['nmap', 'vmap'],			'<BSlash>c<Space>')
-	call MapKeys('general.findFile',				'nmap',						':FufCoverageFile<CR>')
-	call MapKeys('general.findSymbol',				'nmap',						':FufTag!<CR>')
-	call MapKeys('general.findSymbolInBuffer',		'nmap',						':FufBufferTag<CR>')
+	call MapKeys('general.findFile',				'nmap',						':Files<CR>')
+	call MapKeys('general.findSymbol',				'nmap',						':Tags<CR>')
+	call MapKeys('general.findSymbolInBuffer',		'nmap',						':BTags<CR>')
 	call MapKeys('general.findLineInBuffer',		'nmap',						':FufLine!<CR>')
 	call MapKeys('general.findChangeListEntry',		'nmap',						':FufChangeList!<CR>')
 	call MapKeys('general.nextError',				'nmap',						':cn<CR>')
