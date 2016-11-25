@@ -40,3 +40,9 @@
 [submodule "pathogen_bundle/rust.vim"]
 	path = pathogen_bundle/rust.vim
 	url = https://github.com/rust-lang/rust.vim.git
+[submodule "pathogen_bundle/fzf"]
+	path = pathogen_bundle/fzf
+	url = https://github.com/junegunn/fzf.vim.git
+[submodule "non-vim/fzf"]
+	path = non-vim/fzf
+	url = https://github.com/junegunn/fzf.git
