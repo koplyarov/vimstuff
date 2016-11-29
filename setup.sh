@@ -110,7 +110,6 @@ done
 AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 fuf.patch
 AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 fuf_buffertag.patch
 AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 nerdcommenter.patch
-AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 snipMate.patch
 AddAction VIMSTUFF_SETUP Patch "$VIM_DIR/bundle" -p1 javacomplete.patch
 
 AddAction VIMSTUFF_SETUP AddVimCfgLine "$VIMRC" "source $VIMSTUFF_VIMRC"
