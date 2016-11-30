@@ -3,6 +3,7 @@ if !exists("g:vimstuff_sourced")
 	syntax on
 	set hidden
 	set tabstop=4
+	set softtabstop=4
 	set shiftwidth=4
 	set number
 	set hlsearch
