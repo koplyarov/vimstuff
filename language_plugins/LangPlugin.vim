@@ -244,6 +244,9 @@ function LangPlugin()
 		endf
 
 		function s:LangPlugin.removeTrailingWhitespaces()
+			if empty(filter(getline(1, '$'), 'v:val =~ "\\s\\+$"'))
+				return
+			end
 			call setline(1, map(getline(1,'$'), 'substitute(v:val,"\\s\\+$","","")'))
 		endf
 

@@ -46,3 +46,6 @@
 [submodule "non-vim/fzf"]
 	path = non-vim/fzf
 	url = https://github.com/junegunn/fzf.git
+[submodule "pathogen_bundle/vim-protobuf"]
+	path = pathogen_bundle/vim-protobuf
+	url = https://github.com/uarun/vim-protobuf.git
