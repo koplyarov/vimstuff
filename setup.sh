@@ -26,12 +26,14 @@ source "$SCRIPT_DIR/actions.sh"
 
 if [ $(GetLinuxDistributorId) == "mingw" ]; then
 	Log "MINGW detected, using windows vim paths"
+	IS_WIN=1
 	VIM_DIR="$HOME/vimfiles"
 	VIMRC="$HOME/_vimrc"
 	VIMSTUFF_VIMRC="$(cd $SCRIPT_DIR && pwd -W | sed 's#/#\\#g')\\vimrc"
 	FZF_DIR="$HOME/.fzf"
 else
 	Log "MINGW not detected, using linux vim paths"
+	IS_WIN=0
 	VIM_DIR="$HOME/.vim"
 	VIMRC="$HOME/.vimrc"
 	VIMSTUFF_VIMRC="$SCRIPT_DIR/vimrc"
@@ -79,9 +81,11 @@ AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR/syntax"
 AddAction VIMSTUFF_SETUP MkDir "$VIM_DIR/doc"
 
 AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/colors" "$VIM_DIR/colors"
-AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/non-vim/fzf" "$FZF_DIR"
-AddAction VIMSTUFF_SETUP FzfInstall "$FZF_DIR"
-AddAction VIMSTUFF_SETUP $CP "$FZF_DIR/plugin/fzf.vim" "$VIM_DIR/autoload/fzf.vim"
+if [ ! "$IS_WIN" ]; then
+	AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/non-vim/fzf" "$FZF_DIR"
+	AddAction VIMSTUFF_SETUP FzfInstall "$FZF_DIR"
+	AddAction VIMSTUFF_SETUP $CP "$FZF_DIR/plugin/fzf.vim" "$VIM_DIR/autoload/fzf.vim"
+fi
 AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/pathogen_bundle" "$VIM_DIR/bundle"
 AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/pathogen/autoload/pathogen.vim" "$VIM_DIR/autoload/pathogen.vim"
 AddAction VIMSTUFF_SETUP $CPDIR "$SCRIPT_DIR/my-snippets" "$VIM_DIR/my-snippets"
