@@ -115,6 +115,10 @@ endf
 function DetectBuildSystem()
 	let g:buildSettings = BuildSettings()
 
+	if getcwd() =~ 'arcadia'
+		return
+	end
+
 	if filereadable('CMakeLists.txt')
 		let g:buildsystem = BuildSystem(CMakeBuildSystem(g:buildSettings), g:buildSettings)
 	elseif filereadable('Makefile')
