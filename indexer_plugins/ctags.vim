@@ -183,6 +183,10 @@ function CTagsIndexBuilder()
 			let self._excludes += a:pathsList
 		endf
 
+		function s:CTagsIndexBuilder.preprocessorIdentifiers(identifierStrList)
+			let self._preprocessorIdentifiers += a:identifierStrList
+		endf
+
 		function s:CTagsIndexBuilder.addCustomLanguage(language, extension)
 			if has_key(self._customLanguages, a:language)
 				throw CTagsPluginException('language '.a:language.' already registered!')
@@ -199,9 +203,10 @@ function CTagsIndexBuilder()
 
 		function s:CTagsIndexBuilder.getCTagsCmd(flags, path, tagsFile)
 			let excludes_str = join(map(copy(self._excludes), '"--exclude=''".v:val."''"'), ' ')
+			let pp_ids_str = join(map(copy(self._preprocessorIdentifiers), '"-I ''".v:val."''"'), ' ')
 			let langs_str = join(values(map(copy(self._customLanguages), '"--langdef=".v:key." --langmap=".v:key.":".self._customLanguages[v:key]')), ' ')
 			let regexes_str = join(values(map(copy(self._customRegexes), 'join(map(copy(self._customRegexes[v:key]), "\"--regex-".v:key."=''\".v:val.\"''\""), " ")')), ' ')
-			return 'ctags '.a:flags.' --fields=+ail '.langs_str.' '.regexes_str.' '.excludes_str.' -f '.(empty(a:tagsFile) ? '-' : shellescape(a:tagsFile)).' '.shellescape(a:path)
+			return 'ctags '.a:flags.' --fields=+ail '.langs_str.' '.regexes_str.' '.excludes_str.' '.pp_ids_str.' -f '.(empty(a:tagsFile) ? '-' : shellescape(a:tagsFile)).' '.shellescape(a:path)
 		endf
 
 		function s:CTagsIndexBuilder.rebuildIfNecessary()
@@ -313,6 +318,7 @@ function CTagsIndexBuilder()
 
 	let self = copy(s:CTagsIndexBuilder)
 	let self._excludes = [ '*CMakeFiles*', '*doxygen*', '*.git*', '*.svn*' ]
+	let self._preprocessorIdentifiers = [ ]
 	let self._customLanguages = {}
 	let self._customRegexes = {}
 	let self._asyncUpdates = []

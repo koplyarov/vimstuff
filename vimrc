@@ -127,6 +127,7 @@ if !exists("g:vimstuff_sourced")
 	au BufRead,BufNewFile *.decl set filetype=qml
 	au BufRead,BufNewFile *.cmix set filetype=cmix
 	au BufNewFile,BufRead *.pas,*.PAS set ft=pascal
+	au BufNewFile,BufRead *.cpp.jinja set ft=jinja_cpp
 	au FileType python setlocal expandtab tabstop=4 shiftwidth=4
 	au FileType cpp,cpp.doxygen setlocal noexpandtab
 	au FileType java setlocal noexpandtab
