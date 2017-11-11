@@ -129,9 +129,6 @@ if !exists("g:vimstuff_sourced")
 	au BufNewFile,BufRead *.pas,*.PAS set ft=pascal
 	au BufNewFile,BufRead *.cpp.jinja set ft=jinja_cpp
 	au FileType python setlocal expandtab tabstop=4 shiftwidth=4
-	au FileType cpp,cpp.doxygen setlocal noexpandtab
-	au FileType java setlocal noexpandtab
-	au FileType idl setlocal noexpandtab
 	au! Syntax qml source $HOME/.vim/syntax/qml.vim
 
 	au InsertEnter * call <SID>HookCompleteWindowKeys()
