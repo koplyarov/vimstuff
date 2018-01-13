@@ -129,6 +129,7 @@ if !exists("g:vimstuff_sourced")
 	au BufNewFile,BufRead *.pas,*.PAS set ft=pascal
 	au BufNewFile,BufRead *.cpp.jinja set ft=jinja_cpp
 	au BufNewFile,BufRead *.py.jinja set ft=jinja_py
+	au BufNewFile,BufRead *.java.jinja set ft=jinja_java
 	au FileType python setlocal expandtab tabstop=4 shiftwidth=4
 	au! Syntax qml source $HOME/.vim/syntax/qml.vim
 
