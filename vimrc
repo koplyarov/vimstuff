@@ -48,6 +48,9 @@ if !exists("g:vimstuff_sourced")
 	runtime language_plugins/python.vim
 	runtime language_plugins/vim.vim
 
+	let g:detectindent_preferred_expandtab = 1
+	let g:detectindent_preferred_indent = 4
+
 	let g:clang_jumpto_declaration_key = "c<C-]>"
 	let g:clang_jumpto_back_key = "c<C-O>"
 	let g:clang_complete_auto = 1
@@ -118,7 +121,31 @@ if !exists("g:vimstuff_sourced")
 
 	command! -nargs=1 -complete=tag Search call PerlGrep('<args>')
 
+	function s:WrappedDetectIndent()
+		let prev_expandtab = &expandtab
+		let prev_shiftwidth = &shiftwidth
+		let prev_tabstop = &tabstop
+
+		DetectIndent
+
+		let status_list = []
+		if prev_expandtab != &expandtab
+			call add(status_list, 'expandtab changed to '.(&expandtab))
+		endif
+		if prev_shiftwidth != &shiftwidth
+			call add(status_list, 'shiftwidth changed to '.(&shiftwidth))
+		endif
+		if prev_tabstop != &tabstop
+			call add(status_list, 'tabstop changed to '.(&tabstop))
+		endif
+
+		if !empty(status_list)
+			echo join(status_list, ', ')
+		endif
+	endf
+
 	au CursorMovedI * call <SID>OnCursorMovedInsertMode()
+	au BufRead,BufNewFile * call <SID>WrappedDetectIndent()
 	au BufRead,BufNewFile *.git call InitGitHotKeys()
 	au BufRead,BufNewFile *.c,*.cpp,*.h,*.hpp set filetype=cpp.doxygen
 	au BufRead,BufNewFile *.qml set filetype=qml
@@ -482,7 +509,7 @@ if !exists("g:vimstuff_sourced")
 
 	autocmd CursorMoved,CursorMovedI,CursorHold,CursorHoldI,InsertEnter,InsertLeave *.py,*.h,*.hpp,*.c,*.cpp call UpdateCurrentWordHighlight()
 
-	set noexpandtab
+	set expandtab
 
 	if (filereadable(".vimrc") && (getcwd() != $HOME))
 		source .vimrc
