@@ -49,3 +49,6 @@
 [submodule "pathogen_bundle/vim-protobuf"]
 	path = pathogen_bundle/vim-protobuf
 	url = https://github.com/uarun/vim-protobuf.git
+[submodule "pathogen_bundle/detectindent"]
+	path = pathogen_bundle/detectindent
+	url = https://github.com/ciaranm/detectindent
