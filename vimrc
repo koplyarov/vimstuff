@@ -157,6 +157,8 @@ if !exists("g:vimstuff_sourced")
 	au BufNewFile,BufRead *.h.jinja,*.hpp.jinja,*.cpp.jinja set ft=jinja_cpp
 	au BufNewFile,BufRead *.c.jinja set ft=jinja_c
 	au BufNewFile,BufRead *.py.jinja set ft=jinja_py
+	au BufNewFile,BufRead *.go.jinja set ft=jinja_go
+	au BufNewFile,BufRead *.go set ft=go
 	au BufNewFile,BufRead *.java.jinja set ft=jinja_java
 	au FileType python setlocal expandtab tabstop=4 shiftwidth=4
 	au! Syntax qml source $HOME/.vim/syntax/qml.vim
