@@ -513,6 +513,17 @@ if !exists("g:vimstuff_sourced")
 
 	set expandtab
 
+	let project_preferences = {
+	\	"joint": "joint.vim"
+	\ }
+
+	let vimstuff_root = expand('<sfile>:p:h')
+	let project_name = get(split(getcwd(), "/"), -1, '')
+	if has_key(project_preferences, project_name)
+		exec 'source '.vimstuff_root.'/project_preferences/'.project_name.'.vim'
+	endif
+
+
 	if (filereadable(".vimrc") && (getcwd() != $HOME))
 		source .vimrc
 	endif
