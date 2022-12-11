@@ -146,7 +146,7 @@ function LangPlugin()
 				let prev_group = import.groupPriority
 			endfor
 
-			let import_lines = (imports_begin != 1 ? repeat([''], self.whitespacesCountAroundImports) : []) + import_lines + repeat([''], self.whitespacesCountAroundImports)
+			let import_lines = (imports_begin != 1 ? repeat([''], self.whitespacesCountBeforeImports) : []) + import_lines + repeat([''], self.whitespacesCountAfterImports)
 
 			let lines_delta = len(import_lines) - (imports_end - imports_begin)
 			let winview = winsaveview()
@@ -266,7 +266,8 @@ function LangPlugin()
 
 	let self = copy(s:LangPlugin)
 	let self.autocompleteSettings = AutocompleteSettings()
-	let self.whitespacesCountAroundImports = 2
+	let self.whitespacesCountBeforeImports = 1
+	let self.whitespacesCountAfterImports = 2
 	return self
 endf
 
