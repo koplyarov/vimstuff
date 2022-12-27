@@ -201,7 +201,7 @@ function PerlGrep(expression)
 		if exists("g:exclude_from_search")
 			let excludes_list += g:exclude_from_search
 		end
-		let excludedirs_list = ["etc", "build", ".git", "CMakeFiles", ".svn", "doxygen", "toolchains"]
+		let excludedirs_list = ["etc", "build", ".git", "CMakeFiles", ".svn", "doxygen", "toolchains", ".mypy_cache"]
 		let excludes_string = "--exclude=\"" . join(excludes_list, "\" --exclude=\"") . "\" --exclude-dir=\"" . join(excludedirs_list, "\" --exclude-dir=\"") . "\""
 		execute "grep! -P " . excludes_string . " -rI \"" . a:expression . "\" ./"
 	end
