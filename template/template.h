@@ -1,8 +1,7 @@
-#ifndef <+FILENAME_MANGLED+>
-#define <+FILENAME_MANGLED+>
+#pragma once
 
 <+NAMESPACES_OPEN+>
-<+CURSOR+>
-<+NAMESPACES_CLOSE+>
 
-#endif
+<+CURSOR+>
+
+<+NAMESPACES_CLOSE+>
