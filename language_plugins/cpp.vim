@@ -334,7 +334,7 @@ function CppPlugin()
 	call cpp_stdlib.addImports('queue', [ 'queue', 'priority_queue' ])
 	call cpp_stdlib.addImports('stack', [ 'stack' ])
 	call cpp_stdlib.addImports('tuple', [ 'tuple' ])
-	call cpp_stdlib.addImports('memory', [ 'auto_ptr', 'unique_ptr', 'shared_ptr' ])
+	call cpp_stdlib.addImports('memory', [ 'auto_ptr', 'unique_ptr', 'shared_ptr', 'make_shared' ])
 	call cpp_stdlib.addImports('stdexcept', [ 'logic_error', 'domain_error', 'invalid_argument', 'length_error', 'out_of_range', 'runtime_error', 'range_error', 'overflow_error', 'underflow_error' ])
 	call cpp_stdlib.addImports('iomanip', [ 'resetiosflags', 'setiosflags', 'setbase', 'setfill', 'setprecision', 'setw', 'get_money', 'put_money', 'get_time', 'put_time', 'quoted' ])
 
